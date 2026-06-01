@@ -133,6 +133,55 @@
   .login-error:empty { display: none; }
   .nc-select { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; }
   .nc-select:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+  .nc-textarea { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 10px 12px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; resize: vertical; min-height: 72px; }
+  .nc-textarea:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+
+  /* Campaign builder modal */
+  .builder-card-wrap { position: relative; width: 100%; max-width: 980px; }
+  .builder-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; }
+  .builder-head { padding: 22px 28px 16px; border-bottom: 1px solid hsl(var(--border)); flex: none; }
+  .builder-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+  .builder-title { font: 600 22px var(--sans); letter-spacing: -0.015em; color: hsl(var(--foreground)); margin-top: 4px; }
+  .builder-body { display: grid; grid-template-columns: 340px 1fr; gap: 0; flex: 1; min-height: 0; }
+  .builder-preview-pane { background: hsl(var(--muted) / 0.4); padding: 24px; border-right: 1px solid hsl(var(--border)); overflow-y: auto; }
+  .builder-pane-label { font: 600 10px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin-bottom: 12px; }
+  .builder-preview { width: 100%; max-width: 240px; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 20px rgba(0,0,0,0.08); background: #1c2440; color: #f4e759; transition: background .25s ease, color .25s ease; }
+  .builder-preview .bc-top { padding: 20px 18px 16px; display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; }
+  .builder-preview .bc-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .builder-preview .bc-status { font: 500 11px var(--sans); display: inline-flex; align-items: center; gap: 6px; opacity: 0.78; }
+  .builder-preview .bc-status .dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; opacity: 0.7; }
+  .builder-preview .bc-reward { font: 600 12px var(--sans); opacity: 0.78; }
+  .builder-preview .bc-title { font: 700 20px var(--sans); letter-spacing: -0.02em; line-height: 1.05; }
+  .builder-preview .bc-image { margin: 0 14px 14px; aspect-ratio: 4 / 3; border-radius: 10px; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.1); }
+  .builder-pv-desc-text { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 10px; padding: 12px 14px; font: 400 13px var(--sans); color: hsl(var(--foreground)); line-height: 1.5; }
+
+  .builder-form { padding: 22px 28px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .builder-form label { font: 500 12.5px var(--sans); color: hsl(var(--foreground)); display: block; margin-bottom: 4px; }
+  .builder-form label .optional { color: hsl(var(--muted-foreground)); font-weight: 400; }
+  .builder-form input[type=text], .builder-form input[type=number], .builder-form input[type=url], .builder-form input[type=datetime-local], .builder-form input[type=file], .builder-form textarea, .builder-form select { width: 100%; }
+  .builder-form input[type=text], .builder-form input[type=number], .builder-form input[type=url] { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  .builder-form input[type=text]:focus, .builder-form input[type=number]:focus, .builder-form input[type=url]:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+  .builder-form input[type=file] { font-size: 13px; padding: 8px 0; }
+  .bf-group { display: flex; flex-direction: column; gap: 10px; padding-bottom: 4px; border-bottom: 1px solid hsl(var(--border)); padding-bottom: 18px; }
+  .bf-group:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .bf-group-title { font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin-bottom: 2px; }
+  .bf-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .color-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .color-preset { font: 600 12px var(--sans); padding: 6px 10px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
+  .color-preset:hover { transform: translateY(-1px); }
+  .color-preset.active { border-color: hsl(var(--foreground)); box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--foreground) / 0.2); }
+  .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .color-cell { display: flex; flex-direction: column; gap: 4px; }
+  .color-input-row { display: flex; align-items: center; gap: 8px; }
+  .color-input-row input[type=color] { width: 38px; height: 38px; padding: 0; border: 1px solid hsl(var(--input)); border-radius: 6px; background: hsl(var(--background)); cursor: pointer; flex: none; }
+  .color-input-row input[type=text] { flex: 1; font-family: ui-monospace, Menlo, monospace; }
+  .builder-publish { background: hsl(var(--primary)); margin-top: 6px; height: 42px; font-size: 14px; }
+  .builder-publish svg { width: 15px; height: 15px; }
+
+  @media (max-width: 780px) {
+    .builder-body { grid-template-columns: 1fr; }
+    .builder-preview-pane { border-right: none; border-bottom: 1px solid hsl(var(--border)); }
+  }
   .login-form input { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); transition: border-color .15s ease, box-shadow .15s ease; font-family: inherit; }
   .login-form input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
   .login-form .submit { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; border-radius: 6px; height: 38px; font-size: 14px; font-weight: 500; transition: opacity .15s ease; margin-top: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
@@ -857,84 +906,7 @@
             </div>
           </div>
 
-          <div class="brand-cards">
-            <button class="brand-card bc--navy">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Live · ends Friday</span>
-                  <span class="bc-reward">$250</span>
-                </div>
-                <h3 class="bc-title">$80M raised. We're spending it on you.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--brick">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Always-on</span>
-                  <span class="bc-reward">$200</span>
-                </div>
-                <h3 class="bc-title">Refer a brand that goes live.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--sky">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Open</span>
-                  <span class="bc-reward">$100</span>
-                </div>
-                <h3 class="bc-title">"OK to post this quote?"</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--ink">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Open</span>
-                  <span class="bc-reward">$100</span>
-                </div>
-                <h3 class="bc-title">Post about your experience.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--brown">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Live · ends Friday</span>
-                  <span class="bc-reward">$2K pool</span>
-                </div>
-                <h3 class="bc-title">Reply to Sterling's launch tweet.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--olive">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Always-on</span>
-                  <span class="bc-reward">$500</span>
-                </div>
-                <h3 class="bc-title">Sit for a case study.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-
-            <button class="brand-card bc--cream">
-              <div class="bc-top">
-                <div class="bc-meta">
-                  <span class="bc-status"><span class="dot"></span>Always-on</span>
-                  <span class="bc-reward">$500</span>
-                </div>
-                <h3 class="bc-title">Refer a partner agency.</h3>
-              </div>
-              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
-            </button>
-          </div>
+          <div class="brand-cards" id="merchantCampaigns"></div>
         </section>
 
         <!-- ====================== SHARE ====================== -->
@@ -1234,47 +1206,127 @@
     </main>
   </div>
 
-  <!-- ============================== NEW CAMPAIGN MODAL ============================== -->
+  <!-- ============================== CAMPAIGN BUILDER MODAL ============================== -->
   <div class="auth-overlay hidden" id="campaignModal">
     <div class="auth-overlay-bg" id="campaignModalBg"></div>
-    <div class="auth-card-wrap" style="max-width: 480px;">
-      <button class="auth-card-close" id="campaignModalClose" aria-label="Close"><i data-lucide="x"></i></button>
-      <div class="login-card">
-        <h1 style="margin-bottom: 6px;">New campaign</h1>
-        <p>Goes live to every merchant in the network instantly.</p>
-        <form class="login-form" id="newCampaignForm" autocomplete="off">
-          <label for="ncTitle">Title</label>
-          <input type="text" id="ncTitle" name="title" placeholder="$80M raised. Spending it on you." required />
-          <label for="ncDesc">Description</label>
-          <input type="text" id="ncDesc" name="description" placeholder="What merchants need to do to earn this." required />
-          <label for="ncReward">Reward (display)</label>
-          <input type="text" id="ncReward" name="reward" placeholder="$250 — or $2K pool" required />
-          <label for="ncAmount">Reward amount in dollars <span class="optional">(optional, for analytics)</span></label>
-          <input type="number" id="ncAmount" name="reward_amount" min="0" step="1" placeholder="250" />
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <label for="ncStatus">Status</label>
-              <select id="ncStatus" name="status" required class="nc-select">
-                <option value="live">Live</option>
-                <option value="open" selected>Open</option>
-                <option value="alwayson">Always-on</option>
-              </select>
+    <div class="builder-card-wrap">
+      <button class="auth-card-close" id="campaignModalClose" aria-label="Close" style="top: -42px; right: -2px;"><i data-lucide="x"></i></button>
+      <div class="builder-card">
+        <div class="builder-head">
+          <div>
+            <div class="builder-eyebrow">Campaign builder</div>
+            <h2 class="builder-title">Design a new earning opportunity</h2>
+          </div>
+        </div>
+        <div class="builder-body">
+          <!-- LIVE PREVIEW (left) -->
+          <div class="builder-preview-pane">
+            <div class="builder-pane-label">Live preview</div>
+            <div class="builder-preview" id="previewCard">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span><span id="pvTag">Live · ends Friday</span></span>
+                  <span class="bc-reward" id="pvReward">$250</span>
+                </div>
+                <h3 class="bc-title" id="pvTitle">Your campaign title</h3>
+              </div>
+              <div class="bc-image" id="pvImage"></div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <label for="ncCategory">Category</label>
-              <select id="ncCategory" name="category" class="nc-select">
-                <option value="social">Social</option>
-                <option value="referral">Referral</option>
-                <option value="content">Content</option>
-                <option value="series_b">Series B</option>
-              </select>
+            <div class="builder-pv-desc" id="pvDescBlock">
+              <div class="builder-pane-label" style="margin-top: 16px;">Full description (detail page)</div>
+              <div class="builder-pv-desc-text" id="pvDesc">Your full description shows up when a merchant taps the card.</div>
             </div>
           </div>
-          <label for="ncEndsAt">Ends at <span class="optional">(optional)</span></label>
-          <input type="datetime-local" id="ncEndsAt" name="ends_at" class="nc-select" />
-          <div class="login-error" id="ncError"></div>
-          <button type="submit" class="submit" id="ncSubmit">Create campaign <i data-lucide="arrow-right"></i></button>
-        </form>
+
+          <!-- BUILDER FORM (right) -->
+          <form class="builder-form" id="newCampaignForm" autocomplete="off">
+            <div class="bf-group">
+              <div class="bf-group-title">Content</div>
+              <label for="ncTitle">Title</label>
+              <input type="text" id="ncTitle" name="title" placeholder="$80M raised. Spending it on you." required />
+              <label for="ncTag">Status tag</label>
+              <input type="text" id="ncTag" name="tag" placeholder="Live · ends Friday" />
+              <label for="ncReward">Reward (display)</label>
+              <input type="text" id="ncReward" name="reward" placeholder="$250 — or $2K pool" required />
+              <label for="ncDesc">Short description (card)</label>
+              <input type="text" id="ncDesc" name="description" placeholder="One line on the card." required />
+              <label for="ncBody">Long description (detail page) <span class="optional">(optional)</span></label>
+              <textarea id="ncBody" name="body" rows="3" placeholder="Full instructions, criteria, what counts, what doesn't." class="nc-textarea"></textarea>
+            </div>
+
+            <div class="bf-group">
+              <div class="bf-group-title">Look & feel</div>
+              <label>Color presets</label>
+              <div class="color-presets" id="colorPresets">
+                <button type="button" class="color-preset" data-bg="#1c2440" data-text="#f4e759" style="background:#1c2440;color:#f4e759;">Navy</button>
+                <button type="button" class="color-preset" data-bg="#efb1a0" data-text="#5a1b18" style="background:#efb1a0;color:#5a1b18;">Brick</button>
+                <button type="button" class="color-preset" data-bg="#b8d3e8" data-text="#182340" style="background:#b8d3e8;color:#182340;">Sky</button>
+                <button type="button" class="color-preset" data-bg="#0d0d0d" data-text="#fafafa" style="background:#0d0d0d;color:#fafafa;">Ink</button>
+                <button type="button" class="color-preset" data-bg="#4a2c1a" data-text="#f4e4cc" style="background:#4a2c1a;color:#f4e4cc;">Brown</button>
+                <button type="button" class="color-preset" data-bg="#4d5a3a" data-text="#f0ecd8" style="background:#4d5a3a;color:#f0ecd8;">Olive</button>
+                <button type="button" class="color-preset" data-bg="#e8e1d3" data-text="#2a2422" style="background:#e8e1d3;color:#2a2422;">Cream</button>
+              </div>
+              <div class="color-row">
+                <div class="color-cell">
+                  <label for="ncBgColor">Background</label>
+                  <div class="color-input-row">
+                    <input type="color" id="ncBgColorPicker" value="#1c2440" />
+                    <input type="text" id="ncBgColor" name="background_color" value="#1c2440" pattern="#[A-Fa-f0-9]{6}" />
+                  </div>
+                </div>
+                <div class="color-cell">
+                  <label for="ncTextColor">Text</label>
+                  <div class="color-input-row">
+                    <input type="color" id="ncTextColorPicker" value="#f4e759" />
+                    <input type="text" id="ncTextColor" name="text_color" value="#f4e759" pattern="#[A-Fa-f0-9]{6}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bf-group">
+              <div class="bf-group-title">Image</div>
+              <label for="ncImageFile">Upload <span class="optional">(square or 4:3 looks best)</span></label>
+              <input type="file" id="ncImageFile" accept="image/*" />
+              <label for="ncImageUrl">Or paste an image URL</label>
+              <input type="url" id="ncImageUrl" name="image_url" placeholder="https://..." />
+              <div id="ncImageStatus" style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 4px;"></div>
+            </div>
+
+            <div class="bf-group">
+              <div class="bf-group-title">Logistics</div>
+              <div class="bf-grid-2">
+                <div>
+                  <label for="ncStatus">Status</label>
+                  <select id="ncStatus" name="status" required class="nc-select">
+                    <option value="live">Live</option>
+                    <option value="open" selected>Open</option>
+                    <option value="alwayson">Always-on</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="ncCategory">Category</label>
+                  <select id="ncCategory" name="category" class="nc-select">
+                    <option value="social">Social</option>
+                    <option value="referral">Referral</option>
+                    <option value="content">Content</option>
+                    <option value="series_b">Series B</option>
+                  </select>
+                </div>
+              </div>
+              <label for="ncAmount">Reward amount in dollars <span class="optional">(optional, for analytics)</span></label>
+              <input type="number" id="ncAmount" name="reward_amount" min="0" step="1" placeholder="250" />
+              <label for="ncEndsAt">Ends at <span class="optional">(optional)</span></label>
+              <input type="datetime-local" id="ncEndsAt" name="ends_at" class="nc-select" />
+            </div>
+
+            <div class="login-error" id="ncError"></div>
+            <button type="submit" class="submit builder-publish" id="ncSubmit">
+              <i data-lucide="rocket"></i>
+              Publish to network
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -1350,6 +1402,7 @@
     } else {
       $("appShell").classList.add("active");
       $("adminShell").classList.remove("active");
+      await renderMerchantCampaigns();
     }
     if (window.lucide) lucide.createIcons();
   }
@@ -1489,6 +1542,37 @@
     return data || [];
   }
 
+  // Renders the colored brand-card grid on the merchant-facing Campaigns page
+  async function renderMerchantCampaigns() {
+    const container = document.getElementById("merchantCampaigns");
+    if (!container) return;
+    const { data, error } = await sb.from("campaigns").select("*").eq("published", true).order("created_at", { ascending: false });
+    if (error) { console.error("merchant campaigns:", error); return; }
+    const rows = data || [];
+    if (!rows.length) {
+      container.innerHTML = `<div style="grid-column: 1 / -1; padding: 36px; text-align: center; color: hsl(var(--muted-foreground)); border: 1px dashed hsl(var(--border)); border-radius: 12px;">No campaigns live yet.</div>`;
+      return;
+    }
+    container.innerHTML = rows.map((c) => {
+      const statusLabel = c.tag || (c.status === "alwayson" ? "Always-on" : c.status[0].toUpperCase() + c.status.slice(1));
+      const img = c.image_url ? `style="background-image: url('${c.image_url}')"` : "";
+      const bg = c.background_color || "#1c2440";
+      const tx = c.text_color || "#f4e759";
+      return `
+        <button class="brand-card" data-campaign-id="${c.id}" style="background: ${bg}; color: ${tx};">
+          <div class="bc-top">
+            <div class="bc-meta">
+              <span class="bc-status" style="color: ${tx};"><span class="dot" style="background: currentColor; opacity: 0.7;"></span>${statusLabel}</span>
+              <span class="bc-reward">${c.reward || ""}</span>
+            </div>
+            <h3 class="bc-title">${c.title}</h3>
+          </div>
+          <div class="bc-image" ${img}></div>
+        </button>
+      `;
+    }).join("");
+  }
+
   const SAMPLE_REFERRALS = [
     { brand: "Salt & Tide",         source: "Code · WILDFLOWER", date: "Apr 18", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" },
     { brand: "Northridge Apparel",  source: "Link",              date: "Apr 22", stage: "demo",    payout: "Pending", referrer: "founder@wildflower.co" },
@@ -1589,6 +1673,64 @@
   function closeCampaignModal() { document.getElementById("campaignModal").classList.add("hidden"); document.body.style.overflow = ""; }
   document.getElementById("campaignModalClose").addEventListener("click", closeCampaignModal);
   document.getElementById("campaignModalBg").addEventListener("click", closeCampaignModal);
+  // ============================== CAMPAIGN BUILDER ==============================
+  // Live preview wiring
+  function updatePreview() {
+    const $g = (id) => document.getElementById(id);
+    const bg = $g("ncBgColor").value || "#1c2440";
+    const tx = $g("ncTextColor").value || "#f4e759";
+    const pv = $g("previewCard");
+    pv.style.background = bg;
+    pv.style.color = tx;
+    $g("pvTitle").textContent = $g("ncTitle").value || "Your campaign title";
+    $g("pvTag").textContent = $g("ncTag").value || "Status tag";
+    $g("pvReward").textContent = $g("ncReward").value || "$ reward";
+    $g("pvDesc").textContent = $g("ncBody").value || $g("ncDesc").value || "Your description shows up when a merchant taps the card.";
+    const url = $g("ncImageUrl").value;
+    $g("pvImage").style.backgroundImage = url ? `url('${url}')` : "";
+  }
+  ["ncTitle", "ncTag", "ncReward", "ncDesc", "ncBody", "ncImageUrl", "ncBgColor", "ncTextColor"].forEach((id) => {
+    document.getElementById(id).addEventListener("input", updatePreview);
+  });
+  // Color pickers ↔ text inputs sync
+  document.getElementById("ncBgColorPicker").addEventListener("input", (e) => { document.getElementById("ncBgColor").value = e.target.value; updatePreview(); });
+  document.getElementById("ncBgColor").addEventListener("input", (e) => { if (/^#[A-Fa-f0-9]{6}$/.test(e.target.value)) document.getElementById("ncBgColorPicker").value = e.target.value; updatePreview(); });
+  document.getElementById("ncTextColorPicker").addEventListener("input", (e) => { document.getElementById("ncTextColor").value = e.target.value; updatePreview(); });
+  document.getElementById("ncTextColor").addEventListener("input", (e) => { if (/^#[A-Fa-f0-9]{6}$/.test(e.target.value)) document.getElementById("ncTextColorPicker").value = e.target.value; updatePreview(); });
+  // Preset palettes
+  document.querySelectorAll(".color-preset").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const bg = btn.dataset.bg, tx = btn.dataset.text;
+      document.getElementById("ncBgColor").value = bg;
+      document.getElementById("ncBgColorPicker").value = bg;
+      document.getElementById("ncTextColor").value = tx;
+      document.getElementById("ncTextColorPicker").value = tx;
+      document.querySelectorAll(".color-preset").forEach((b) => b.classList.toggle("active", b === btn));
+      updatePreview();
+    });
+  });
+
+  // Image upload to Supabase Storage
+  document.getElementById("ncImageFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const statusEl = document.getElementById("ncImageStatus");
+    statusEl.textContent = "Uploading…";
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await sb.storage.from("campaign-images").upload(key, file, { cacheControl: "3600", upsert: false });
+      if (error) throw error;
+      const { data } = sb.storage.from("campaign-images").getPublicUrl(key);
+      document.getElementById("ncImageUrl").value = data.publicUrl;
+      statusEl.textContent = "Uploaded.";
+      updatePreview();
+    } catch (err) {
+      statusEl.textContent = "Upload failed: " + (err.message || "unknown error");
+    }
+  });
+
+  // Publish
   document.getElementById("newCampaignForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     showError("ncError", "");
@@ -1602,17 +1744,31 @@
       const payload = {
         title: String(f.get("title") || "").trim(),
         description: String(f.get("description") || "").trim(),
+        body: String(f.get("body") || "").trim() || null,
         reward: String(f.get("reward") || "").trim(),
         reward_amount_cents: amountStr ? Math.round(Number(amountStr) * 100) : null,
         status: String(f.get("status") || "open"),
         category: String(f.get("category") || "social"),
         audience: "all",
-        ends_at: endsAtStr ? new Date(endsAtStr).toISOString() : null
+        tag: String(f.get("tag") || "").trim() || null,
+        image_url: String(f.get("image_url") || "").trim() || null,
+        background_color: String(f.get("background_color") || "#1c2440"),
+        text_color: String(f.get("text_color") || "#f4e759"),
+        ends_at: endsAtStr ? new Date(endsAtStr).toISOString() : null,
+        published: true
       };
       await createCampaign(payload);
       e.target.reset();
+      // Reset preview to default
+      document.getElementById("ncBgColor").value = "#1c2440";
+      document.getElementById("ncBgColorPicker").value = "#1c2440";
+      document.getElementById("ncTextColor").value = "#f4e759";
+      document.getElementById("ncTextColorPicker").value = "#f4e759";
+      document.getElementById("ncImageStatus").textContent = "";
+      updatePreview();
       closeCampaignModal();
       await renderAdmin();
+      await renderMerchantCampaigns(); // also refresh the merchant-facing list in case admin happens to be a merchant too
     } catch (err) {
       showError("ncError", err.message || "Could not create the campaign.");
     } finally {
@@ -1629,6 +1785,7 @@
     $("crumbTitle").textContent = titles[name] || "Campaigns";
     window.scrollTo({ top: 0 });
     if (name === "milestones") buildMilestones();
+    if (name === "campaigns") renderMerchantCampaigns();
     if (window.lucide) lucide.createIcons();
   }
   document.querySelectorAll(".nav-item[data-page]").forEach((b) => {
