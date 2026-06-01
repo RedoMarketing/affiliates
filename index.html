@@ -35,6 +35,8 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: var(--sans); background: hsl(var(--background)); color: hsl(var(--foreground)); -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 1, "cv11" 1; min-height: 100dvh; line-height: 1.5; }
+  /* Booting: hide chrome until we know whether to show landing, shell, or public view (avoids a flash of the landing on refresh of a signed-in user) */
+  body.booting .login, body.booting .shell, body.booting .public-campaign { visibility: hidden !important; }
   button { font-family: inherit; cursor: pointer; }
   ::selection { background: hsl(var(--accent)); }
   svg.lucide { width: 16px; height: 16px; stroke-width: 2; flex: none; }
@@ -722,7 +724,7 @@
   }
 </style>
 </head>
-<body>
+<body class="booting">
 
   <!-- ============================== LANDING ============================== -->
   <div class="login" id="loginScreen">
@@ -892,17 +894,6 @@
         Earnings
       </button>
 
-      <div class="nav-divider"></div>
-      <div class="nav-section">Movement</div>
-      <button class="nav-item" data-page="leaderboard">
-        <i data-lucide="bar-chart-3"></i>
-        Leaderboard
-      </button>
-      <button class="nav-item" data-page="resources">
-        <i data-lucide="book-open"></i>
-        Resources
-      </button>
-
       <div class="sidebar-footer">
         <button class="nav-item">
           <i data-lucide="life-buoy"></i>
@@ -951,8 +942,8 @@
         <section class="page active" data-page="campaigns">
           <div class="welcome">
             <div class="welcome-left">
-              <h1>Campaign opportunities</h1>
-              <p>Take the campaigns that fit your vibe; skip the rest. We pay within 24 hours of confirmation. New campaigns drop every Tuesday.</p>
+              <h1>Get paid for moves you'd make anyway.</h1>
+              <p>Pick a campaign. Hit the brief. Cash hits your account within 24 hours — no invoice, no chase. New drops every Tuesday.</p>
             </div>
           </div>
 
@@ -1005,25 +996,7 @@
           </div>
         </section>
 
-        <!-- ====================== LEADERBOARD ====================== -->
-        <section class="page" data-page="leaderboard">
-          <div class="coming-soon">
-            <div class="coming-soon-icon"><i data-lucide="bar-chart-3"></i></div>
-            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
-            <h1 class="coming-soon-title">The brag board.</h1>
-            <p class="coming-soon-sub">Top brands carrying the Merchant Led Growth movement, refreshed daily. Goes live as soon as the first cohort of merchants starts referring through the program.</p>
-          </div>
-        </section>
-
-        <!-- ====================== RESOURCES / SETTINGS ====================== -->
-        <section class="page" data-page="resources">
-          <div class="coming-soon">
-            <div class="coming-soon-icon"><i data-lucide="book-open"></i></div>
-            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
-            <h1 class="coming-soon-title">Resources.</h1>
-            <p class="coming-soon-sub">Brand kits, talking points, payout / tax / attribution FAQs — coming together. We're publishing the first batch alongside the Series B launch.</p>
-          </div>
-        </section>
+        <!-- ====================== SETTINGS ====================== -->
 
         <section class="page" data-page="settings">
           <div class="welcome"><div class="welcome-left"><h1>Settings</h1><p>Payout method, notifications, and your member profile.</p></div></div>
@@ -2092,7 +2065,7 @@
   function showPage(name) {
     document.querySelectorAll(".nav-item[data-page]").forEach((b) => b.classList.toggle("active", b.dataset.page === name));
     document.querySelectorAll(".page").forEach((p) => p.classList.toggle("active", p.dataset.page === name));
-    const titles = { wins: "Wins", milestones: "Rewards", campaigns: "Campaigns", share: "Share toolkit", earnings: "Earnings", leaderboard: "Leaderboard", resources: "Resources", settings: "Settings" };
+    const titles = { wins: "Wins", milestones: "Rewards", campaigns: "Campaigns", share: "Share toolkit", earnings: "Earnings", settings: "Settings" };
     $("crumbTitle").textContent = titles[name] || "Campaigns";
     window.scrollTo({ top: 0 });
     if (name === "milestones") buildMilestones();
@@ -2322,13 +2295,18 @@
   // Resume session AFTER all const declarations + admin code have initialized.
   // Prefill the sign-in email with the last-used one (if any).
   (async function tryResume() {
-    const lastEmail = localStorage.getItem("redo_mlg_last_email");
-    if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
-    // If the URL has ?c=<id>, render the public campaign view instead of resuming session
-    const isPublicView = await maybeShowPublicCampaign();
-    if (isPublicView) return;
-    const user = await loadActiveUser();
-    if (user) await enterShell(user);
+    try {
+      const lastEmail = localStorage.getItem("redo_mlg_last_email");
+      if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
+      // If the URL has ?c=<id>, render the public campaign view instead of resuming session
+      const isPublicView = await maybeShowPublicCampaign();
+      if (isPublicView) return;
+      const user = await loadActiveUser();
+      if (user) await enterShell(user);
+    } finally {
+      // Reveal whichever surface is now correct (landing, shell, public view) — no flash
+      document.body.classList.remove("booting");
+    }
   })();
 
   // React to auth changes from other tabs / token refreshes
