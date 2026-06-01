@@ -136,6 +136,20 @@
   .nc-textarea { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 10px 12px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; resize: vertical; min-height: 72px; }
   .nc-textarea:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
 
+  /* Share modal */
+  .share-preview { background: hsl(var(--muted) / 0.55); border: 1px solid hsl(var(--border)); border-radius: 10px; padding: 14px 16px; }
+  .share-preview .sp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 6px; }
+  .share-preview .sp-tag { font-weight: 500; }
+  .share-preview .sp-reward { font-weight: 700; color: hsl(var(--foreground)); }
+  .share-preview .sp-title { font: 600 16px var(--sans); letter-spacing: -0.005em; color: hsl(var(--foreground)); line-height: 1.25; }
+  .share-url-row { display: flex; gap: 8px; }
+  .share-url-row input { flex: 1; background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 13px; color: hsl(var(--foreground)); font-family: ui-monospace, Menlo, monospace; }
+  .share-url-row .btn { white-space: nowrap; padding: 0 14px; }
+  .share-warning { margin-top: 10px; padding: 10px 12px; background: hsl(38 92% 96%); border: 1px solid hsl(38 92% 80%); border-radius: 6px; font-size: 12.5px; color: hsl(35 60% 30%); line-height: 1.45; }
+  .share-warning:empty { display: none; }
+  .share-actions { display: flex; gap: 8px; margin-top: 14px; }
+  .share-actions .btn { flex: 1; justify-content: center; }
+
   /* Campaign detail card (shared between modal + public page) */
   .cd-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; max-height: 92vh; }
   .cd-hero { padding: 28px 30px 24px; }
@@ -1108,6 +1122,38 @@
     </main>
   </div>
 
+  <!-- ============================== SHARE MODAL ============================== -->
+  <div class="auth-overlay hidden" id="shareModal">
+    <div class="auth-overlay-bg" id="shareModalBg"></div>
+    <div class="auth-card-wrap" style="max-width: 480px;">
+      <button class="auth-card-close" id="shareModalClose" aria-label="Close" style="top: -42px; right: -2px;"><i data-lucide="x"></i></button>
+      <div class="login-card">
+        <h1 style="margin-bottom: 6px;">Share this campaign</h1>
+        <p>Send the link to brands. They can view it without signing in, then join when they're ready.</p>
+
+        <div class="share-preview" id="sharePreview">
+          <div class="sp-row">
+            <span class="sp-tag" id="spTag">Status</span>
+            <span class="sp-reward" id="spReward">$$$</span>
+          </div>
+          <div class="sp-title" id="spTitle">Campaign title</div>
+        </div>
+
+        <label style="margin-top: 16px;">Share link</label>
+        <div class="share-url-row">
+          <input type="text" id="shareUrlInput" readonly />
+          <button type="button" class="btn btn-primary" id="shareCopyBtn"><i data-lucide="copy"></i>Copy</button>
+        </div>
+        <div class="share-warning" id="shareWarning"></div>
+
+        <div class="share-actions">
+          <button type="button" class="btn btn-outline" id="sharePreviewBtn"><i data-lucide="external-link"></i>Open preview</button>
+          <button type="button" class="btn btn-outline" id="shareNativeBtn"><i data-lucide="share-2"></i>Share to&hellip;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============================== CAMPAIGN DETAIL MODAL ============================== -->
   <div class="auth-overlay hidden" id="campaignDetailOverlay">
     <div class="auth-overlay-bg" id="campaignDetailBg"></div>
@@ -1770,16 +1816,67 @@
     await renderMerchantCampaigns();
   }
 
-  async function copyShareLink(btn) {
-    const id = btn.dataset.id;
+  // Open the share modal for a campaign (used by admin row link button, detail modal, etc.)
+  async function openShareModal(id) {
+    const { data, error } = await sb.from("campaigns").select("*").eq("id", id).single();
+    if (error || !data) { alert("Could not load that campaign."); return; }
     const url = `${window.location.origin}/?c=${id}`;
-    try { await navigator.clipboard.writeText(url); } catch (_) {}
-    const orig = btn.innerHTML;
-    btn.classList.add("copied");
-    btn.innerHTML = '<i data-lucide="check"></i>';
+    document.getElementById("spTitle").textContent = data.title;
+    document.getElementById("spTag").textContent = data.tag || (data.status === "alwayson" ? "Always-on" : data.status[0].toUpperCase() + data.status.slice(1));
+    document.getElementById("spReward").textContent = data.reward || "";
+    document.getElementById("shareUrlInput").value = url;
+    // Warn if the share URL is a localhost one (won't work for outside viewers)
+    const isLocal = /^http:\/\/(localhost|127\.|0\.0\.0\.0|192\.168\.|10\.|172\.)/i.test(url);
+    const warn = document.getElementById("shareWarning");
+    warn.textContent = isLocal
+      ? "Heads up: this is a localhost link — it only works on your computer. Once the site is deployed (e.g. to redo.com/affiliates), this link will work for anyone you send it to."
+      : "";
+
+    document.getElementById("shareCopyBtn").onclick = async () => {
+      const inputEl = document.getElementById("shareUrlInput");
+      try {
+        await navigator.clipboard.writeText(inputEl.value);
+      } catch {
+        inputEl.select();
+        try { document.execCommand("copy"); } catch {}
+      }
+      const btn = document.getElementById("shareCopyBtn");
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="check"></i>Copied';
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1600);
+    };
+
+    document.getElementById("sharePreviewBtn").onclick = () => {
+      window.open(url, "_blank", "noopener,noreferrer");
+    };
+
+    const nativeBtn = document.getElementById("shareNativeBtn");
+    if (navigator.share) {
+      nativeBtn.style.display = "";
+      nativeBtn.onclick = async () => {
+        try {
+          await navigator.share({ title: data.title, text: data.description, url });
+        } catch (_) { /* user cancelled */ }
+      };
+    } else {
+      nativeBtn.style.display = "none";
+    }
+
+    document.getElementById("shareModal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
     if (window.lucide) lucide.createIcons();
-    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1400);
+    // Auto-select the URL so anyone can hit Cmd+C immediately
+    setTimeout(() => document.getElementById("shareUrlInput").select(), 30);
   }
+  function closeShareModal() {
+    document.getElementById("shareModal").classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("shareModalClose").addEventListener("click", closeShareModal);
+  document.getElementById("shareModalBg").addEventListener("click", closeShareModal);
+  // Keep the old name working for the admin row link button
+  function copyShareLink(btn) { openShareModal(btn.dataset.id); }
 
   // Publish / Save (create or update depending on editingCampaignId)
   document.getElementById("newCampaignForm").addEventListener("submit", async (e) => {
@@ -1852,14 +1949,10 @@
     // The body section uses the card's normal colors, not the campaign palette — reset
     document.querySelector("#campaignDetailOverlay .cd-body").style.background = "hsl(var(--card))";
     document.querySelector("#campaignDetailOverlay .cd-body").style.color = "hsl(var(--foreground))";
-    document.getElementById("cdShareBtn").onclick = async () => {
-      const url = `${window.location.origin}/?c=${id}`;
-      try { await navigator.clipboard.writeText(url); } catch (_) {}
-      const btn = document.getElementById("cdShareBtn");
-      const orig = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="check"></i>Copied';
-      if (window.lucide) lucide.createIcons();
-      setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1400);
+    document.getElementById("cdShareBtn").onclick = () => {
+      // Close the detail modal first so the share modal sits on top of the page, not the detail card
+      document.getElementById("campaignDetailOverlay").classList.add("hidden");
+      openShareModal(id);
     };
     document.getElementById("campaignDetailOverlay").classList.remove("hidden");
     document.body.style.overflow = "hidden";
