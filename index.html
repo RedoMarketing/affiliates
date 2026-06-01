@@ -6,6 +6,7 @@
 <title>Redo · Merchant Led Growth</title>
 <link rel="stylesheet" href="fonts.css" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --background: 0 0% 100%;
@@ -130,6 +131,8 @@
   .login-form label .optional { color: hsl(var(--muted-foreground)); font-weight: 400; }
   .login-error { font-size: 12.5px; color: hsl(0 84% 60%); min-height: 0; line-height: 1.4; }
   .login-error:empty { display: none; }
+  .nc-select { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; }
+  .nc-select:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
   .login-form input { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); transition: border-color .15s ease, box-shadow .15s ease; font-family: inherit; }
   .login-form input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
   .login-form .submit { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; border-radius: 6px; height: 38px; font-size: 14px; font-weight: 500; transition: opacity .15s ease; margin-top: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
@@ -660,6 +663,8 @@
           <p>Sign in to your Merchant Led Growth account.</p>
           <label for="signinEmail">Work email</label>
           <input type="email" id="signinEmail" name="email" placeholder="you@yourbrand.com" required />
+          <label for="signinPassword">Password</label>
+          <input type="password" id="signinPassword" name="password" placeholder="••••••••" required />
           <div class="login-error" id="signinError"></div>
           <button type="submit" class="submit">
             Continue
@@ -678,6 +683,8 @@
           <input type="text" id="suBrand" name="brand" placeholder="Wildflower Co." required />
           <label for="suUrl">Brand URL <span class="optional">(optional)</span></label>
           <input type="url" id="suUrl" name="url" placeholder="https://yourbrand.com" />
+          <label for="suPassword">Password</label>
+          <input type="password" id="suPassword" name="password" placeholder="At least 8 characters" required minlength="8" />
           <div class="login-error" id="signupError"></div>
           <button type="submit" class="submit">
             Create account
@@ -1230,25 +1237,43 @@
   <!-- ============================== NEW CAMPAIGN MODAL ============================== -->
   <div class="auth-overlay hidden" id="campaignModal">
     <div class="auth-overlay-bg" id="campaignModalBg"></div>
-    <div class="auth-card-wrap">
+    <div class="auth-card-wrap" style="max-width: 480px;">
       <button class="auth-card-close" id="campaignModalClose" aria-label="Close"><i data-lucide="x"></i></button>
       <div class="login-card">
-        <h1 style="margin-bottom: 12px;">New campaign</h1>
-        <p>Drop a new earning opportunity for the network.</p>
+        <h1 style="margin-bottom: 6px;">New campaign</h1>
+        <p>Goes live to every merchant in the network instantly.</p>
         <form class="login-form" id="newCampaignForm" autocomplete="off">
           <label for="ncTitle">Title</label>
-          <input type="text" id="ncTitle" name="title" placeholder="Refer a Shopify Plus merchant" required />
+          <input type="text" id="ncTitle" name="title" placeholder="$80M raised. Spending it on you." required />
           <label for="ncDesc">Description</label>
-          <input type="text" id="ncDesc" name="desc" placeholder="What merchants need to do" required />
-          <label for="ncReward">Reward</label>
-          <input type="text" id="ncReward" name="reward" placeholder="$300" required />
-          <label for="ncStatus">Status</label>
-          <select id="ncStatus" name="status" required style="background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit;">
-            <option value="live">Live</option>
-            <option value="open" selected>Open</option>
-            <option value="alwayson">Always-on</option>
-          </select>
-          <button type="submit" class="submit">Create campaign <i data-lucide="arrow-right"></i></button>
+          <input type="text" id="ncDesc" name="description" placeholder="What merchants need to do to earn this." required />
+          <label for="ncReward">Reward (display)</label>
+          <input type="text" id="ncReward" name="reward" placeholder="$250 — or $2K pool" required />
+          <label for="ncAmount">Reward amount in dollars <span class="optional">(optional, for analytics)</span></label>
+          <input type="number" id="ncAmount" name="reward_amount" min="0" step="1" placeholder="250" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label for="ncStatus">Status</label>
+              <select id="ncStatus" name="status" required class="nc-select">
+                <option value="live">Live</option>
+                <option value="open" selected>Open</option>
+                <option value="alwayson">Always-on</option>
+              </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label for="ncCategory">Category</label>
+              <select id="ncCategory" name="category" class="nc-select">
+                <option value="social">Social</option>
+                <option value="referral">Referral</option>
+                <option value="content">Content</option>
+                <option value="series_b">Series B</option>
+              </select>
+            </div>
+          </div>
+          <label for="ncEndsAt">Ends at <span class="optional">(optional)</span></label>
+          <input type="datetime-local" id="ncEndsAt" name="ends_at" class="nc-select" />
+          <div class="login-error" id="ncError"></div>
+          <button type="submit" class="submit" id="ncSubmit">Create campaign <i data-lucide="arrow-right"></i></button>
         </form>
       </div>
     </div>
@@ -1279,15 +1304,19 @@
   // Render Lucide icons on load
   if (window.lucide) lucide.createIcons();
 
-  // ============================== AUTH ==============================
-  const ACCOUNTS_KEY = "redo_mlg_accounts";   // { [email]: { fullname, email, brand, url, joined } }
-  const SESSION_KEY  = "redo_mlg_session";    // string email of the active account
+  // ============================== AUTH (Supabase) ==============================
+  const SUPABASE_URL = "https://ujlffezngjtziqoysrea.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_BqSK1VvQxjaqkAlTonra-g_vjFkgBx8";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function loadAccounts() { try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || {}; } catch { return {}; } }
-  function saveAccounts(a) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
-  function getSession() { const email = localStorage.getItem(SESSION_KEY); if (!email) return null; const a = loadAccounts(); return a[email] || null; }
-  function setSession(email) { localStorage.setItem(SESSION_KEY, email); }
-  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+  // Returns the merged session profile: { id, email, fullname, brand, url, role } or null
+  async function loadActiveUser() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return null;
+    const { data: profile, error } = await sb.from("profiles").select("*").eq("id", session.user.id).single();
+    if (error || !profile) return { id: session.user.id, email: session.user.email, brand: "Brand", role: "merchant" };
+    return { ...profile, email: session.user.email };
+  }
 
   function initials(name) { return (name || "").split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "?"; }
 
@@ -1307,7 +1336,7 @@
     if (sum) sum.textContent = `Signed in as ${user.fullname || user.email} · ${user.email}`;
   }
 
-  function enterShell(user) {
+  async function enterShell(user) {
     applyUser(user);
     $("loginScreen").classList.add("hidden");
     // Close the auth modal if it's open (covers both merchant + admin sign-in)
@@ -1317,7 +1346,7 @@
     if (isAdmin(user)) {
       $("adminShell").classList.add("active");
       $("appShell").classList.remove("active");
-      renderAdmin();
+      await renderAdmin();
     } else {
       $("appShell").classList.add("active");
       $("adminShell").classList.remove("active");
@@ -1367,60 +1396,49 @@
   });
 
   // Sign in
-  document.getElementById("signinForm").addEventListener("submit", (e) => {
+  document.getElementById("signinForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = e.target.email.value.trim().toLowerCase();
-    if (!email) { showError("signinError", "Email is required."); return; }
-    const accounts = loadAccounts();
-    const user = accounts[email];
-    if (!user) { showError("signinError", "No account found for that email. Try Sign up instead."); return; }
-    setSession(email);
-    enterShell(user);
+    const password = e.target.password.value;
+    if (!email || !password) { showError("signinError", "Email and password are required."); return; }
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { showError("signinError", error.message); return; }
+    const user = await loadActiveUser();
+    if (user) enterShell(user);
   });
 
   // Sign up
-  document.getElementById("signupForm").addEventListener("submit", (e) => {
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
     const email = String(f.get("email") || "").trim().toLowerCase();
+    const password = String(f.get("password") || "");
     const fullname = String(f.get("fullname") || "").trim();
     const brand = String(f.get("brand") || "").trim();
     const url = String(f.get("url") || "").trim();
-    if (!email || !fullname || !brand) { showError("signupError", "Name, email, and brand name are required."); return; }
-    const accounts = loadAccounts();
-    if (accounts[email]) { showError("signupError", "An account already exists for that email. Sign in instead."); return; }
-    const user = { fullname, email, brand, url, joined: new Date().toISOString() };
-    accounts[email] = user;
-    saveAccounts(accounts);
-    setSession(email);
-    enterShell(user);
+    if (!email || !password || !fullname || !brand) { showError("signupError", "Name, email, brand, and password are required."); return; }
+    if (password.length < 8) { showError("signupError", "Password must be at least 8 characters."); return; }
+    const { data, error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { fullname, brand, url } }
+    });
+    if (error) { showError("signupError", error.message); return; }
+    if (!data.session) {
+      // Email confirmation is enabled — tell the user to check their inbox
+      showError("signupError", "Check your email to confirm your account, then come back and sign in.");
+      return;
+    }
+    const user = await loadActiveUser();
+    if (user) enterShell(user);
   });
-
-  // Seed a demo merchant + the admin account so the prototype has people to sign in as out of the box
-  (function seedDemo() {
-    const accounts = loadAccounts();
-    const demoEmail = "founder@wildflower.co";
-    if (!accounts[demoEmail]) {
-      accounts[demoEmail] = { fullname: "Sam Adler", email: demoEmail, brand: "Wildflower Co.", url: "https://wildflower.co", role: "merchant", joined: "2024-01-15T00:00:00.000Z" };
-    }
-    if (!accounts["braxton@redo.com"]) {
-      accounts["braxton@redo.com"] = { fullname: "Braxton", email: "braxton@redo.com", brand: "Redo", role: "admin", joined: "2023-09-01T00:00:00.000Z" };
-    }
-    saveAccounts(accounts);
-    // Pre-fill the sign-in field with the demo email for convenience
-    const signinEmailEl = document.getElementById("signinEmail");
-    if (signinEmailEl && !signinEmailEl.value) signinEmailEl.value = demoEmail;
-  })();
 
   function isAdmin(user) { return user && (user.role === "admin" || /@redo\.com$/i.test(user.email || "")); }
 
-  // Resume session if one exists
   // Sign out (shared by sidebar menu + Settings button)
-  function signOut() {
-    // Remember the last email so we can prefill on sign back in
-    const lastSession = localStorage.getItem(SESSION_KEY);
-    if (lastSession) localStorage.setItem("redo_mlg_last_email", lastSession);
-    clearSession();
+  async function signOut() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) localStorage.setItem("redo_mlg_last_email", session.user.email);
+    await sb.auth.signOut();
     document.querySelector(".brand-switcher .bs-mark").textContent = "?";
     document.querySelector(".brand-switcher .bs-name").textContent = "Brand";
     document.getElementById("brandMenu").classList.add("hidden");
@@ -1430,7 +1448,6 @@
     switchAuthView("signin");
     document.getElementById("signupForm").reset();
     document.getElementById("signinForm").reset();
-    // Prefill the email on the sign-in form for one-click re-sign-in
     const lastEmail = localStorage.getItem("redo_mlg_last_email");
     if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
   }
@@ -1452,22 +1469,25 @@
   document.getElementById("adminSidebarSignOut").addEventListener("click", signOut);
 
   // ============================== ADMIN ==============================
-  const CAMPAIGNS_KEY = "redo_mlg_campaigns";
-  const DEFAULT_CAMPAIGNS = [
-    { id: "series-b",     title: "Series B launch posts",   desc: "Tag, repost, or comment with your discount code.", reward: "$250",     status: "live"     },
-    { id: "refer-brand",  title: "Refer a brand that signs", desc: "$200 when a brand you sent joins Redo.",            reward: "$200",     status: "alwayson" },
-    { id: "quote",        title: "OK to post this quote?",   desc: "Confirm a CS-call quote, then repost it.",          reward: "$100",     status: "open"     },
-    { id: "experience",   title: "Post about your experience", desc: "Anywhere public — tag Redo, send us the link.",   reward: "$100",     status: "open"     },
-    { id: "sterling",     title: "Reply to Sterling's tweet", desc: "Quote-tweet or thread reply on the announcement.", reward: "$2K pool", status: "live"     },
-    { id: "case-study",   title: "Case study production",     desc: "30-min interview, turned into written + video.",   reward: "$500",     status: "alwayson" },
-    { id: "agency",       title: "Refer a partner agency",    desc: "Send an ecom agency. $500 if they sign three.",    reward: "$500",     status: "alwayson" }
-  ];
-  function loadCampaigns() {
-    try { const c = JSON.parse(localStorage.getItem(CAMPAIGNS_KEY)); if (Array.isArray(c) && c.length) return c; } catch {}
-    localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(DEFAULT_CAMPAIGNS));
-    return DEFAULT_CAMPAIGNS.slice();
+  async function loadCampaigns() {
+    const { data, error } = await sb.from("campaigns").select("*").order("created_at", { ascending: false });
+    if (error) { console.error("loadCampaigns:", error); return []; }
+    // Map db row → the shape the existing renderers expect
+    return (data || []).map((c) => ({
+      id: c.id, title: c.title, desc: c.description, reward: c.reward, status: c.status,
+      category: c.category, audience: c.audience, ends_at: c.ends_at, created_at: c.created_at
+    }));
   }
-  function saveCampaigns(arr) { localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(arr)); }
+  async function createCampaign(payload) {
+    const { data, error } = await sb.from("campaigns").insert(payload).select().single();
+    if (error) throw error;
+    return data;
+  }
+  async function loadMerchants() {
+    const { data, error } = await sb.from("profiles").select("*").eq("role", "merchant").order("created_at", { ascending: false });
+    if (error) { console.error("loadMerchants:", error); return []; }
+    return data || [];
+  }
 
   const SAMPLE_REFERRALS = [
     { brand: "Salt & Tide",         source: "Code · WILDFLOWER", date: "Apr 18", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" },
@@ -1478,13 +1498,13 @@
     { brand: "Yardline Outfitters", source: "Link",              date: "Mar 22", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" }
   ];
 
-  function renderAdmin() {
-    const accounts = loadAccounts();
-    const merchants = Object.values(accounts).filter((a) => !isAdmin(a));
+  async function renderAdmin() {
+    const [merchants, campaigns] = await Promise.all([loadMerchants(), loadCampaigns()]);
     document.getElementById("adminMerchantCount").textContent = String(merchants.length);
     document.getElementById("ovMerchants").textContent = String(merchants.length);
-    const campaigns = loadCampaigns();
     document.getElementById("ovCampaigns").textContent = String(campaigns.length);
+
+    const fmtDate = (s) => s ? new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—";
 
     // Overview — recent merchants
     document.getElementById("ovRecentMerchants").innerHTML = `
@@ -1494,23 +1514,23 @@
           <div class="avatar-pill">${(m.brand || "?")[0].toUpperCase()}</div>
           <div class="brand">${m.brand || ""}</div>
           <div class="src">${m.fullname || "—"}</div>
-          <div class="date">${m.joined ? new Date(m.joined).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—"}</div>
+          <div class="date">${fmtDate(m.created_at)}</div>
           <div></div>
-          <div class="payout" style="text-align:right; font-weight:500;">${m.email}</div>
+          <div class="payout" style="text-align:right; font-weight:500;" id="ov-email-${m.id}">—</div>
         </div>
       `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No merchants yet</div></div>`}
     `;
 
     // Merchants page
     document.getElementById("merchantsList").innerHTML = `
-      <div class="ref-row head"><div></div><div>Brand</div><div>Owner</div><div>Email</div><div>Joined</div><div style="text-align:right">URL</div></div>
+      <div class="ref-row head"><div></div><div>Brand</div><div>Owner</div><div>Joined</div><div></div><div style="text-align:right">URL</div></div>
       ${merchants.map((m) => `
         <div class="ref-row">
           <div class="avatar-pill">${(m.brand || "?")[0].toUpperCase()}</div>
           <div class="brand">${m.brand || ""}</div>
           <div class="src">${m.fullname || "—"}</div>
-          <div class="date">${m.email}</div>
-          <div class="date">${m.joined ? new Date(m.joined).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—"}</div>
+          <div class="date">${fmtDate(m.created_at)}</div>
+          <div></div>
           <div class="payout" style="text-align:right; font-weight:500; color: hsl(var(--muted-foreground));">${m.url || "—"}</div>
         </div>
       `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No merchants yet</div></div>`}
@@ -1526,38 +1546,26 @@
           <div class="payout">${c.reward}</div>
           <div><span class="stage ${c.status === "live" ? "demo" : c.status === "open" ? "closed" : "clicked"}"><span class="dot"></span>${c.status === "alwayson" ? "Always-on" : c.status[0].toUpperCase() + c.status.slice(1)}</span></div>
         </div>
-      `).join("")}
+      `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No campaigns yet</div></div>`}
     `;
 
-    // Payouts (synthesized from SAMPLE_REFERRALS)
+    // Payouts (referrals + payouts tables empty for now — placeholder until data flows in)
     document.getElementById("payoutsList").innerHTML = `
       <div class="ref-row head"><div></div><div>Brand</div><div>Stage</div><div>Referrer</div><div>Date</div><div style="text-align:right">Payout</div></div>
-      ${SAMPLE_REFERRALS.map((r) => `
-        <div class="ref-row">
-          <div class="avatar-pill">${r.brand[0]}</div>
-          <div class="brand">${r.brand}</div>
-          <div><span class="stage ${r.stage}"><span class="dot"></span>${r.stage === "closed" ? "Closed-won" : r.stage === "demo" ? "Demo booked" : "Clicked"}</span></div>
-          <div class="src">${r.referrer}</div>
-          <div class="date">${r.date}</div>
-          <div class="payout ${r.payout === "Pending" ? "pending" : ""}">${r.payout}</div>
-        </div>
-      `).join("")}
+      <div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1; color: hsl(var(--muted-foreground));">No referrals or payouts yet — once merchants start sharing, they'll show up here.</div></div>
     `;
 
-    // Activity (just join events + sample referrals merged)
-    const activity = [
-      ...merchants.map((m) => ({ when: m.joined, what: `${m.brand} joined the program`, who: m.email })),
-      ...SAMPLE_REFERRALS.filter((r) => r.stage === "closed").map((r) => ({ when: r.date, what: `${r.brand} closed-won via referral`, who: r.referrer }))
-    ].sort((a, b) => (b.when || "").localeCompare(a.when || ""));
+    // Activity — merchant signups
+    const activity = merchants.map((m) => ({ when: m.created_at, what: `${m.brand} joined the program`, who: m.fullname || "—" }));
     document.getElementById("activityList").innerHTML = `
       <div class="ref-row head" style="grid-template-columns: 1.4fr 2fr auto;"><div>When</div><div>What</div><div>Who</div></div>
       ${activity.map((a) => `
         <div class="ref-row" style="grid-template-columns: 1.4fr 2fr auto;">
-          <div class="date">${a.when ? (a.when.length > 10 ? new Date(a.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : a.when) : "—"}</div>
+          <div class="date">${fmtDate(a.when)}</div>
           <div class="brand">${a.what}</div>
           <div class="src">${a.who}</div>
         </div>
-      `).join("")}
+      `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1; color: hsl(var(--muted-foreground));">No activity yet</div></div>`}
     `;
     if (window.lucide) lucide.createIcons();
   }
@@ -1581,21 +1589,36 @@
   function closeCampaignModal() { document.getElementById("campaignModal").classList.add("hidden"); document.body.style.overflow = ""; }
   document.getElementById("campaignModalClose").addEventListener("click", closeCampaignModal);
   document.getElementById("campaignModalBg").addEventListener("click", closeCampaignModal);
-  document.getElementById("newCampaignForm").addEventListener("submit", (e) => {
+  document.getElementById("newCampaignForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const f = new FormData(e.target);
-    const next = loadCampaigns();
-    next.unshift({
-      id: "c-" + Math.floor(Math.random() * 1e6).toString(36),
-      title: String(f.get("title") || "").trim(),
-      desc: String(f.get("desc") || "").trim(),
-      reward: String(f.get("reward") || "").trim(),
-      status: String(f.get("status") || "open")
-    });
-    saveCampaigns(next);
-    e.target.reset();
-    closeCampaignModal();
-    renderAdmin();
+    showError("ncError", "");
+    const submitBtn = document.getElementById("ncSubmit");
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.6";
+    try {
+      const f = new FormData(e.target);
+      const amountStr = String(f.get("reward_amount") || "").trim();
+      const endsAtStr = String(f.get("ends_at") || "").trim();
+      const payload = {
+        title: String(f.get("title") || "").trim(),
+        description: String(f.get("description") || "").trim(),
+        reward: String(f.get("reward") || "").trim(),
+        reward_amount_cents: amountStr ? Math.round(Number(amountStr) * 100) : null,
+        status: String(f.get("status") || "open"),
+        category: String(f.get("category") || "social"),
+        audience: "all",
+        ends_at: endsAtStr ? new Date(endsAtStr).toISOString() : null
+      };
+      await createCampaign(payload);
+      e.target.reset();
+      closeCampaignModal();
+      await renderAdmin();
+    } catch (err) {
+      showError("ncError", err.message || "Could not create the campaign.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = "";
+    }
   });
 
   // Sidebar nav
@@ -1825,11 +1848,23 @@
     if (e.key === "Escape" && !$("winOverlay").classList.contains("hidden")) closeWin();
   });
 
-  // Resume session AFTER all const declarations + admin code have initialized
-  (function tryResume() {
-    const user = getSession();
-    if (user) enterShell(user);
+  // Resume session AFTER all const declarations + admin code have initialized.
+  // Prefill the sign-in email with the last-used one (if any).
+  (async function tryResume() {
+    const lastEmail = localStorage.getItem("redo_mlg_last_email");
+    if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
+    const user = await loadActiveUser();
+    if (user) await enterShell(user);
   })();
+
+  // React to auth changes from other tabs / token refreshes
+  sb.auth.onAuthStateChange(async (event) => {
+    if (event === "SIGNED_OUT") {
+      $("appShell").classList.remove("active");
+      $("adminShell").classList.remove("active");
+      $("loginScreen").classList.remove("hidden");
+    }
+  });
 </script>
 </body>
 </html>
