@@ -185,6 +185,35 @@
   .row-action.danger:hover { color: hsl(0 84% 60%); }
   .row-action.copied { color: hsl(var(--green)); }
 
+  /* Codes & links (Share toolkit) */
+  .handles-stack { display: flex; flex-direction: column; gap: 18px; max-width: 820px; }
+  .handle-section { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 20px 22px; }
+  .handle-section-head { margin-bottom: 16px; }
+  .handle-section-head h2 { font: 600 15px var(--sans); color: hsl(var(--foreground)); letter-spacing: -0.005em; }
+  .handle-section-head p { font: 400 13px var(--sans); color: hsl(var(--muted-foreground)); margin-top: 2px; }
+  .handle-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+  .handle-form > input[type=text] { flex: 1; min-width: 140px; background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 13.5px; color: hsl(var(--foreground)); font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  .handle-form > input[type=text]:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+  .handle-form .btn { flex: none; height: 38px; padding: 0 14px; }
+  .handle-prefix { display: flex; align-items: center; flex: 1; min-width: 200px; border: 1px solid hsl(var(--input)); border-radius: 6px; background: hsl(var(--background)); padding-left: 12px; height: 38px; transition: border-color .15s ease, box-shadow .15s ease; }
+  .handle-prefix:focus-within { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+  .handle-prefix span { font: 500 13.5px var(--sans); color: hsl(var(--muted-foreground)); white-space: nowrap; }
+  .handle-prefix input { flex: 1; min-width: 0; border: none; padding: 0 12px 0 4px; background: transparent; outline: none; font-size: 13.5px; color: hsl(var(--foreground)); font-family: inherit; }
+  .handle-error { font-size: 12.5px; color: hsl(0 84% 60%); padding-top: 8px; }
+  .handle-error:empty { display: none; }
+  .handle-list { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .handle-list:empty + .handle-empty { display: block; }
+  .handle-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: hsl(var(--muted) / 0.5); border: 1px solid hsl(var(--border)); border-radius: 8px; }
+  .handle-row .h-label { font: 500 13px var(--sans); color: hsl(var(--foreground)); min-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; }
+  .handle-row .h-value { font: 600 13px var(--mono); color: hsl(var(--foreground)); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .handle-row .h-actions { display: flex; gap: 2px; flex: none; }
+  .handle-row .h-action { background: transparent; border: none; padding: 6px; border-radius: 4px; color: hsl(var(--muted-foreground)); cursor: pointer; display: grid; place-items: center; }
+  .handle-row .h-action:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .handle-row .h-action.danger:hover { color: hsl(0 84% 60%); }
+  .handle-row .h-action.copied { color: hsl(var(--green)); }
+  .handle-row .h-action svg { width: 14px; height: 14px; }
+  .handle-empty { font: 400 13px var(--sans); color: hsl(var(--muted-foreground)); padding: 10px 4px; }
+
   /* Coming soon page state */
   .coming-soon { text-align: center; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
   /* When the coming-soon is the only thing on the page, center it vertically in the viewport */
@@ -954,35 +983,44 @@
         <section class="page" data-page="share">
           <div class="welcome">
             <div class="welcome-left">
-              <h1>Your share toolkit</h1>
-              <p>Everything you need to share Redo, in your voice, with attribution baked in. Every click rides your link.</p>
+              <h1>Codes &amp; links</h1>
+              <p>Create attribution codes and tracked links. Name them so you remember where each one lives.</p>
             </div>
           </div>
 
-          <div class="codelink-panel">
-            <div class="cl-card">
-              <div class="cl-lbl">Your code</div>
-              <div class="cl-row">
-                <div class="cl-val" id="shareCode">—</div>
-                <button class="cl-btn aff-copy" id="shareCodeCopy" data-copy=""><i data-lucide="copy"></i>Copy</button>
+          <div class="handles-stack">
+            <!-- CODES -->
+            <div class="handle-section">
+              <div class="handle-section-head">
+                <h2>Discount codes</h2>
+                <p>Customers paste at checkout.</p>
               </div>
-              <div class="cl-foot">Pair with any link. Customers can paste it at checkout.</div>
+              <form class="handle-form" id="codeForm" autocomplete="off">
+                <input type="text" name="label" placeholder="Name (e.g. Newsletter)" required maxlength="40" />
+                <input type="text" name="value" placeholder="YOURCODE" required pattern="[A-Za-z0-9]{3,32}" maxlength="32" />
+                <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i>Create</button>
+              </form>
+              <div class="handle-error" id="codeError"></div>
+              <div class="handle-list" id="codesList"></div>
             </div>
-            <div class="cl-card">
-              <div class="cl-lbl">Your link</div>
-              <div class="cl-row">
-                <div class="cl-val" id="shareLink">—</div>
-                <button class="cl-btn aff-copy" id="shareLinkCopy" data-copy=""><i data-lucide="copy"></i>Copy</button>
-              </div>
-              <div class="cl-foot">UTM-tracked. Cookie window is 90 days. Drop anywhere.</div>
-            </div>
-          </div>
 
-          <div class="coming-soon" style="padding: 36px 24px 24px;">
-            <div class="coming-soon-icon"><i data-lucide="palette"></i></div>
-            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
-            <h2 class="coming-soon-title" style="font-size: 24px;">Ready-to-post content, personalized.</h2>
-            <p class="coming-soon-sub">LinkedIn posts, Instagram stories, X one-liners, email signatures, brand kits, and quote graphics — all auto-generated from your live store data so you can post a brag in one tap. Coming with the Series B launch.</p>
+            <!-- LINKS -->
+            <div class="handle-section">
+              <div class="handle-section-head">
+                <h2>Tracked links</h2>
+                <p>UTM-tracked. Drop anywhere.</p>
+              </div>
+              <form class="handle-form" id="linkForm" autocomplete="off">
+                <input type="text" name="label" placeholder="Name (e.g. Instagram bio)" required maxlength="40" />
+                <div class="handle-prefix">
+                  <span>redo.com/r/</span>
+                  <input type="text" name="value" placeholder="slug" required pattern="[a-z0-9\-]{3,32}" maxlength="32" />
+                </div>
+                <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i>Create</button>
+              </form>
+              <div class="handle-error" id="linkError"></div>
+              <div class="handle-list" id="linksList"></div>
+            </div>
           </div>
         </section>
 
@@ -1419,18 +1457,6 @@
     // Settings profile summary
     const sum = document.getElementById("profileSummary");
     if (sum) sum.textContent = `Signed in as ${user.fullname || user.email} · ${user.email}`;
-    // Share toolkit — code + link derived from the merchant's brand
-    const slug = (user.brand || "brand").toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 20) || "brand";
-    const code = slug.toUpperCase();
-    const link = `redo.com/r/${slug}`;
-    const shareCode = document.getElementById("shareCode");
-    const shareLink = document.getElementById("shareLink");
-    const shareCodeCopy = document.getElementById("shareCodeCopy");
-    const shareLinkCopy = document.getElementById("shareLinkCopy");
-    if (shareCode) shareCode.textContent = code;
-    if (shareLink) shareLink.textContent = link;
-    if (shareCodeCopy) shareCodeCopy.dataset.copy = code;
-    if (shareLinkCopy) shareLinkCopy.dataset.copy = "https://" + link;
   }
 
   async function enterShell(user) {
@@ -1449,6 +1475,7 @@
       $("appShell").classList.add("active");
       $("adminShell").classList.remove("active");
       await renderMerchantCampaigns();
+      await renderShareToolkit();
     }
     if (window.lucide) lucide.createIcons();
   }
@@ -1588,6 +1615,108 @@
     if (error) { console.error("loadMerchants:", error); return []; }
     return data || [];
   }
+
+  // ============================== SHARE HANDLES (codes & links) ==============================
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  async function loadHandles(kind) {
+    if (!currentUser) return [];
+    const { data, error } = await sb.from("share_handles").select("*").eq("user_id", currentUser.id).eq("kind", kind).order("created_at", { ascending: false });
+    if (error) { console.error("loadHandles:", error); return []; }
+    return data || [];
+  }
+
+  async function createHandle(kind, value, label) {
+    const norm = kind === "code" ? value.trim().toUpperCase() : value.trim().toLowerCase();
+    const { error } = await sb.from("share_handles").insert({ user_id: currentUser.id, kind, value: norm, label: label.trim() });
+    if (error) {
+      if (error.code === "23505") throw new Error(`That ${kind === "code" ? "code" : "link slug"} is already taken — try another.`);
+      throw error;
+    }
+  }
+
+  async function deleteHandle(id) {
+    if (!confirm("Delete this?")) return;
+    await sb.from("share_handles").delete().eq("id", id);
+    await renderShareToolkit();
+  }
+
+  async function renderShareToolkit() {
+    if (!currentUser) return;
+    const [codes, links] = await Promise.all([loadHandles("code"), loadHandles("link")]);
+    document.getElementById("codesList").innerHTML = codes.length
+      ? codes.map((c) => `
+          <div class="handle-row">
+            <span class="h-label">${esc(c.label)}</span>
+            <span class="h-value">${esc(c.value)}</span>
+            <div class="h-actions">
+              <button class="h-action" data-copy="${esc(c.value)}" title="Copy"><i data-lucide="copy"></i></button>
+              <button class="h-action danger" data-delete="${c.id}" title="Delete"><i data-lucide="trash-2"></i></button>
+            </div>
+          </div>
+        `).join("")
+      : `<div class="handle-empty">No codes yet. Create one above.</div>`;
+    document.getElementById("linksList").innerHTML = links.length
+      ? links.map((l) => `
+          <div class="handle-row">
+            <span class="h-label">${esc(l.label)}</span>
+            <span class="h-value">redo.com/r/${esc(l.value)}</span>
+            <div class="h-actions">
+              <button class="h-action" data-copy="https://redo.com/r/${esc(l.value)}" title="Copy"><i data-lucide="copy"></i></button>
+              <button class="h-action danger" data-delete="${l.id}" title="Delete"><i data-lucide="trash-2"></i></button>
+            </div>
+          </div>
+        `).join("")
+      : `<div class="handle-empty">No links yet. Create one above.</div>`;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Wire create forms
+  document.getElementById("codeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const errEl = document.getElementById("codeError");
+    errEl.textContent = "";
+    try {
+      await createHandle("code", String(f.get("value")), String(f.get("label")));
+      e.target.reset();
+      await renderShareToolkit();
+    } catch (err) {
+      errEl.textContent = err.message || "Could not create the code.";
+    }
+  });
+  document.getElementById("linkForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const errEl = document.getElementById("linkError");
+    errEl.textContent = "";
+    try {
+      await createHandle("link", String(f.get("value")), String(f.get("label")));
+      e.target.reset();
+      await renderShareToolkit();
+    } catch (err) {
+      errEl.textContent = err.message || "Could not create the link.";
+    }
+  });
+
+  // Copy + delete delegation for both lists
+  function wireHandleListDelegation(listId) {
+    document.getElementById(listId).addEventListener("click", async (e) => {
+      const copyBtn = e.target.closest("[data-copy]");
+      const deleteBtn = e.target.closest("[data-delete]");
+      if (copyBtn) {
+        try { await navigator.clipboard.writeText(copyBtn.dataset.copy); } catch {}
+        copyBtn.classList.add("copied");
+        copyBtn.innerHTML = '<i data-lucide="check"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(async () => { await renderShareToolkit(); }, 900);
+      } else if (deleteBtn) {
+        await deleteHandle(deleteBtn.dataset.delete);
+      }
+    });
+  }
+  wireHandleListDelegation("codesList");
+  wireHandleListDelegation("linksList");
 
   // Renders the colored brand-card grid on the merchant-facing Campaigns page
   async function renderMerchantCampaigns() {
@@ -2070,6 +2199,7 @@
     window.scrollTo({ top: 0 });
     if (name === "milestones") buildMilestones();
     if (name === "campaigns") renderMerchantCampaigns();
+    if (name === "share") renderShareToolkit();
     if (window.lucide) lucide.createIcons();
   }
   document.querySelectorAll(".nav-item[data-page]").forEach((b) => {
