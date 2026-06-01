@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redo · Merchant Led Growth</title>
+<link rel="stylesheet" href="fonts.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+    --green: 142 71% 38%;
+    --amber: 38 92% 50%;
+    --dark-bg: 240 5.9% 10%;
+    --dark-fg: 0 0% 98%;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--sans); background: hsl(var(--background)); color: hsl(var(--foreground)); -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 1, "cv11" 1; min-height: 100dvh; line-height: 1.5; }
+  button { font-family: inherit; cursor: pointer; }
+  ::selection { background: hsl(var(--accent)); }
+  svg.lucide { width: 16px; height: 16px; stroke-width: 2; flex: none; }
+  [data-lucide] { width: 16px; height: 16px; stroke-width: 2; flex: none; }
+
+  /* Marketing landing (the "login" container now hosts a full page) */
+  .login { position: fixed; inset: 0; z-index: 100; background: hsl(var(--background)); display: flex; flex-direction: column; padding: 0; overflow: auto; }
+  .login.hidden { display: none; }
+
+  .landing-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; position: sticky; top: 0; background: hsl(var(--background) / 0.92); backdrop-filter: blur(8px); z-index: 3; }
+  .landing-logo { display: flex; align-items: center; gap: 10px; }
+  .redo-wordmark { height: 18px; width: auto; display: block; }
+  .landing-name { font: 600 16px var(--sans); color: hsl(var(--foreground)); letter-spacing: -0.01em; }
+  .landing-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .landing-nav-right { display: flex; align-items: center; gap: 10px; }
+  .landing-link { background: none; border: none; font: 500 14px var(--sans); color: hsl(var(--foreground)); cursor: pointer; padding: 8px 12px; border-radius: 6px; transition: background .15s ease; }
+  .landing-link:hover { background: hsl(var(--accent)); }
+  .landing-cta { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; padding: 9px 18px; font: 600 13.5px var(--sans); border-radius: 999px; cursor: pointer; transition: opacity .15s ease; display: inline-flex; align-items: center; gap: 6px; }
+  .landing-cta:hover { opacity: 0.92; }
+
+  .landing-stage { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; padding: 60px 24px 80px; min-height: 640px; }
+  .landing-hero { text-align: center; position: relative; z-index: 2; max-width: 600px; }
+  .landing-display { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 82px; line-height: 0.95; letter-spacing: -0.025em; color: hsl(var(--foreground)); }
+  .landing-display em { font-style: italic; font-weight: 400; }
+  .landing-sub { font: 400 16px var(--sans); color: hsl(var(--muted-foreground)); margin: 22px auto 0; max-width: 44ch; line-height: 1.6; }
+  .landing-cta-big { margin-top: 28px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; padding: 13px 24px; font: 600 14.5px var(--sans); border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity .15s ease, transform .15s ease; }
+  .landing-cta-big:hover { opacity: 0.92; transform: translateY(-1px); }
+  .landing-cta-big svg { width: 14px; height: 14px; }
+
+  /* Floating preview cards */
+  .float-card { position: absolute; z-index: 1; pointer-events: none; filter: drop-shadow(0 14px 28px rgba(0,0,0,0.10)) drop-shadow(0 0 0 1px hsl(var(--border) / 0.6)); }
+
+  /* Win stat */
+  .fc-win { background: hsl(var(--dark-bg)); color: hsl(var(--dark-fg)); padding: 18px 22px; border-radius: 10px; min-width: 200px; }
+  .fc-win .fc-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: hsl(var(--dark-fg) / 0.6); }
+  .fc-win .fc-num { font-family: 'Instrument Serif', Georgia, serif; font-size: 40px; line-height: 1; margin-top: 8px; }
+  .fc-win .fc-sub { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+
+  /* Payout row */
+  .fc-payout { background: hsl(var(--card)); padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; gap: 12px; min-width: 260px; }
+  .fc-payout .fc-av { width: 30px; height: 30px; border-radius: 6px; background: hsl(var(--secondary)); display: grid; place-items: center; font: 700 12px var(--sans); color: hsl(var(--foreground)); flex: none; }
+  .fc-payout .fc-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .fc-payout .fc-brand { font: 500 13px var(--sans); color: hsl(var(--foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fc-payout .fc-stage { font-size: 11px; color: hsl(var(--green)); display: inline-flex; align-items: center; gap: 5px; }
+  .fc-payout .fc-stage::before { content: ""; width: 5px; height: 5px; background: hsl(var(--green)); border-radius: 999px; }
+  .fc-payout .fc-amt { font: 700 14px var(--sans); color: hsl(var(--foreground)); }
+
+  /* Campaign card mini */
+  .fc-camp { width: 170px; aspect-ratio: 3/4; padding: 16px; border-radius: 12px; display: grid; grid-template-rows: auto 1fr auto; }
+  .fc-camp.fc-camp-navy { background: #1c2440; color: #f4e759; }
+  .fc-camp .fc-camp-tag { font-size: 10px; font-weight: 500; opacity: 0.78; display: inline-flex; align-items: center; gap: 5px; }
+  .fc-camp .fc-camp-tag::before { content: ""; width: 5px; height: 5px; background: currentColor; border-radius: 999px; }
+  .fc-camp .fc-camp-title { font: 700 16px var(--sans); letter-spacing: -0.01em; line-height: 1.05; margin-top: 12px; }
+  .fc-camp .fc-camp-reward { font: 700 20px var(--sans); align-self: end; }
+
+  /* Reward / milestone card */
+  .fc-reward { background: hsl(var(--card)); padding: 14px 16px; border-radius: 12px; width: 168px; text-align: center; }
+  .fc-reward .fc-rw-img { width: 100%; height: 80px; background-size: contain; background-position: center; background-repeat: no-repeat; margin-bottom: 8px; }
+  .fc-reward .fc-rw-name { font: 600 13px var(--sans); color: hsl(var(--foreground)); }
+  .fc-reward .fc-rw-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 500; color: hsl(var(--muted-foreground)); margin-top: 6px; padding: 2px 8px; background: hsl(var(--muted)); border-radius: 999px; }
+
+  /* Leaderboard chip */
+  .fc-lb { background: hsl(var(--card)); padding: 12px 16px; border-radius: 999px; display: inline-flex; align-items: center; gap: 12px; }
+  .fc-lb .fc-lb-rank { font-family: 'Instrument Serif', Georgia, serif; font-size: 22px; color: hsl(var(--foreground)); }
+  .fc-lb .fc-lb-name { font: 500 12.5px var(--sans); color: hsl(var(--foreground)); }
+  .fc-lb .fc-lb-amt { font: 700 13px var(--sans); color: hsl(var(--foreground)); padding-left: 12px; border-left: 1px solid hsl(var(--border)); }
+
+  /* Auth modal */
+  .auth-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 24px; }
+  .auth-overlay.hidden { display: none; }
+  .auth-overlay-bg { position: absolute; inset: 0; background: hsl(var(--foreground) / 0.45); backdrop-filter: blur(6px); }
+  .auth-card-wrap { position: relative; width: 100%; max-width: 400px; }
+  .auth-card-close { position: absolute; top: -40px; right: 0; background: transparent; border: none; color: hsl(var(--background)); cursor: pointer; padding: 6px; display: grid; place-items: center; border-radius: 6px; }
+  .auth-card-close svg { width: 20px; height: 20px; }
+
+  .login-inner { width: 100%; max-width: 380px; }
+  .login-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 28px; }
+  .login-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; }
+  .login-mark { width: 28px; height: 28px; background: hsl(var(--foreground)); color: hsl(var(--background)); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 12px; letter-spacing: -0.02em; }
+  .login-name { font-weight: 600; font-size: 14px; color: hsl(var(--foreground)); }
+  .login h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 4px; color: hsl(var(--foreground)); }
+  .login p { font-size: 13.5px; color: hsl(var(--muted-foreground)); margin-bottom: 22px; line-height: 1.5; }
+  .login-tabs { display: flex; gap: 4px; padding: 4px; background: hsl(var(--muted)); border-radius: 8px; margin-bottom: 22px; }
+  .login-tab { flex: 1; background: transparent; border: none; padding: 7px 10px; font: 500 13px var(--sans); color: hsl(var(--muted-foreground)); border-radius: 6px; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .login-tab.active { background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .login-tab:not(.active):hover { color: hsl(var(--foreground)); }
+
+  .login-form { display: flex; flex-direction: column; gap: 10px; }
+  .login-form.hidden { display: none; }
+  .login-form h1 { margin-bottom: 6px; }
+  .login-form p { margin-bottom: 16px; }
+  .login-form > label:not(:first-of-type) { margin-top: 4px; }
+  .login-form label { font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); }
+  .login-form label .optional { color: hsl(var(--muted-foreground)); font-weight: 400; }
+  .login-error { font-size: 12.5px; color: hsl(0 84% 60%); min-height: 0; line-height: 1.4; }
+  .login-error:empty { display: none; }
+  .login-form input { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); transition: border-color .15s ease, box-shadow .15s ease; font-family: inherit; }
+  .login-form input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
+  .login-form .submit { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; border-radius: 6px; height: 38px; font-size: 14px; font-weight: 500; transition: opacity .15s ease; margin-top: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .login-form .submit:hover { opacity: 0.9; }
+  .login-foot { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 16px; text-align: center; }
+  .login-foot a { color: hsl(var(--foreground)); text-decoration: none; font-weight: 500; }
+  .login-foot a:hover { text-decoration: underline; }
+
+  /* Shell */
+  .shell { display: none; min-height: 100dvh; }
+  .shell.active { display: flex; }
+
+  /* Sidebar */
+  .sidebar { width: var(--sidebar-w); flex: none; background: hsl(var(--background)); border-right: 1px solid hsl(var(--border)); padding: 10px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; height: 100dvh; overflow-y: auto; }
+  /* Admin tables: scroll horizontally instead of wrapping cells */
+  #adminShell .ref-grid { overflow-x: auto; }
+  #adminShell .ref-row { min-width: 760px; }
+  #adminShell .ref-row > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+  .brand-wrap { position: relative; margin-bottom: 10px; }
+  .brand-switcher { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; transition: background .15s ease; background: none; border: 1px solid hsl(var(--border)); cursor: pointer; width: 100%; }
+  .brand-switcher:hover { background: hsl(var(--accent)); }
+  .brand-switcher .bs-mark { width: 24px; height: 24px; border-radius: 4px; background: hsl(var(--foreground)); color: hsl(var(--background)); display: grid; place-items: center; font-weight: 700; font-size: 11px; flex: none; }
+  .brand-switcher .bs-name { flex: 1; font-weight: 500; font-size: 13px; text-align: left; color: hsl(var(--foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-switcher svg { width: 14px; height: 14px; color: hsl(var(--muted-foreground)); }
+  .brand-menu { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 6px; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 5; }
+  .brand-menu.hidden { display: none; }
+  .brand-menu-info { padding: 8px 10px; }
+  .brand-menu-info .bm-brand { font: 600 13px var(--sans); color: hsl(var(--foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-menu-info .bm-email { font: 500 11.5px var(--sans); color: hsl(var(--muted-foreground)); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-menu-sep { height: 1px; background: hsl(var(--border)); margin: 4px 0; }
+  .brand-menu button { width: 100%; background: none; border: none; padding: 7px 10px; font: 500 13px var(--sans); color: hsl(var(--foreground)); text-align: left; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .brand-menu button:hover { background: hsl(var(--accent)); }
+  .brand-menu button svg { width: 14px; height: 14px; color: hsl(var(--muted-foreground)); }
+
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px; transition: background .15s ease, color .15s ease; background: none; border: none; color: hsl(var(--muted-foreground)); font-size: 13px; font-weight: 500; text-align: left; width: 100%; height: 32px; cursor: pointer; }
+  .nav-item:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .nav-item.active { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .nav-item svg { color: currentColor; width: 16px; height: 16px; }
+  .nav-item .badge { margin-left: auto; font-size: 11px; font-weight: 500; background: hsl(var(--foreground)); color: hsl(var(--background)); padding: 1px 6px; border-radius: 4px; line-height: 1.5; }
+  .nav-item .pip { margin-left: auto; width: 6px; height: 6px; background: hsl(var(--foreground)); border-radius: 999px; }
+  .nav-divider { height: 1px; background: hsl(var(--border)); margin: 8px 4px; }
+  .nav-section { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: hsl(var(--muted-foreground)); padding: 10px 10px 4px; }
+
+  .sidebar-footer { margin-top: auto; padding-top: 8px; border-top: 1px solid hsl(var(--border)); display: flex; flex-direction: column; gap: 2px; }
+
+  /* Main */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background)); position: sticky; top: 0; z-index: 20; }
+  .crumb { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); }
+  .crumb svg { color: hsl(var(--muted-foreground)); }
+  .topbar-right { display: flex; align-items: center; gap: 4px; }
+  .tb-btn { background: none; border: none; padding: 0 10px; font-size: 13px; color: hsl(var(--muted-foreground)); border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; height: 32px; transition: background .15s ease, color .15s ease; font-weight: 500; }
+  .tb-btn:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .tb-btn svg { width: 14px; height: 14px; }
+  .tb-icon { background: none; border: none; padding: 0; width: 32px; height: 32px; border-radius: 6px; color: hsl(var(--muted-foreground)); display: grid; place-items: center; transition: background .15s ease, color .15s ease; }
+  .tb-icon:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .tb-avatar { width: 28px; height: 28px; border-radius: 999px; background: hsl(240 5.9% 30%); color: #fff; cursor: pointer; flex: none; margin-left: 4px; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+
+  /* Content */
+  .content { flex: 1; padding: 24px 32px 80px; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Welcome */
+  .welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+  .welcome-left h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; color: hsl(var(--foreground)); }
+  .welcome-left p { font-size: 14px; color: hsl(var(--muted-foreground)); margin-top: 4px; max-width: 60ch; line-height: 1.5; }
+  .welcome-stats { display: flex; gap: 28px; }
+  .welcome-stat .lbl { font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .welcome-stat .val { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; color: hsl(var(--foreground)); }
+  .welcome-stat .delta { font-size: 12px; color: hsl(var(--muted-foreground)); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; }
+  .welcome-stat .delta svg { width: 12px; height: 12px; }
+  .welcome-stat .delta.up { color: hsl(var(--green)); }
+
+  /* Section header */
+  .sec { margin-bottom: 32px; }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  .sec-head h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.005em; color: hsl(var(--foreground)); }
+  .sec-head .sec-actions { display: flex; gap: 6px; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; border-radius: 6px; padding: 0 14px; height: 32px; border: none; cursor: pointer; transition: opacity .15s ease, background .15s ease, color .15s ease, border-color .15s ease; }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-outline { background: transparent; border: 1px solid hsl(var(--input)); color: hsl(var(--foreground)); }
+  .btn-outline:hover { background: hsl(var(--accent)); }
+  .btn-ghost { background: transparent; color: hsl(var(--muted-foreground)); padding: 0 10px; }
+  .btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .btn-lg { height: 40px; padding: 0 20px; font-size: 14px; }
+  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+  .btn-sm svg { width: 12px; height: 12px; }
+
+  /* Insights */
+  .insights-wrap { position: relative; }
+  .insights { display: grid; grid-auto-columns: minmax(320px, 1fr); grid-auto-flow: column; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; scrollbar-width: thin; }
+  .insights::-webkit-scrollbar { height: 6px; }
+  .insights::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 999px; }
+  .insight { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 20px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px; min-height: 200px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  .insight:hover { border-color: hsl(var(--foreground) / 0.3); background: hsl(var(--accent) / 0.4); }
+  .insight .in-date { font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .insight .in-title { font-size: 16px; font-weight: 600; color: hsl(var(--foreground)); letter-spacing: -0.01em; line-height: 1.35; }
+  .insight .in-body { font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.55; flex: 1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .insight .in-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 6px; }
+  .insight .in-go { font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); display: inline-flex; align-items: center; gap: 4px; }
+  .insight .in-go svg { width: 12px; height: 12px; }
+  .insight .in-kind { font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); padding: 2px 8px; border: 1px solid hsl(var(--border)); border-radius: 4px; }
+  .insights-scroll-btn { position: absolute; top: 50%; transform: translateY(-50%); background: hsl(var(--background)); border: 1px solid hsl(var(--border)); width: 28px; height: 28px; border-radius: 999px; cursor: pointer; display: grid; place-items: center; color: hsl(var(--foreground)); z-index: 2; }
+  .insights-scroll-btn:hover { background: hsl(var(--accent)); }
+  .insights-scroll-btn.prev { left: -10px; }
+  .insights-scroll-btn.next { right: -10px; }
+  .insights-scroll-btn svg { width: 14px; height: 14px; }
+
+  /* Feature card */
+  .feature-card { background: hsl(var(--dark-bg)); color: hsl(var(--dark-fg)); border-radius: var(--radius); padding: 28px 32px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center; margin-bottom: 12px; cursor: pointer; position: relative; overflow: hidden; }
+  .feature-card .ft-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.85); padding: 3px 10px; background: hsl(var(--dark-fg) / 0.1); border-radius: 999px; margin-bottom: 14px; }
+  .feature-card .ft-tag .dot { width: 6px; height: 6px; border-radius: 999px; background: hsl(var(--green)); }
+  .feature-card .ft-headline { font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -0.015em; color: hsl(var(--dark-fg)); }
+  .feature-card .ft-desc { font-size: 13px; color: hsl(var(--dark-fg) / 0.7); margin-top: 10px; max-width: 60ch; line-height: 1.55; }
+  .feature-card .ft-meta { display: flex; gap: 28px; margin-top: 18px; }
+  .feature-card .ft-meta .lbl { font-size: 11px; color: hsl(var(--dark-fg) / 0.55); display: block; }
+  .feature-card .ft-meta .val { font-size: 15px; font-weight: 600; color: hsl(var(--dark-fg)); margin-top: 2px; }
+  .feature-card .ft-cta { background: hsl(var(--dark-fg)); color: hsl(var(--dark-bg)); border: none; font-size: 13px; font-weight: 500; padding: 0 16px; height: 34px; border-radius: 6px; cursor: pointer; margin-top: 18px; display: inline-flex; align-items: center; gap: 6px; }
+  .feature-card .ft-cta svg { width: 14px; height: 14px; }
+  .feature-card .ft-side { text-align: right; }
+  .feature-card .ft-bigreward { font-size: 56px; font-weight: 700; line-height: 1; color: hsl(var(--dark-fg)); letter-spacing: -0.03em; }
+  .feature-card .ft-rewardlbl { font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.6); margin-top: 6px; }
+
+  .campaigns-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .camp-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  .camp-card:hover { border-color: hsl(var(--foreground) / 0.3); background: hsl(var(--accent) / 0.4); }
+  .cc-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+  .cc-tag .dot { width: 5px; height: 5px; border-radius: 999px; }
+  .cc-tag.alwayson .dot { background: hsl(var(--muted-foreground)); }
+  .cc-tag.open .dot { background: hsl(var(--green)); }
+  .cc-tag.live .dot { background: hsl(var(--amber)); }
+  .camp-card .cc-title { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); letter-spacing: -0.005em; line-height: 1.35; }
+  .camp-card .cc-desc { font-size: 12.5px; color: hsl(var(--muted-foreground)); line-height: 1.55; flex: 1; }
+  .camp-card .cc-foot { display: flex; align-items: baseline; justify-content: space-between; padding-top: 8px; border-top: 1px solid hsl(var(--border)); }
+  .camp-card .cc-foot .reward { font-size: 16px; font-weight: 600; color: hsl(var(--foreground)); }
+  .camp-card .cc-foot .meta { font-size: 11px; color: hsl(var(--muted-foreground)); }
+
+  /* Brand cards (campaigns) */
+  .brand-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .brand-card { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 4; cursor: pointer; display: flex; flex-direction: column; transition: transform .2s ease; border: none; padding: 0; text-align: left; font-family: inherit; }
+  .brand-card:hover { transform: translateY(-2px); }
+  .brand-card .bc-top { padding: 20px 18px 16px; display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; }
+  .brand-card .bc-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .brand-card .bc-status { font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; opacity: 0.78; letter-spacing: 0; }
+  .brand-card .bc-status .dot { width: 6px; height: 6px; border-radius: 999px; }
+  .brand-card .bc-reward { font-size: 12px; font-weight: 600; opacity: 0.78; font-variant-numeric: tabular-nums; }
+  .brand-card .bc-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; max-width: 13ch; }
+  .brand-card .bc-image { margin: 0 14px 14px; border-radius: 10px; aspect-ratio: 4 / 3; background-size: cover; background-position: center; flex: none; }
+
+  /* Brand card color variants (each campaign gets a distinct vibe) */
+  .bc--navy   { background: #1c2440; color: #f4e759; }
+  .bc--navy   .bc-status .dot { background: #f4e759; }
+  .bc--brick  { background: #efb1a0; color: #5a1b18; }
+  .bc--brick  .bc-status .dot { background: #5a1b18; }
+  .bc--sky    { background: #b8d3e8; color: #182340; }
+  .bc--sky    .bc-status .dot { background: #182340; }
+  .bc--ink    { background: #0d0d0d; color: #fafafa; }
+  .bc--ink    .bc-status .dot { background: hsl(var(--green)); }
+  .bc--brown  { background: #4a2c1a; color: #f4e4cc; }
+  .bc--brown  .bc-status .dot { background: #f4e4cc; }
+  .bc--olive  { background: #4d5a3a; color: #f0ecd8; }
+  .bc--olive  .bc-status .dot { background: #f0ecd8; }
+  .bc--cream  { background: #e8e1d3; color: #2a2422; }
+  .bc--cream  .bc-status .dot { background: #2a2422; }
+
+  /* Referrals table */
+  .ref-grid { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
+  .ref-row { display: grid; grid-template-columns: 32px 1.4fr 1fr 1fr 90px 100px; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid hsl(var(--border)); font-size: 13px; }
+  .ref-row:last-child { border-bottom: none; }
+  .ref-row.head { background: hsl(var(--muted) / 0.5); padding: 9px 16px; }
+  .ref-row.head > * { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.02em; }
+  .ref-row .avatar-pill { width: 24px; height: 24px; border-radius: 4px; background: hsl(var(--secondary)); display: grid; place-items: center; font-weight: 600; font-size: 11px; color: hsl(var(--foreground)); }
+  .ref-row .brand { color: hsl(var(--foreground)); font-weight: 500; }
+  .ref-row .src { color: hsl(var(--muted-foreground)); }
+  .ref-row .date { color: hsl(var(--muted-foreground)); }
+  .ref-row .stage { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; background: hsl(var(--secondary)); color: hsl(var(--foreground)); }
+  .stage .dot { width: 5px; height: 5px; border-radius: 999px; }
+  .stage.closed .dot { background: hsl(var(--green)); }
+  .stage.demo .dot { background: hsl(var(--amber)); }
+  .stage.clicked .dot { background: hsl(var(--muted-foreground)); }
+  .stage.clicked { color: hsl(var(--muted-foreground)); }
+  .ref-row .payout { font-weight: 600; color: hsl(var(--foreground)); text-align: right; }
+  .ref-row .payout.pending { color: hsl(var(--muted-foreground)); font-weight: 500; }
+  .ref-row .payout.none { color: hsl(var(--muted-foreground)); font-weight: 400; }
+
+  /* Card */
+  .card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 20px; }
+  .card .card-title { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 2px; }
+  .card .card-sub { font-size: 13px; color: hsl(var(--muted-foreground)); margin-bottom: 16px; line-height: 1.55; }
+
+  /* Share */
+  .codelink-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .cl-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 18px; }
+  .cl-card .cl-lbl { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.02em; }
+  .cl-card .cl-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+  .cl-card .cl-val { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; color: hsl(var(--foreground)); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cl-card .cl-btn { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; font-size: 12px; font-weight: 500; height: 28px; padding: 0 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .cl-card .cl-btn svg { width: 12px; height: 12px; }
+  .cl-card .cl-btn:hover { opacity: 0.9; }
+  .cl-card .cl-btn.copied { background: hsl(var(--green)); }
+  .cl-card .cl-foot { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 10px; }
+
+  .toolkit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .tk-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: border-color .15s ease; }
+  .tk-card:hover { border-color: hsl(var(--foreground) / 0.3); }
+  .tk-card .tk-type { font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); }
+  .tk-card .tk-title { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); letter-spacing: -0.005em; line-height: 1.35; }
+  .tk-card .tk-preview { background: hsl(var(--muted) / 0.5); border: 1px solid hsl(var(--border)); border-radius: 6px; padding: 10px 12px; font-size: 12px; color: hsl(var(--foreground)); line-height: 1.55; max-height: 80px; overflow: hidden; position: relative; }
+  .tk-card .tk-preview::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 20px; background: linear-gradient(transparent, hsl(var(--muted))); }
+  .tk-card .tk-actions { display: flex; gap: 6px; }
+
+  /* Earnings */
+  .earn-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+  .earn-hero .eh-lbl { font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .earn-hero .eh-num { font-size: 48px; font-weight: 700; line-height: 1; color: hsl(var(--foreground)); letter-spacing: -0.03em; margin-top: 6px; }
+  .earn-hero .eh-sub { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 8px; }
+  .earn-hero .eh-sub b { color: hsl(var(--foreground)); font-weight: 600; }
+
+  .pipeline { display: grid; grid-template-columns: repeat(4, 1fr); background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; }
+  .pipeline > div { padding: 18px 20px; border-right: 1px solid hsl(var(--border)); }
+  .pipeline > div:last-child { border-right: none; }
+  .pipeline .pl-lbl { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.02em; }
+  .pipeline .pl-val { font-size: 26px; font-weight: 700; color: hsl(var(--foreground)); margin-top: 6px; letter-spacing: -0.02em; line-height: 1; }
+  .pipeline .pl-sub { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
+
+  /* Leaderboard */
+  .board { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
+  .board-row { display: grid; grid-template-columns: 44px 1fr auto auto; gap: 16px; padding: 12px 18px; border-bottom: 1px solid hsl(var(--border)); align-items: center; }
+  .board-row:last-child { border-bottom: none; }
+  .board-row .rank { font-size: 14px; font-weight: 600; color: hsl(var(--muted-foreground)); font-variant-numeric: tabular-nums; }
+  .board-row .rank.top { color: hsl(var(--foreground)); }
+  .board-row .name { font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); }
+  .board-row .refs { font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .board-row .earned { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); }
+  .board-row.me { background: hsl(var(--accent) / 0.5); }
+
+  /* Wins page */
+  .wins-hero { background: hsl(var(--dark-bg)); color: hsl(var(--dark-fg)); border-radius: var(--radius); padding: 36px 32px 32px; margin-bottom: 20px; display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px; align-items: center; }
+  .wins-hero .wh-kicker { font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.6); display: inline-flex; align-items: center; gap: 6px; }
+  .wins-hero .wh-kicker svg { width: 14px; height: 14px; color: hsl(var(--dark-fg) / 0.7); }
+  .wins-hero .wh-num { font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: hsl(var(--dark-fg)); margin-top: 10px; }
+  .wins-hero .wh-label { font-size: 14px; color: hsl(var(--dark-fg) / 0.7); margin-top: 12px; max-width: 38ch; line-height: 1.5; }
+  .wins-hero .wh-delta { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; background: hsl(var(--dark-fg) / 0.08); padding: 4px 10px; border-radius: 999px; margin-top: 12px; color: hsl(var(--dark-fg) / 0.9); }
+  .wins-hero .wh-delta svg { width: 12px; height: 12px; color: hsl(var(--green)); }
+  .wins-hero .wh-cta { background: hsl(var(--dark-fg)); color: hsl(var(--dark-bg)); border: none; font-size: 13px; font-weight: 500; padding: 0 16px; height: 36px; border-radius: 6px; cursor: pointer; margin-top: 20px; display: inline-flex; align-items: center; gap: 6px; }
+  .wins-hero .wh-cta svg { width: 14px; height: 14px; }
+  .wins-hero .wh-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .wins-hero .wh-side .lbl { font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.5); }
+  .wins-hero .wh-side .rank { font-size: 40px; font-weight: 700; color: hsl(var(--dark-fg)); letter-spacing: -0.025em; margin-top: 4px; line-height: 1; }
+  .wins-hero .wh-side .rank-sub { font-size: 12px; color: hsl(var(--dark-fg) / 0.6); margin-top: 4px; }
+
+  .wins-chart-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; }
+  .wins-chart-card .wcc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; gap: 16px; flex-wrap: wrap; }
+  .wins-chart-card h3 { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); }
+  .wins-chart-card .wcc-legend { display: flex; gap: 16px; font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .wins-chart-card .lg-swatch { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; border-radius: 999px; }
+  .wins-chart-card .lg-swatch.cur { background: hsl(var(--foreground)); }
+  .wins-chart-card .lg-swatch.prev { background: hsl(var(--muted-foreground)); }
+  .wins-chart svg { display: block; width: 100%; height: 240px; }
+  .wins-chart .axis { display: flex; justify-content: space-between; padding: 8px 4px 0; font-size: 11px; color: hsl(var(--muted-foreground)); }
+
+  .wins-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .win-stat { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: border-color .15s ease; }
+  .win-stat:hover { border-color: hsl(var(--foreground) / 0.3); }
+  .win-stat .ws-lbl { font-size: 12px; color: hsl(var(--muted-foreground)); }
+  .win-stat .ws-val { font-size: 28px; font-weight: 700; color: hsl(var(--foreground)); letter-spacing: -0.02em; line-height: 1; }
+  .win-stat .ws-val .unit { font-size: 0.55em; color: hsl(var(--muted-foreground)); font-weight: 600; }
+  .win-stat .ws-sub { font-size: 12.5px; color: hsl(var(--muted-foreground)); line-height: 1.55; flex: 1; }
+  .win-stat .ws-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: hsl(var(--green)); }
+  .win-stat .ws-delta svg { width: 12px; height: 12px; }
+
+  .tier-banner { background: hsl(var(--dark-bg)); color: hsl(var(--dark-fg)); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 24px; display: grid; grid-template-columns: 140px 1fr auto; gap: 24px; align-items: center; }
+  .tier-banner .hat-img { width: 140px; }
+  .tier-banner .hat-img svg { display: block; width: 100%; height: auto; }
+  .tier-banner .tb-eyebrow { font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.6); }
+  .tier-banner .tb-brand { font-size: 11px; font-weight: 500; color: hsl(var(--dark-fg) / 0.55); margin-top: 14px; }
+  .tier-banner .tb-reward { font-size: 22px; font-weight: 700; color: hsl(var(--dark-fg)); letter-spacing: -0.015em; line-height: 1.1; margin-top: 2px; }
+  .tier-banner .tb-bar-wrap { margin-top: 14px; max-width: 380px; }
+  .tier-banner .tb-bar { height: 6px; background: hsl(var(--dark-fg) / 0.15); border-radius: 999px; position: relative; overflow: hidden; }
+  .tier-banner .tb-bar-fill { height: 100%; background: hsl(var(--dark-fg)); border-radius: 999px; }
+  .tier-banner .tb-pct { font-size: 12px; color: hsl(var(--dark-fg) / 0.7); margin-top: 10px; }
+  .tier-banner .tb-pct b { color: hsl(var(--dark-fg)); font-weight: 600; }
+  .tier-banner .tb-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .tier-banner .tb-cta { background: hsl(var(--dark-fg)); color: hsl(var(--dark-bg)); border: none; font-size: 13px; font-weight: 500; padding: 0 14px; height: 32px; border-radius: 6px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .tier-banner .tb-cta svg { width: 14px; height: 14px; }
+  .tier-banner .tb-side .all-rewards { font-size: 12px; color: hsl(var(--dark-fg) / 0.65); cursor: pointer; background: none; border: none; }
+  .tier-banner .tb-side .all-rewards:hover { color: hsl(var(--dark-fg)); }
+
+  .wins-share { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 20px; }
+  .wins-share .ws-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  .wins-share .ws-head h3 { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); }
+  .wins-share .ws-head .lead { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 2px; }
+  .wins-share .ws-actions { display: flex; gap: 6px; }
+  .wins-share .ws-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid hsl(var(--border)); }
+  .wins-share .ws-row .ws-lbl-row { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); min-width: 44px; letter-spacing: 0.02em; }
+  .wins-share .ws-row .ws-val-row { flex: 1; min-width: 0; font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wins-share .ws-row .ws-copy { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; font-size: 12px; font-weight: 500; height: 28px; padding: 0 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .wins-share .ws-row .ws-copy svg { width: 12px; height: 12px; }
+  .wins-share .ws-row .ws-copy.copied { background: hsl(var(--green)); }
+
+  .section-title { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.02em; margin: 4px 0 12px; }
+
+  /* Wins page (scatter cards) */
+  .wins-header { text-align: center; padding: 12px 0 4px; }
+  .wins-header .wh-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin-bottom: 16px; }
+  .wins-display { font-size: 42px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.05; color: hsl(var(--foreground)); max-width: 22ch; margin: 0 auto; }
+  .wins-display em { font-style: italic; font-weight: 500; }
+  .wins-sub { font-size: 14px; color: hsl(var(--muted-foreground)); margin: 14px auto 0; max-width: 52ch; line-height: 1.55; }
+
+  .wins-scatter { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 36px 4px 56px; }
+  .win-note { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); padding: 22px 22px; border-radius: 10px; cursor: pointer; transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease, border-color .15s ease; text-align: left; font-family: inherit; display: flex; flex-direction: column; gap: 10px; min-height: 170px; color: hsl(var(--foreground)); }
+  .win-note:hover { transform: scale(1.04) rotate(0deg) !important; z-index: 10; box-shadow: 0 8px 28px rgba(13, 13, 13, 0.08); border-color: hsl(var(--foreground) / 0.35); }
+  .win-note .wn-eyebrow { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.08em; text-transform: uppercase; }
+  .win-note .wn-stat { font-size: 44px; font-weight: 700; letter-spacing: -0.03em; line-height: 0.95; color: hsl(var(--foreground)); }
+  .win-note .wn-label { font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.5; }
+  .win-note .wn-headline { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: hsl(var(--foreground)); }
+  .win-note .wn-headline em { font-style: italic; font-weight: 500; }
+  .win-note .wn-quote { font-size: 16px; font-weight: 500; line-height: 1.4; color: hsl(var(--foreground)); letter-spacing: -0.005em; }
+  .win-note .wn-attr { font-size: 11.5px; color: hsl(var(--muted-foreground)); margin-top: auto; }
+  .win-note ul { list-style: none; padding: 0; margin: 0; }
+  .win-note ul li { font-size: 13.5px; color: hsl(var(--foreground)); padding: 7px 0; border-bottom: 1px solid hsl(var(--border)); font-variant-numeric: tabular-nums; }
+  .win-note ul li:last-child { border-bottom: none; }
+  .win-note .wn-progress { margin-top: auto; padding-top: 12px; }
+  .win-note .wn-progress-bar { height: 5px; background: hsl(var(--muted)); border-radius: 999px; overflow: hidden; }
+  .win-note .wn-progress-fill { height: 100%; background: hsl(var(--foreground)); border-radius: 999px; }
+  .win-note .wn-progress-pct { font-size: 11.5px; color: hsl(var(--muted-foreground)); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .win-note.wn--md { min-height: 220px; }
+  .win-note.wn--xl { min-height: 240px; padding: 26px 24px; gap: 12px; }
+  .win-note.wn--xl .wn-stat { font-size: 56px; }
+  .win-note.wn--dark { background: hsl(var(--dark-bg)); color: hsl(var(--dark-fg)); border-color: hsl(var(--dark-bg)); }
+  .win-note.wn--dark .wn-eyebrow { color: hsl(var(--dark-fg) / 0.6); }
+  .win-note.wn--dark .wn-stat { color: hsl(var(--dark-fg)); }
+  .win-note.wn--dark .wn-label { color: hsl(var(--dark-fg) / 0.75); }
+  .win-note.wn--dark .wn-headline { color: hsl(var(--dark-fg)); }
+  .win-note.wn--dark ul li { color: hsl(var(--dark-fg)); border-bottom-color: hsl(var(--dark-fg) / 0.18); }
+  .win-note.wn--dark:hover { border-color: hsl(var(--dark-bg)); }
+
+  /* Scatter rotations & offsets */
+  .wins-scatter .win-note:nth-child(1)  { transform: rotate(-1.6deg); margin-top: 6px; }
+  .wins-scatter .win-note:nth-child(2)  { transform: rotate(1.5deg);  margin-top: -14px; }
+  .wins-scatter .win-note:nth-child(3)  { transform: rotate(-1deg);   margin-top: 18px; }
+  .wins-scatter .win-note:nth-child(4)  { transform: rotate(2.2deg);  margin-top: -10px; }
+  .wins-scatter .win-note:nth-child(5)  { transform: rotate(-2deg);   margin-top: 12px; }
+  .wins-scatter .win-note:nth-child(6)  { transform: rotate(1.1deg);  margin-top: -8px; }
+  .wins-scatter .win-note:nth-child(7)  { transform: rotate(-2.4deg); margin-top: 20px; }
+  .wins-scatter .win-note:nth-child(8)  { transform: rotate(1.8deg);  margin-top: -14px; }
+  .wins-scatter .win-note:nth-child(9)  { transform: rotate(-0.6deg); margin-top: 6px; }
+  .wins-scatter .win-note:nth-child(10) { transform: rotate(2deg);    margin-top: -4px; }
+
+  /* Reward stage — grouped colored cards by period */
+  .reward-stage { padding: 0; }
+  .reward-fan { display: flex; flex-direction: column; gap: 32px; }
+  .reward-section { display: flex; flex-direction: column; gap: 14px; }
+  .reward-section-head { display: flex; align-items: center; gap: 10px; }
+  .reward-section-head h3 { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); letter-spacing: -0.005em; }
+  .reward-section-head .count { font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); padding: 2px 8px; background: hsl(var(--muted)); border-radius: 999px; }
+  .reward-section-head::after { content: ""; flex: 1; height: 1px; background: hsl(var(--border)); }
+
+  .reward-cards-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .reward-card { position: relative; border-radius: 14px; padding: 18px; aspect-ratio: 4 / 5; display: grid; grid-template-rows: 1fr auto; cursor: pointer; overflow: hidden; transition: transform .2s ease; }
+  .reward-card:hover { transform: translateY(-2px); }
+  .reward-card .rc-img { background-size: contain; background-position: center; background-repeat: no-repeat; min-height: 0; }
+  .reward-card .rc-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; margin-top: 12px; }
+  .reward-card .rc-badge { position: absolute; top: 12px; right: 12px; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.18); color: inherit; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.01em; }
+  .reward-card .rc-badge svg { width: 10px; height: 10px; }
+  .reward-card.locked { opacity: 0.86; }
+
+  /* Color variants — pulled from Campaigns palette */
+  .reward-card.bg-navy   { background: #1c2440; color: #f4e759; }
+  .reward-card.bg-brick  { background: #efb1a0; color: #5a1b18; }
+  .reward-card.bg-sky    { background: #b8d3e8; color: #182340; }
+  .reward-card.bg-ink    { background: #0d0d0d; color: #fafafa; }
+  .reward-card.bg-brown  { background: #4a2c1a; color: #f4e4cc; }
+  .reward-card.bg-olive  { background: #4d5a3a; color: #f0ecd8; }
+  .reward-card.bg-cream  { background: #e8e1d3; color: #2a2422; }
+  /* Light card variants need a more visible badge background */
+  .reward-card.bg-brick .rc-badge,
+  .reward-card.bg-sky .rc-badge,
+  .reward-card.bg-cream .rc-badge { background: rgba(0,0,0,0.10); }
+
+  /* Win detail modal */
+  .win-overlay { position: fixed; inset: 0; z-index: 50; background: hsl(var(--foreground) / 0.55); display: grid; place-items: center; padding: 24px; backdrop-filter: blur(4px); }
+  .win-overlay.hidden { display: none; }
+  .win-modal { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; max-width: 600px; width: 100%; max-height: 92vh; overflow-y: auto; position: relative; padding: 36px 36px 32px; }
+  .win-close { position: absolute; top: 14px; right: 14px; background: transparent; border: none; width: 32px; height: 32px; border-radius: 6px; color: hsl(var(--muted-foreground)); cursor: pointer; display: grid; place-items: center; }
+  .win-close:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .wm-eyebrow { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.08em; text-transform: uppercase; }
+  .wm-headline { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: hsl(var(--foreground)); margin: 10px 0 6px; }
+  .wm-detail { font-size: 14px; color: hsl(var(--muted-foreground)); line-height: 1.6; margin: 14px 0 20px; }
+  .wm-caption-wrap { background: hsl(var(--muted) / 0.55); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+  .wm-caption-label { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .wm-caption { font-size: 13.5px; color: hsl(var(--foreground)); line-height: 1.6; white-space: pre-wrap; }
+  .wm-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  @media (max-width: 1080px) {
+    .pipeline { grid-template-columns: repeat(2, 1fr); }
+    .campaigns-grid { grid-template-columns: repeat(2, 1fr); }
+    .brand-cards { grid-template-columns: repeat(3, 1fr); }
+    .toolkit-grid { grid-template-columns: repeat(2, 1fr); }
+    .codelink-panel { grid-template-columns: 1fr; }
+    .ref-row { grid-template-columns: 28px 1.2fr 1fr 80px 80px; }
+    .ref-row .src { display: none; }
+    /* Don't let the merchant-side responsive collapse touch admin tables */
+    #adminShell .ref-row { grid-template-columns: 32px 1.4fr 1fr 1fr 90px 100px; }
+    #adminShell .ref-row .src { display: block; }
+    .wins-grid { grid-template-columns: 1fr 1fr; }
+    .wins-scatter { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; overflow-x: auto; padding: 8px; gap: 4px; }
+    .sidebar-footer, .nav-section, .nav-divider, .brand-switcher { display: none; }
+    .nav-item { flex: none; width: auto; }
+    .content { padding: 16px 16px 60px; }
+    .feature-card { grid-template-columns: 1fr; padding: 22px; }
+    .feature-card .ft-side { text-align: left; }
+    .feature-card .ft-bigreward { font-size: 44px; }
+    .welcome { flex-direction: column; align-items: flex-start; }
+    .welcome-stats { gap: 22px; }
+    .campaigns-grid, .toolkit-grid, .wins-grid, .brand-cards, .wins-scatter { grid-template-columns: 1fr; }
+    .wins-scatter .win-note { transform: none !important; margin-top: 0 !important; }
+    .wins-display { font-size: 32px; }
+    .landing-display { font-size: 48px; }
+    .float-card { display: none; }
+    .landing-stage { min-height: 480px; padding: 40px 20px 60px; }
+    .pipeline { grid-template-columns: 1fr 1fr; }
+    .ref-row { grid-template-columns: 1fr 60px 70px; gap: 8px; font-size: 12.5px; }
+    .ref-row .avatar-pill, .ref-row .src, .ref-row .date { display: none; }
+    .tier-banner { grid-template-columns: 1fr; }
+    .tier-banner .hat-img { display: none; }
+    .wins-hero { grid-template-columns: 1fr; padding: 24px; }
+    .wins-hero .wh-num { font-size: 44px; }
+    .wins-hero .wh-side { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============================== LANDING ============================== -->
+  <div class="login" id="loginScreen">
+    <nav class="landing-nav">
+      <div class="landing-logo">
+        <img class="redo-wordmark" src="redo-wordmark.svg" alt="Redo" />
+        <span class="landing-badge">Merchant Led Growth</span>
+      </div>
+      <div class="landing-nav-right">
+        <button class="landing-link" type="button" id="navSignIn">Sign in</button>
+        <button class="landing-cta" type="button" id="navSignUp">Get started <i data-lucide="arrow-right"></i></button>
+      </div>
+    </nav>
+
+    <div class="landing-stage">
+      <!-- Floating preview cards (mini versions of what's inside the portal) -->
+      <div class="float-card" style="top: 10%; left: 6%; transform: rotate(-7deg);">
+        <div class="fc-win">
+          <div class="fc-label">Biggest win · 2026</div>
+          <div class="fc-num">$890K</div>
+          <div class="fc-sub">kept from refunds</div>
+        </div>
+      </div>
+
+      <div class="float-card" style="top: 12%; right: 7%; transform: rotate(6deg);">
+        <div class="fc-camp fc-camp-navy">
+          <div class="fc-camp-tag">Live · ends Friday</div>
+          <div class="fc-camp-title">$80M raised. Spending it on you.</div>
+          <div class="fc-camp-reward">$250</div>
+        </div>
+      </div>
+
+      <div class="float-card" style="bottom: 16%; left: 4%; transform: rotate(4deg);">
+        <div class="fc-payout">
+          <div class="fc-av">S</div>
+          <div class="fc-stack">
+            <div class="fc-brand">Salt &amp; Tide</div>
+            <div class="fc-stage">Closed-won · Apr 18</div>
+          </div>
+          <div class="fc-amt">$200</div>
+        </div>
+      </div>
+
+      <div class="float-card" style="bottom: 14%; right: 5%; transform: rotate(-5deg);">
+        <div class="fc-reward">
+          <div class="fc-rw-img" style="background-image: url('https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&amp;fit=crop&amp;w=320&amp;q=70');"></div>
+          <div class="fc-rw-name">Custom hat</div>
+          <div class="fc-rw-pill"><i data-lucide="check"></i>Earned Mar 2024</div>
+        </div>
+      </div>
+
+      <div class="float-card" style="top: 46%; left: 1%; transform: rotate(-3deg);">
+        <div class="fc-lb">
+          <span class="fc-lb-rank">#3</span>
+          <span class="fc-lb-name">Wildflower Co.</span>
+          <span class="fc-lb-amt">$1,600</span>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="landing-hero">
+        <h1 class="landing-display">One home for <em>everything</em> you earn.</h1>
+        <p class="landing-sub">Track your brand wins, run paid campaigns, refer brands, and watch the payouts land. The portal Redo built for the merchants who grow with us.</p>
+        <button class="landing-cta-big" type="button" id="heroCta">Get started — free <i data-lucide="arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== AUTH MODAL ============================== -->
+  <div class="auth-overlay hidden" id="authOverlay">
+    <div class="auth-overlay-bg" id="authBg"></div>
+    <div class="auth-card-wrap">
+      <button class="auth-card-close" id="authClose" aria-label="Close"><i data-lucide="x"></i></button>
+      <div class="login-card">
+        <div class="login-logo">
+          <img class="redo-wordmark" src="redo-wordmark.svg" alt="Redo" />
+        </div>
+        <div class="login-tabs">
+          <button class="login-tab active" type="button" data-view="signin">Sign in</button>
+          <button class="login-tab" type="button" data-view="signup">Sign up</button>
+        </div>
+
+        <form class="login-form" id="signinForm" data-view="signin" autocomplete="off">
+          <h1>Welcome back</h1>
+          <p>Sign in to your Merchant Led Growth account.</p>
+          <label for="signinEmail">Work email</label>
+          <input type="email" id="signinEmail" name="email" placeholder="you@yourbrand.com" required />
+          <div class="login-error" id="signinError"></div>
+          <button type="submit" class="submit">
+            Continue
+            <i data-lucide="arrow-right"></i>
+          </button>
+        </form>
+
+        <form class="login-form hidden" id="signupForm" data-view="signup" autocomplete="off">
+          <h1>Join the network</h1>
+          <p>Create your Merchant Led Growth account. Two minutes, no payment.</p>
+          <label for="suName">Your name</label>
+          <input type="text" id="suName" name="fullname" placeholder="Sam Adler" required />
+          <label for="suEmail">Work email</label>
+          <input type="email" id="suEmail" name="email" placeholder="you@yourbrand.com" required />
+          <label for="suBrand">Brand name</label>
+          <input type="text" id="suBrand" name="brand" placeholder="Wildflower Co." required />
+          <label for="suUrl">Brand URL <span class="optional">(optional)</span></label>
+          <input type="url" id="suUrl" name="url" placeholder="https://yourbrand.com" />
+          <div class="login-error" id="signupError"></div>
+          <button type="submit" class="submit">
+            Create account
+            <i data-lucide="arrow-right"></i>
+          </button>
+        </form>
+        <div class="login-foot" style="margin-top: 16px;">
+          <span id="footText">New here?</span>
+          <a href="#" id="footLink">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== APP SHELL ============================== -->
+  <div class="shell" id="appShell">
+
+    <aside class="sidebar">
+      <div class="brand-wrap">
+        <button class="brand-switcher" type="button" id="brandSwitcher">
+          <div class="bs-mark">W</div>
+          <div class="bs-name">Wildflower&nbsp;Co.</div>
+          <i data-lucide="chevrons-up-down"></i>
+        </button>
+        <div class="brand-menu hidden" id="brandMenu">
+          <div class="brand-menu-info">
+            <div class="bm-brand" id="bmBrand">Wildflower Co.</div>
+            <div class="bm-email" id="bmEmail">founder@wildflower.co</div>
+          </div>
+          <div class="brand-menu-sep"></div>
+          <button type="button" id="sidebarSignOut">
+            <i data-lucide="log-out"></i>
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <button class="nav-item active" data-page="campaigns">
+        <i data-lucide="megaphone"></i>
+        Campaigns
+        <span class="badge">4</span>
+      </button>
+      <button class="nav-item" data-page="wins">
+        <i data-lucide="trophy"></i>
+        Wins
+        <span class="pip"></span>
+      </button>
+      <button class="nav-item" data-page="milestones">
+        <i data-lucide="medal"></i>
+        Rewards
+      </button>
+      <button class="nav-item" data-page="share">
+        <i data-lucide="share-2"></i>
+        Share toolkit
+      </button>
+      <button class="nav-item" data-page="earnings">
+        <i data-lucide="dollar-sign"></i>
+        Earnings
+      </button>
+
+      <div class="nav-divider"></div>
+      <div class="nav-section">Movement</div>
+      <button class="nav-item" data-page="leaderboard">
+        <i data-lucide="bar-chart-3"></i>
+        Leaderboard
+      </button>
+      <button class="nav-item" data-page="resources">
+        <i data-lucide="book-open"></i>
+        Resources
+      </button>
+
+      <div class="sidebar-footer">
+        <button class="nav-item">
+          <i data-lucide="life-buoy"></i>
+          Help
+        </button>
+        <button class="nav-item" data-page="settings">
+          <i data-lucide="settings"></i>
+          Settings
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">
+          <span id="crumbTitle">Campaigns</span>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <!-- ====================== WINS ====================== -->
+        <section class="page" data-page="wins">
+          <div class="wins-header">
+            <div class="wh-eyebrow">Your wins · 2026</div>
+            <h1 class="wins-display">A year of moves <em>worth bragging about</em>.</h1>
+            <p class="wins-sub">Every milestone pulled live from your Redo dashboard. Click any card to open the story and copy a ready-to-post caption.</p>
+          </div>
+
+          <div class="wins-scatter">
+            <button class="win-note wn--xl wn--dark" data-win="revenue">
+              <div class="wn-eyebrow">Biggest win</div>
+              <div class="wn-stat">$890K</div>
+              <div class="wn-label">kept in your business this year from refunds.</div>
+            </button>
+            <button class="win-note wn--md" data-win="rank">
+              <div class="wn-eyebrow">Accolade</div>
+              <div class="wn-headline">You're <em>top 5%</em> of every brand on Redo this year.</div>
+            </button>
+            <button class="win-note" data-win="exchange">
+              <div class="wn-stat">58%</div>
+              <div class="wn-label">of returns turned into exchanges. Top quartile on Redo.</div>
+            </button>
+            <button class="win-note wn--list" data-win="csat">
+              <div class="wn-eyebrow">Shopper love</div>
+              <ul>
+                <li>CSAT · 94 / 100</li>
+                <li>NPS · +62</li>
+                <li>Repeat rate · 31%</li>
+              </ul>
+            </button>
+            <button class="win-note wn--md" data-win="quote">
+              <div class="wn-quote">"Redo cut our returns team from four to one. The math sells itself."</div>
+              <div class="wn-attr">Sam, ops lead · pulled from your CS interview, May 9</div>
+            </button>
+            <button class="win-note" data-win="ship">
+              <div class="wn-stat">1.5M</div>
+              <div class="wn-label">packages shipped on time across 2026.</div>
+            </button>
+            <button class="win-note wn--md" data-win="growth">
+              <div class="wn-eyebrow">YoY growth</div>
+              <div class="wn-stat">+42%</div>
+              <div class="wn-label">revenue retained vs 2025. Best year on record.</div>
+            </button>
+            <button class="win-note" data-win="recover">
+              <div class="wn-stat">$214K</div>
+              <div class="wn-label">carts brought back from abandoned. More than your CS team cost.</div>
+            </button>
+            <button class="win-note wn--list wn--dark" data-win="streaks">
+              <div class="wn-eyebrow">Streaks</div>
+              <ul>
+                <li>13-week shipping streak</li>
+                <li>52-week exchange streak</li>
+                <li>0 missed payouts</li>
+              </ul>
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================== REWARDS ====================== -->
+        <section class="page" data-page="milestones">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Milestone rewards</h1>
+              <p>Every tier ships you something real. Hover any reward to see how to unlock it. Cross any one threshold and we ship within two weeks.</p>
+            </div>
+          </div>
+          <div class="reward-stage">
+            <div class="reward-fan" id="rewardFan"></div>
+          </div>
+        </section>
+
+        <!-- ====================== CAMPAIGNS ====================== -->
+        <section class="page active" data-page="campaigns">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Campaign opportunities</h1>
+              <p>Take the campaigns that fit your vibe; skip the rest. We pay within 24 hours of confirmation. New campaigns drop every Tuesday.</p>
+            </div>
+          </div>
+
+          <div class="brand-cards">
+            <button class="brand-card bc--navy">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Live · ends Friday</span>
+                  <span class="bc-reward">$250</span>
+                </div>
+                <h3 class="bc-title">$80M raised. We're spending it on you.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--brick">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Always-on</span>
+                  <span class="bc-reward">$200</span>
+                </div>
+                <h3 class="bc-title">Refer a brand that goes live.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--sky">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Open</span>
+                  <span class="bc-reward">$100</span>
+                </div>
+                <h3 class="bc-title">"OK to post this quote?"</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--ink">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Open</span>
+                  <span class="bc-reward">$100</span>
+                </div>
+                <h3 class="bc-title">Post about your experience.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--brown">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Live · ends Friday</span>
+                  <span class="bc-reward">$2K pool</span>
+                </div>
+                <h3 class="bc-title">Reply to Sterling's launch tweet.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--olive">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Always-on</span>
+                  <span class="bc-reward">$500</span>
+                </div>
+                <h3 class="bc-title">Sit for a case study.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+
+            <button class="brand-card bc--cream">
+              <div class="bc-top">
+                <div class="bc-meta">
+                  <span class="bc-status"><span class="dot"></span>Always-on</span>
+                  <span class="bc-reward">$500</span>
+                </div>
+                <h3 class="bc-title">Refer a partner agency.</h3>
+              </div>
+              <div class="bc-image" style="background-image: url('https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&amp;fit=crop&amp;w=720&amp;q=70')"></div>
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================== SHARE ====================== -->
+        <section class="page" data-page="share">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Your share toolkit</h1>
+              <p>Everything you need to share Redo, in your voice, with attribution baked in. Every click rides your link.</p>
+            </div>
+          </div>
+
+          <div class="codelink-panel">
+            <div class="cl-card">
+              <div class="cl-lbl">Your code</div>
+              <div class="cl-row">
+                <div class="cl-val">WILDFLOWER</div>
+                <button class="cl-btn aff-copy" data-copy="WILDFLOWER"><i data-lucide="copy"></i>Copy</button>
+              </div>
+              <div class="cl-foot">Pair with any link. Customers can paste it at checkout.</div>
+            </div>
+            <div class="cl-card">
+              <div class="cl-lbl">Your link</div>
+              <div class="cl-row">
+                <div class="cl-val">redo.com/r/wildflower</div>
+                <button class="cl-btn aff-copy" data-copy="https://redo.com/r/wildflower"><i data-lucide="copy"></i>Copy</button>
+              </div>
+              <div class="cl-foot">UTM-tracked. Cookie window is 90 days. Drop anywhere.</div>
+            </div>
+          </div>
+
+          <h3 class="section-title">Ready-to-post content</h3>
+          <div class="toolkit-grid">
+            <div class="tk-card">
+              <div class="tk-type">LinkedIn post</div>
+              <div class="tk-title">Year-in-review brag</div>
+              <div class="tk-preview">This year on Redo: kept $890K from walking out the door, turned 58% of returns into exchanges, and shipped 1.5M packages on time. The wild part is the team didn't grow at all...</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="copy"></i>Copy</button>
+                <button class="btn btn-outline btn-sm"><i data-lucide="pencil"></i>Edit</button>
+              </div>
+            </div>
+            <div class="tk-card">
+              <div class="tk-type">Instagram story</div>
+              <div class="tk-title">"Top 5%" wins card</div>
+              <div class="tk-preview">Image card with your "Top 5%" badge, your logo, the Redo wordmark. Includes your code + swipe-up link.</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="download"></i>Download</button>
+                <button class="btn btn-outline btn-sm"><i data-lucide="instagram"></i>Share</button>
+              </div>
+            </div>
+            <div class="tk-card">
+              <div class="tk-type">Twitter / X</div>
+              <div class="tk-title">One-liner brag</div>
+              <div class="tk-preview">$890K we didn't refund. 1.5M packages. 58% exchange rate. Redo runs the back-half of @wildflowerco. redo.com/r/wildflower</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="copy"></i>Copy</button>
+                <button class="btn btn-outline btn-sm"><i data-lucide="send"></i>Post</button>
+              </div>
+            </div>
+            <div class="tk-card">
+              <div class="tk-type">Email signature</div>
+              <div class="tk-title">"Member, Merchant Led Growth"</div>
+              <div class="tk-preview">A 1-line signature with the Member badge, your code, and the Redo wordmark. Drops into Apple Mail, Gmail, Superhuman.</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="plus"></i>Install</button>
+                <button class="btn btn-outline btn-sm"><i data-lucide="eye"></i>Preview</button>
+              </div>
+            </div>
+            <div class="tk-card">
+              <div class="tk-type">Brand assets</div>
+              <div class="tk-title">Logos, lockups, screenshots</div>
+              <div class="tk-preview">Redo wordmark (orange, black, white), partner badges, high-res screenshots of your wins ready to drop into a deck or post.</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="folder-open"></i>Open kit</button>
+              </div>
+            </div>
+            <div class="tk-card">
+              <div class="tk-type">Quote graphic</div>
+              <div class="tk-title">Your testimonial, formatted</div>
+              <div class="tk-preview">"Redo was the back-half we never had to build. Returns went from a four-person team to one person watching a queue." — pulled from your CS call.</div>
+              <div class="tk-actions">
+                <button class="btn btn-primary btn-sm"><i data-lucide="check"></i>Use it</button>
+                <button class="btn btn-outline btn-sm"><i data-lucide="pencil"></i>Edit</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================== EARNINGS ====================== -->
+        <section class="page" data-page="earnings">
+          <div class="earn-hero">
+            <div>
+              <div class="eh-lbl">Total earned</div>
+              <div class="eh-num">$1,600</div>
+              <div class="eh-sub">Next payout: <b>$400</b> on June 1 · Stripe Connect</div>
+            </div>
+            <button class="btn btn-outline btn-lg">Manage payout method</button>
+          </div>
+
+          <h3 class="section-title">Your pipeline</h3>
+          <div class="pipeline">
+            <div><div class="pl-lbl">Link clicks</div><div class="pl-val">1,284</div><div class="pl-sub">All time</div></div>
+            <div><div class="pl-lbl">Demos booked</div><div class="pl-val">37</div><div class="pl-sub">2.9% conv</div></div>
+            <div><div class="pl-lbl">Brands gone live</div><div class="pl-val">8</div><div class="pl-sub">21.6% close</div></div>
+            <div><div class="pl-lbl">Paid out</div><div class="pl-val">$1,600</div><div class="pl-sub">$400 pending</div></div>
+          </div>
+
+          <h3 class="section-title">All referrals</h3>
+          <div class="ref-grid">
+            <div class="ref-row head">
+              <div></div><div>Brand</div><div>Stage</div><div>Source</div><div>Date</div><div style="text-align:right">Payout</div>
+            </div>
+            <div class="ref-row"><div class="avatar-pill">S</div><div class="brand">Salt &amp; Tide</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Apr 18</div><div class="payout">$200</div></div>
+            <div class="ref-row"><div class="avatar-pill">N</div><div class="brand">Northridge Apparel</div><div><span class="stage demo"><span class="dot"></span>Demo booked</span></div><div class="src">Link</div><div class="date">Apr 22</div><div class="payout pending">Pending</div></div>
+            <div class="ref-row"><div class="avatar-pill">C</div><div class="brand">Cobalt Goods</div><div><span class="stage demo"><span class="dot"></span>Demo booked</span></div><div class="src">Link</div><div class="date">Apr 25</div><div class="payout pending">Pending</div></div>
+            <div class="ref-row"><div class="avatar-pill">H</div><div class="brand">House of Bloom</div><div><span class="stage clicked"><span class="dot"></span>Clicked</span></div><div class="src">Link</div><div class="date">Apr 24</div><div class="payout none">—</div></div>
+            <div class="ref-row"><div class="avatar-pill">M</div><div class="brand">Maple &amp; Vine</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Apr 09</div><div class="payout">$200</div></div>
+            <div class="ref-row"><div class="avatar-pill">D</div><div class="brand">Driftwood &amp; Co.</div><div><span class="stage clicked"><span class="dot"></span>Clicked</span></div><div class="src">Link</div><div class="date">Apr 04</div><div class="payout none">—</div></div>
+            <div class="ref-row"><div class="avatar-pill">B</div><div class="brand">Brio Bottle Co.</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Mar 28</div><div class="payout">$200</div></div>
+            <div class="ref-row"><div class="avatar-pill">Y</div><div class="brand">Yardline Outfitters</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Link</div><div class="date">Mar 22</div><div class="payout">$200</div></div>
+          </div>
+        </section>
+
+        <!-- ====================== LEADERBOARD ====================== -->
+        <section class="page" data-page="leaderboard">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>The brag board</h1>
+              <p>The top brands carrying the Merchant Led Growth movement. Refreshed daily. Pin to the top this month and your logo runs in our investor update.</p>
+            </div>
+          </div>
+          <div class="board">
+            <div class="board-row"><span class="rank top">01</span><span class="name">Brio Bottle Co.</span><span class="refs">11 closed · 1,402 clicks</span><span class="earned">$2,200</span></div>
+            <div class="board-row"><span class="rank top">02</span><span class="name">Yardline Outfitters</span><span class="refs">9 closed · 1,180 clicks</span><span class="earned">$1,800</span></div>
+            <div class="board-row me"><span class="rank top">03</span><span class="name">Wildflower Co. (you)</span><span class="refs">8 closed · 1,284 clicks</span><span class="earned">$1,600</span></div>
+            <div class="board-row"><span class="rank">04</span><span class="name">Aero Athletics</span><span class="refs">6 closed · 940 clicks</span><span class="earned">$1,200</span></div>
+            <div class="board-row"><span class="rank">05</span><span class="name">Salt &amp; Tide</span><span class="refs">5 closed · 810 clicks</span><span class="earned">$1,000</span></div>
+            <div class="board-row"><span class="rank">06</span><span class="name">Glasshouse Studio</span><span class="refs">4 closed · 612 clicks</span><span class="earned">$800</span></div>
+            <div class="board-row"><span class="rank">07</span><span class="name">Maple &amp; Vine</span><span class="refs">4 closed · 578 clicks</span><span class="earned">$800</span></div>
+            <div class="board-row"><span class="rank">08</span><span class="name">Driftwood &amp; Co.</span><span class="refs">3 closed · 410 clicks</span><span class="earned">$600</span></div>
+            <div class="board-row"><span class="rank">09</span><span class="name">Northridge Apparel</span><span class="refs">3 closed · 360 clicks</span><span class="earned">$600</span></div>
+            <div class="board-row"><span class="rank">10</span><span class="name">Cobalt Goods</span><span class="refs">2 closed · 290 clicks</span><span class="earned">$400</span></div>
+          </div>
+        </section>
+
+        <!-- ====================== RESOURCES / SETTINGS ====================== -->
+        <section class="page" data-page="resources">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Resources</h1>
+              <p>Brand kits, talking points, and answers to the questions we hear most.</p>
+            </div>
+          </div>
+          <div class="campaigns-grid">
+            <div class="camp-card"><span class="cc-tag alwayson"><span class="dot"></span>Brand kit</span><div class="cc-title">Logos, partner badge, screenshots</div><div class="cc-desc">Everything you need to put Redo on a slide, deck, or post.</div><div class="cc-foot"><span class="reward">Download</span><span class="meta">14 files</span></div></div>
+            <div class="camp-card"><span class="cc-tag alwayson"><span class="dot"></span>Talking points</span><div class="cc-title">What to say in a brag</div><div class="cc-desc">One-liners, two-paragraph posts, and full case-study scripts.</div><div class="cc-foot"><span class="reward">Open doc</span><span class="meta">10 templates</span></div></div>
+            <div class="camp-card"><span class="cc-tag open"><span class="dot"></span>FAQ</span><div class="cc-title">Payouts, taxes, attribution</div><div class="cc-desc">How 1099s work, when commissions hit, what counts as a referral.</div><div class="cc-foot"><span class="reward">Read</span><span class="meta">Updated weekly</span></div></div>
+          </div>
+        </section>
+
+        <section class="page" data-page="settings">
+          <div class="welcome"><div class="welcome-left"><h1>Settings</h1><p>Payout method, notifications, and your member profile.</p></div></div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">Profile</div>
+            <div class="card-sub" id="profileSummary">Signed in as you.</div>
+            <button class="btn btn-outline" id="signOutBtn"><i data-lucide="log-out"></i>Sign out</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Payout method</div>
+            <div class="card-sub">Connected to Stripe Connect. Payouts arrive within 24 hours of approval.</div>
+            <button class="btn btn-primary">Manage Stripe</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================== ADMIN SHELL ============================== -->
+  <div class="shell" id="adminShell">
+    <aside class="sidebar">
+      <div class="brand-wrap">
+        <button class="brand-switcher" type="button" id="adminBrandSwitcher">
+          <div class="bs-mark" style="background: hsl(var(--foreground));">R</div>
+          <div class="bs-name">Redo · Admin</div>
+          <i data-lucide="chevrons-up-down"></i>
+        </button>
+        <div class="brand-menu hidden" id="adminBrandMenu">
+          <div class="brand-menu-info">
+            <div class="bm-brand" id="adminBmBrand">Redo</div>
+            <div class="bm-email" id="adminBmEmail">braxton@redo.com</div>
+          </div>
+          <div class="brand-menu-sep"></div>
+          <button type="button" id="adminSidebarSignOut">
+            <i data-lucide="log-out"></i>
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <button class="nav-item active" data-admin-page="overview">
+        <i data-lucide="layout-dashboard"></i>
+        Overview
+      </button>
+      <button class="nav-item" data-admin-page="merchants">
+        <i data-lucide="users"></i>
+        Merchants
+        <span class="badge" id="adminMerchantCount">0</span>
+      </button>
+      <button class="nav-item" data-admin-page="campaigns">
+        <i data-lucide="megaphone"></i>
+        Campaigns
+      </button>
+      <button class="nav-item" data-admin-page="payouts">
+        <i data-lucide="dollar-sign"></i>
+        Payouts
+      </button>
+      <button class="nav-item" data-admin-page="activity">
+        <i data-lucide="activity"></i>
+        Activity
+      </button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb"><span id="adminCrumb">Overview</span></div>
+      </header>
+
+      <div class="content">
+
+        <!-- ====================== OVERVIEW ====================== -->
+        <section class="page active" data-admin-page="overview">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Admin overview</h1>
+              <p>Everything happening across the Merchant Led Growth program.</p>
+            </div>
+          </div>
+          <div class="pipeline" style="margin-bottom: 28px;">
+            <div><div class="pl-lbl">Merchants</div><div class="pl-val" id="ovMerchants">0</div><div class="pl-sub">in the program</div></div>
+            <div><div class="pl-lbl">Campaigns</div><div class="pl-val" id="ovCampaigns">7</div><div class="pl-sub">live + always-on</div></div>
+            <div><div class="pl-lbl">Paid out</div><div class="pl-val" id="ovPayout">$24,400</div><div class="pl-sub">last 90 days</div></div>
+            <div><div class="pl-lbl">Referrals</div><div class="pl-val" id="ovReferrals">38</div><div class="pl-sub">closed-won</div></div>
+          </div>
+          <h3 class="section-title">Latest sign-ups</h3>
+          <div class="ref-grid" id="ovRecentMerchants"></div>
+        </section>
+
+        <!-- ====================== MERCHANTS ====================== -->
+        <section class="page" data-admin-page="merchants">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Merchants</h1>
+              <p>Every brand signed into the program.</p>
+            </div>
+          </div>
+          <div class="ref-grid" id="merchantsList"></div>
+        </section>
+
+        <!-- ====================== CAMPAIGNS ====================== -->
+        <section class="page" data-admin-page="campaigns">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Campaigns</h1>
+              <p>Create new opportunities and manage what's live.</p>
+            </div>
+            <div>
+              <button class="btn btn-primary" id="newCampaignBtn"><i data-lucide="plus"></i>New campaign</button>
+            </div>
+          </div>
+          <div class="ref-grid" id="campaignsList"></div>
+        </section>
+
+        <!-- ====================== PAYOUTS ====================== -->
+        <section class="page" data-admin-page="payouts">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Payouts</h1>
+              <p>All payouts queued and sent.</p>
+            </div>
+          </div>
+          <div class="ref-grid" id="payoutsList"></div>
+        </section>
+
+        <!-- ====================== ACTIVITY ====================== -->
+        <section class="page" data-admin-page="activity">
+          <div class="welcome">
+            <div class="welcome-left">
+              <h1>Activity</h1>
+              <p>Recent merchant actions across the program.</p>
+            </div>
+          </div>
+          <div class="ref-grid" id="activityList"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================== NEW CAMPAIGN MODAL ============================== -->
+  <div class="auth-overlay hidden" id="campaignModal">
+    <div class="auth-overlay-bg" id="campaignModalBg"></div>
+    <div class="auth-card-wrap">
+      <button class="auth-card-close" id="campaignModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+      <div class="login-card">
+        <h1 style="margin-bottom: 12px;">New campaign</h1>
+        <p>Drop a new earning opportunity for the network.</p>
+        <form class="login-form" id="newCampaignForm" autocomplete="off">
+          <label for="ncTitle">Title</label>
+          <input type="text" id="ncTitle" name="title" placeholder="Refer a Shopify Plus merchant" required />
+          <label for="ncDesc">Description</label>
+          <input type="text" id="ncDesc" name="desc" placeholder="What merchants need to do" required />
+          <label for="ncReward">Reward</label>
+          <input type="text" id="ncReward" name="reward" placeholder="$300" required />
+          <label for="ncStatus">Status</label>
+          <select id="ncStatus" name="status" required style="background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 0 12px; height: 38px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit;">
+            <option value="live">Live</option>
+            <option value="open" selected>Open</option>
+            <option value="alwayson">Always-on</option>
+          </select>
+          <button type="submit" class="submit">Create campaign <i data-lucide="arrow-right"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== WIN DETAIL MODAL ============================== -->
+  <div class="win-overlay hidden" id="winOverlay">
+    <div class="win-modal">
+      <button class="win-close" id="winClose" aria-label="Close"><i data-lucide="x"></i></button>
+      <div class="wm-eyebrow" id="wmEyebrow"></div>
+      <h2 class="wm-headline" id="wmHeadline"></h2>
+      <p class="wm-detail" id="wmDetail"></p>
+      <div class="wm-caption-wrap">
+        <div class="wm-caption-label">Ready-to-post caption</div>
+        <div class="wm-caption" id="wmCaption"></div>
+      </div>
+      <div class="wm-actions">
+        <button class="btn btn-primary" id="wmCopy"><i data-lucide="copy"></i>Copy caption</button>
+        <button class="btn btn-outline"><i data-lucide="send"></i>Open in LinkedIn</button>
+        <button class="btn btn-outline"><i data-lucide="download"></i>Download card</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Render Lucide icons on load
+  if (window.lucide) lucide.createIcons();
+
+  // ============================== AUTH ==============================
+  const ACCOUNTS_KEY = "redo_mlg_accounts";   // { [email]: { fullname, email, brand, url, joined } }
+  const SESSION_KEY  = "redo_mlg_session";    // string email of the active account
+
+  function loadAccounts() { try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || {}; } catch { return {}; } }
+  function saveAccounts(a) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
+  function getSession() { const email = localStorage.getItem(SESSION_KEY); if (!email) return null; const a = loadAccounts(); return a[email] || null; }
+  function setSession(email) { localStorage.setItem(SESSION_KEY, email); }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+  function initials(name) { return (name || "").split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "?"; }
+
+  function applyUser(user) {
+    // Sidebar brand switcher
+    const mark = document.querySelector(".brand-switcher .bs-mark");
+    const nameEl = document.querySelector(".brand-switcher .bs-name");
+    if (mark) mark.textContent = (user.brand || "?")[0].toUpperCase();
+    if (nameEl) nameEl.textContent = user.brand;
+    // Brand-switcher dropdown info
+    const bm = document.getElementById("bmBrand");
+    const be = document.getElementById("bmEmail");
+    if (bm) bm.textContent = user.brand;
+    if (be) be.textContent = user.email;
+    // Settings profile summary
+    const sum = document.getElementById("profileSummary");
+    if (sum) sum.textContent = `Signed in as ${user.fullname || user.email} · ${user.email}`;
+  }
+
+  function enterShell(user) {
+    applyUser(user);
+    $("loginScreen").classList.add("hidden");
+    // Close the auth modal if it's open (covers both merchant + admin sign-in)
+    const auth = document.getElementById("authOverlay");
+    if (auth) auth.classList.add("hidden");
+    document.body.style.overflow = "";
+    if (isAdmin(user)) {
+      $("adminShell").classList.add("active");
+      $("appShell").classList.remove("active");
+      renderAdmin();
+    } else {
+      $("appShell").classList.add("active");
+      $("adminShell").classList.remove("active");
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function showError(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg || ""; }
+
+  // Tabs
+  function switchAuthView(view) {
+    document.querySelectorAll(".login-tab").forEach((t) => t.classList.toggle("active", t.dataset.view === view));
+    document.querySelectorAll(".login-form").forEach((f) => f.classList.toggle("hidden", f.dataset.view !== view));
+    document.getElementById("footText").textContent = view === "signin" ? "New here?" : "Already have an account?";
+    document.getElementById("footLink").textContent = view === "signin" ? "Sign up" : "Sign in";
+    showError("signinError", ""); showError("signupError", "");
+  }
+  document.querySelectorAll(".login-tab").forEach((tab) => tab.addEventListener("click", () => switchAuthView(tab.dataset.view)));
+  document.getElementById("footLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    const current = document.querySelector(".login-form:not(.hidden)").dataset.view;
+    switchAuthView(current === "signin" ? "signup" : "signin");
+  });
+
+  // Auth modal open/close
+  function openAuth(view) {
+    switchAuthView(view || "signin");
+    document.getElementById("authOverlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => {
+      const focusEl = view === "signup" ? document.getElementById("suName") : document.getElementById("signinEmail");
+      if (focusEl) focusEl.focus();
+    }, 30);
+  }
+  function closeAuth() {
+    document.getElementById("authOverlay").classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("navSignIn").addEventListener("click", () => openAuth("signin"));
+  document.getElementById("navSignUp").addEventListener("click", () => openAuth("signup"));
+  document.getElementById("heroCta").addEventListener("click", () => openAuth("signup"));
+  document.getElementById("authClose").addEventListener("click", closeAuth);
+  document.getElementById("authBg").addEventListener("click", closeAuth);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !document.getElementById("authOverlay").classList.contains("hidden")) closeAuth();
+  });
+
+  // Sign in
+  document.getElementById("signinForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = e.target.email.value.trim().toLowerCase();
+    if (!email) { showError("signinError", "Email is required."); return; }
+    const accounts = loadAccounts();
+    const user = accounts[email];
+    if (!user) { showError("signinError", "No account found for that email. Try Sign up instead."); return; }
+    setSession(email);
+    enterShell(user);
+  });
+
+  // Sign up
+  document.getElementById("signupForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const email = String(f.get("email") || "").trim().toLowerCase();
+    const fullname = String(f.get("fullname") || "").trim();
+    const brand = String(f.get("brand") || "").trim();
+    const url = String(f.get("url") || "").trim();
+    if (!email || !fullname || !brand) { showError("signupError", "Name, email, and brand name are required."); return; }
+    const accounts = loadAccounts();
+    if (accounts[email]) { showError("signupError", "An account already exists for that email. Sign in instead."); return; }
+    const user = { fullname, email, brand, url, joined: new Date().toISOString() };
+    accounts[email] = user;
+    saveAccounts(accounts);
+    setSession(email);
+    enterShell(user);
+  });
+
+  // Seed a demo merchant + the admin account so the prototype has people to sign in as out of the box
+  (function seedDemo() {
+    const accounts = loadAccounts();
+    const demoEmail = "founder@wildflower.co";
+    if (!accounts[demoEmail]) {
+      accounts[demoEmail] = { fullname: "Sam Adler", email: demoEmail, brand: "Wildflower Co.", url: "https://wildflower.co", role: "merchant", joined: "2024-01-15T00:00:00.000Z" };
+    }
+    if (!accounts["braxton@redo.com"]) {
+      accounts["braxton@redo.com"] = { fullname: "Braxton", email: "braxton@redo.com", brand: "Redo", role: "admin", joined: "2023-09-01T00:00:00.000Z" };
+    }
+    saveAccounts(accounts);
+    // Pre-fill the sign-in field with the demo email for convenience
+    const signinEmailEl = document.getElementById("signinEmail");
+    if (signinEmailEl && !signinEmailEl.value) signinEmailEl.value = demoEmail;
+  })();
+
+  function isAdmin(user) { return user && (user.role === "admin" || /@redo\.com$/i.test(user.email || "")); }
+
+  // Resume session if one exists
+  // Sign out (shared by sidebar menu + Settings button)
+  function signOut() {
+    // Remember the last email so we can prefill on sign back in
+    const lastSession = localStorage.getItem(SESSION_KEY);
+    if (lastSession) localStorage.setItem("redo_mlg_last_email", lastSession);
+    clearSession();
+    document.querySelector(".brand-switcher .bs-mark").textContent = "?";
+    document.querySelector(".brand-switcher .bs-name").textContent = "Brand";
+    document.getElementById("brandMenu").classList.add("hidden");
+    $("appShell").classList.remove("active");
+    $("adminShell").classList.remove("active");
+    $("loginScreen").classList.remove("hidden");
+    switchAuthView("signin");
+    document.getElementById("signupForm").reset();
+    document.getElementById("signinForm").reset();
+    // Prefill the email on the sign-in form for one-click re-sign-in
+    const lastEmail = localStorage.getItem("redo_mlg_last_email");
+    if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
+  }
+  document.getElementById("signOutBtn").addEventListener("click", signOut);
+  document.getElementById("sidebarSignOut").addEventListener("click", signOut);
+
+  // Brand-switcher dropdown toggle (merchant + admin)
+  function wireBrandSwitcher(switcherId, menuId) {
+    const sw = document.getElementById(switcherId);
+    const menu = document.getElementById(menuId);
+    if (!sw || !menu) return;
+    sw.addEventListener("click", (e) => { e.stopPropagation(); menu.classList.toggle("hidden"); });
+    document.addEventListener("click", (e) => {
+      if (!menu.classList.contains("hidden") && !menu.contains(e.target) && !sw.contains(e.target)) menu.classList.add("hidden");
+    });
+  }
+  wireBrandSwitcher("brandSwitcher", "brandMenu");
+  wireBrandSwitcher("adminBrandSwitcher", "adminBrandMenu");
+  document.getElementById("adminSidebarSignOut").addEventListener("click", signOut);
+
+  // ============================== ADMIN ==============================
+  const CAMPAIGNS_KEY = "redo_mlg_campaigns";
+  const DEFAULT_CAMPAIGNS = [
+    { id: "series-b",     title: "Series B launch posts",   desc: "Tag, repost, or comment with your discount code.", reward: "$250",     status: "live"     },
+    { id: "refer-brand",  title: "Refer a brand that signs", desc: "$200 when a brand you sent joins Redo.",            reward: "$200",     status: "alwayson" },
+    { id: "quote",        title: "OK to post this quote?",   desc: "Confirm a CS-call quote, then repost it.",          reward: "$100",     status: "open"     },
+    { id: "experience",   title: "Post about your experience", desc: "Anywhere public — tag Redo, send us the link.",   reward: "$100",     status: "open"     },
+    { id: "sterling",     title: "Reply to Sterling's tweet", desc: "Quote-tweet or thread reply on the announcement.", reward: "$2K pool", status: "live"     },
+    { id: "case-study",   title: "Case study production",     desc: "30-min interview, turned into written + video.",   reward: "$500",     status: "alwayson" },
+    { id: "agency",       title: "Refer a partner agency",    desc: "Send an ecom agency. $500 if they sign three.",    reward: "$500",     status: "alwayson" }
+  ];
+  function loadCampaigns() {
+    try { const c = JSON.parse(localStorage.getItem(CAMPAIGNS_KEY)); if (Array.isArray(c) && c.length) return c; } catch {}
+    localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(DEFAULT_CAMPAIGNS));
+    return DEFAULT_CAMPAIGNS.slice();
+  }
+  function saveCampaigns(arr) { localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(arr)); }
+
+  const SAMPLE_REFERRALS = [
+    { brand: "Salt & Tide",         source: "Code · WILDFLOWER", date: "Apr 18", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" },
+    { brand: "Northridge Apparel",  source: "Link",              date: "Apr 22", stage: "demo",    payout: "Pending", referrer: "founder@wildflower.co" },
+    { brand: "Cobalt Goods",        source: "Link",              date: "Apr 25", stage: "demo",    payout: "Pending", referrer: "founder@wildflower.co" },
+    { brand: "Maple & Vine",        source: "Code · WILDFLOWER", date: "Apr 09", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" },
+    { brand: "Brio Bottle Co.",     source: "Code",              date: "Mar 28", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" },
+    { brand: "Yardline Outfitters", source: "Link",              date: "Mar 22", stage: "closed",  payout: "$200",    referrer: "founder@wildflower.co" }
+  ];
+
+  function renderAdmin() {
+    const accounts = loadAccounts();
+    const merchants = Object.values(accounts).filter((a) => !isAdmin(a));
+    document.getElementById("adminMerchantCount").textContent = String(merchants.length);
+    document.getElementById("ovMerchants").textContent = String(merchants.length);
+    const campaigns = loadCampaigns();
+    document.getElementById("ovCampaigns").textContent = String(campaigns.length);
+
+    // Overview — recent merchants
+    document.getElementById("ovRecentMerchants").innerHTML = `
+      <div class="ref-row head"><div></div><div>Brand</div><div>Owner</div><div>Joined</div><div></div><div style="text-align:right">Email</div></div>
+      ${merchants.slice(0, 5).map((m) => `
+        <div class="ref-row">
+          <div class="avatar-pill">${(m.brand || "?")[0].toUpperCase()}</div>
+          <div class="brand">${m.brand || ""}</div>
+          <div class="src">${m.fullname || "—"}</div>
+          <div class="date">${m.joined ? new Date(m.joined).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—"}</div>
+          <div></div>
+          <div class="payout" style="text-align:right; font-weight:500;">${m.email}</div>
+        </div>
+      `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No merchants yet</div></div>`}
+    `;
+
+    // Merchants page
+    document.getElementById("merchantsList").innerHTML = `
+      <div class="ref-row head"><div></div><div>Brand</div><div>Owner</div><div>Email</div><div>Joined</div><div style="text-align:right">URL</div></div>
+      ${merchants.map((m) => `
+        <div class="ref-row">
+          <div class="avatar-pill">${(m.brand || "?")[0].toUpperCase()}</div>
+          <div class="brand">${m.brand || ""}</div>
+          <div class="src">${m.fullname || "—"}</div>
+          <div class="date">${m.email}</div>
+          <div class="date">${m.joined ? new Date(m.joined).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—"}</div>
+          <div class="payout" style="text-align:right; font-weight:500; color: hsl(var(--muted-foreground));">${m.url || "—"}</div>
+        </div>
+      `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No merchants yet</div></div>`}
+    `;
+
+    // Campaigns
+    document.getElementById("campaignsList").innerHTML = `
+      <div class="ref-row head" style="grid-template-columns: 1.4fr 2fr auto auto;"><div>Title</div><div>Description</div><div>Reward</div><div>Status</div></div>
+      ${campaigns.map((c) => `
+        <div class="ref-row" style="grid-template-columns: 1.4fr 2fr auto auto;">
+          <div class="brand">${c.title}</div>
+          <div class="src">${c.desc}</div>
+          <div class="payout">${c.reward}</div>
+          <div><span class="stage ${c.status === "live" ? "demo" : c.status === "open" ? "closed" : "clicked"}"><span class="dot"></span>${c.status === "alwayson" ? "Always-on" : c.status[0].toUpperCase() + c.status.slice(1)}</span></div>
+        </div>
+      `).join("")}
+    `;
+
+    // Payouts (synthesized from SAMPLE_REFERRALS)
+    document.getElementById("payoutsList").innerHTML = `
+      <div class="ref-row head"><div></div><div>Brand</div><div>Stage</div><div>Referrer</div><div>Date</div><div style="text-align:right">Payout</div></div>
+      ${SAMPLE_REFERRALS.map((r) => `
+        <div class="ref-row">
+          <div class="avatar-pill">${r.brand[0]}</div>
+          <div class="brand">${r.brand}</div>
+          <div><span class="stage ${r.stage}"><span class="dot"></span>${r.stage === "closed" ? "Closed-won" : r.stage === "demo" ? "Demo booked" : "Clicked"}</span></div>
+          <div class="src">${r.referrer}</div>
+          <div class="date">${r.date}</div>
+          <div class="payout ${r.payout === "Pending" ? "pending" : ""}">${r.payout}</div>
+        </div>
+      `).join("")}
+    `;
+
+    // Activity (just join events + sample referrals merged)
+    const activity = [
+      ...merchants.map((m) => ({ when: m.joined, what: `${m.brand} joined the program`, who: m.email })),
+      ...SAMPLE_REFERRALS.filter((r) => r.stage === "closed").map((r) => ({ when: r.date, what: `${r.brand} closed-won via referral`, who: r.referrer }))
+    ].sort((a, b) => (b.when || "").localeCompare(a.when || ""));
+    document.getElementById("activityList").innerHTML = `
+      <div class="ref-row head" style="grid-template-columns: 1.4fr 2fr auto;"><div>When</div><div>What</div><div>Who</div></div>
+      ${activity.map((a) => `
+        <div class="ref-row" style="grid-template-columns: 1.4fr 2fr auto;">
+          <div class="date">${a.when ? (a.when.length > 10 ? new Date(a.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : a.when) : "—"}</div>
+          <div class="brand">${a.what}</div>
+          <div class="src">${a.who}</div>
+        </div>
+      `).join("")}
+    `;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Admin nav
+  function showAdminPage(name) {
+    document.querySelectorAll(".nav-item[data-admin-page]").forEach((b) => b.classList.toggle("active", b.dataset.adminPage === name));
+    document.querySelectorAll("section.page[data-admin-page]").forEach((p) => p.classList.toggle("active", p.dataset.adminPage === name));
+    const titles = { overview: "Overview", merchants: "Merchants", campaigns: "Campaigns", payouts: "Payouts", activity: "Activity" };
+    document.getElementById("adminCrumb").textContent = titles[name] || "Admin";
+    if (window.lucide) lucide.createIcons();
+  }
+  document.querySelectorAll(".nav-item[data-admin-page]").forEach((b) => b.addEventListener("click", () => showAdminPage(b.dataset.adminPage)));
+
+  // New campaign modal
+  document.getElementById("newCampaignBtn").addEventListener("click", () => {
+    document.getElementById("campaignModal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    if (window.lucide) lucide.createIcons();
+  });
+  function closeCampaignModal() { document.getElementById("campaignModal").classList.add("hidden"); document.body.style.overflow = ""; }
+  document.getElementById("campaignModalClose").addEventListener("click", closeCampaignModal);
+  document.getElementById("campaignModalBg").addEventListener("click", closeCampaignModal);
+  document.getElementById("newCampaignForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const next = loadCampaigns();
+    next.unshift({
+      id: "c-" + Math.floor(Math.random() * 1e6).toString(36),
+      title: String(f.get("title") || "").trim(),
+      desc: String(f.get("desc") || "").trim(),
+      reward: String(f.get("reward") || "").trim(),
+      status: String(f.get("status") || "open")
+    });
+    saveCampaigns(next);
+    e.target.reset();
+    closeCampaignModal();
+    renderAdmin();
+  });
+
+  // Sidebar nav
+  function showPage(name) {
+    document.querySelectorAll(".nav-item[data-page]").forEach((b) => b.classList.toggle("active", b.dataset.page === name));
+    document.querySelectorAll(".page").forEach((p) => p.classList.toggle("active", p.dataset.page === name));
+    const titles = { wins: "Wins", milestones: "Rewards", campaigns: "Campaigns", share: "Share toolkit", earnings: "Earnings", leaderboard: "Leaderboard", resources: "Resources", settings: "Settings" };
+    $("crumbTitle").textContent = titles[name] || "Campaigns";
+    window.scrollTo({ top: 0 });
+    if (name === "milestones") buildMilestones();
+    if (window.lucide) lucide.createIcons();
+  }
+  document.querySelectorAll(".nav-item[data-page]").forEach((b) => {
+    b.addEventListener("click", () => showPage(b.dataset.page));
+  });
+  document.querySelectorAll("[data-go-page]").forEach((b) => {
+    b.addEventListener("click", () => showPage(b.dataset.goPage));
+  });
+
+  // Copy buttons
+  document.querySelectorAll(".aff-copy").forEach((el) => {
+    el.addEventListener("click", async () => {
+      const text = el.dataset.copy;
+      try { await navigator.clipboard.writeText(text); } catch (_) {}
+      const orig = el.innerHTML;
+      el.innerHTML = '<i data-lucide="check"></i>Copied';
+      el.classList.add("copied");
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => { el.innerHTML = orig; el.classList.remove("copied"); if (window.lucide) lucide.createIcons(); }, 1400);
+    });
+  });
+
+
+  // ============================== WINS MODAL ==============================
+  const WINS_DATA = {
+    revenue: {
+      eyebrow: "Biggest win · 2026",
+      headline: "$890,432 stayed in your business.",
+      detail: "Revenue retained from would-be refunds in 2026. Up 42% YoY, your best year on record. That number covered nine months of your CS team and your entire return-shipping budget.",
+      caption: "A year on Redo, by the numbers:\n\n· $890K we didn't refund\n· 58% of returns turned into exchanges\n· 1.5M packages out the door, on time\n\nReturns used to be a problem we lived with. Now they're a line that pays for itself."
+    },
+    rank: {
+      eyebrow: "Accolade · 2026",
+      headline: "Top 5% of every brand on Redo.",
+      detail: "Of 24,000 brands running Redo this year, you rank #127 for revenue retained. That's the top 0.5% of the network.",
+      caption: "Looked up where we sit in the Redo network this year: top 5% for revenue retained, out of 24,000 brands.\n\nNot bad for a team of 11."
+    },
+    exchange: {
+      eyebrow: "Exchange rate",
+      headline: "58% of returns became exchanges.",
+      detail: "Up 8 points YoY, top quartile on Redo. Exchanges kept $510K from leaving the business and moved 14,200 SKUs that were sitting in the wrong size.",
+      caption: "58% of our returns turned into exchanges in 2026. Customers picked something they actually wanted, we kept the revenue, the warehouse moved through stuck inventory.\n\nReturns aren't a tax. They're a second swing."
+    },
+    csat: {
+      eyebrow: "Shopper love",
+      headline: "Best CSAT, NPS, and repeat rate we've ever put up.",
+      detail: "Across every Redo touchpoint, shoppers rated us 94/100 this year. NPS hit +62 (top decile on Redo). Repeat rate held at 31%, even with a 22% increase in new customers.",
+      caption: "2026 numbers from our post-purchase surveys:\n\n· CSAT: 94/100\n· NPS: +62\n· Repeat purchase rate: 31%\n\nReturns are most people's worst CX moment. We made it ours."
+    },
+    quote: {
+      eyebrow: "Quote of the year",
+      headline: "\"Redo cut our returns team from four to one.\"",
+      detail: "Sam, your ops lead, dropped this on a CS interview in May. With your permission, we want to put it on the homepage.",
+      caption: "Quote from our ops lead, three weeks into using Redo:\n\n\"Redo cut our returns team from four to one. The math sells itself.\"\n\nFour people watching a queue. Now one. Pays for itself in week three."
+    },
+    ship: {
+      eyebrow: "Logistics",
+      headline: "1.5 million packages, on time.",
+      detail: "Every package out the door in 2026, tracked, on time, with a 1.4-day average pick-to-port window. Volume up 31% YoY with zero added warehouse headcount.",
+      caption: "1.5M packages shipped this year, on time, with the same warehouse team.\n\nWe didn't scale by adding people. We scaled by replacing the busywork."
+    },
+    growth: {
+      eyebrow: "YoY growth",
+      headline: "+42% revenue retained vs 2025.",
+      detail: "Largest YoY jump we've had on Redo. Driven by a 12-point exchange-rate bump and a step-change in cart recovery after we turned on the post-purchase flow in March.",
+      caption: "+42% revenue retained vs last year. Two changes drove it:\n\n1. Turned exchanges into the default, not the consolation prize.\n2. Recovered abandoned carts inside the return flow.\n\nBoth shipped in an afternoon."
+    },
+    recover: {
+      eyebrow: "Carts recovered",
+      headline: "$214K rescued from the trash bin.",
+      detail: "Abandoned carts brought back via the post-purchase + return flows. More than the cost of your CS team for the year. The flow took an afternoon to turn on.",
+      caption: "$214K in abandoned carts came back this year, more than what our CS team cost.\n\nThe flow took an afternoon to wire up."
+    },
+    streaks: {
+      eyebrow: "Streaks",
+      headline: "Three streaks still going.",
+      detail: "13 weeks of 100% on-time shipping. 52 weeks of exchange-rate gains. Zero missed payouts to merchants in the network. Each is a brag on its own.",
+      caption: "Streaks we're sitting on going into Q3:\n\n· 13 weeks of 100% on-time shipping\n· 52 weeks of exchange-rate gains\n· 0 missed payouts to our suppliers\n\nMomentum is just discipline you didn't notice."
+    },
+    tier: {
+      eyebrow: "Up next",
+      headline: "Ecom Leader Hat at $5M lifetime retained.",
+      detail: "You're at $3.2M of $5M lifetime revenue retained, 64% of the way there. At your current pace, you'll cross in 9 months. The hat is real, custom, embroidered, ships once you cross.",
+      caption: "$3.2M kept on Redo and counting. The Ecom Leader Hat lives at $5M lifetime retained.\n\nClosing the gap."
+    }
+  };
+
+  function openWin(key) {
+    const w = WINS_DATA[key];
+    if (!w) return;
+    $("wmEyebrow").textContent = w.eyebrow;
+    $("wmHeadline").textContent = w.headline;
+    $("wmDetail").textContent = w.detail;
+    $("wmCaption").textContent = w.caption;
+    $("winOverlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    if (window.lucide) lucide.createIcons();
+  }
+  function closeWin() {
+    $("winOverlay").classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+  document.querySelectorAll(".win-note[data-win]").forEach((card) => {
+    card.addEventListener("click", () => openWin(card.dataset.win));
+  });
+  // ============================== MILESTONE REWARDS ==============================
+  // Each tier picks the first image that loads — drop a PNG into rewards/<filename>.png
+  // and it'll be used instead of the Unsplash placeholder.
+  const amazonSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260"><rect width="400" height="260" rx="10" fill="#232F3E"/><text x="200" y="128" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF" text-anchor="middle">amazon</text><path d="M150 156 Q200 196 250 156" stroke="#FF9900" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M243 152 L256 162 L246 172" stroke="#FF9900" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const amazonCard = "data:image/svg+xml;utf8," + encodeURIComponent(amazonSvg);
+
+  const TIERS = [
+    {
+      id: "gift", state: "unlocked", name: "Amazon gift card", color: "navy", year: "2024",
+      imgs: ["rewards/amazon.png", amazonCard],
+      date: "Jan 2024", achievement: "Joined Redo"
+    },
+    {
+      id: "hat", state: "unlocked", name: "Custom hat", color: "brick", year: "2024",
+      imgs: ["rewards/hat.png", "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=500&q=80"],
+      date: "Mar 2024", achievement: "$100K Lifetime Retained"
+    },
+    {
+      id: "hoodie", state: "unlocked", name: "Custom hoodie", color: "ink", year: "2025",
+      imgs: ["rewards/hoodie.png", "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=crop&w=500&q=80"],
+      date: "Feb 2025", achievement: "$1M Lifetime Retained"
+    },
+    {
+      id: "airpods", state: "locked", name: "AirPods Max", color: "sky", year: "Upcoming",
+      imgs: ["rewards/headphones.png", "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80"],
+      paths: ["$5M Lifetime Retained", "100K Labels Printed", "5,000 Exchanges", "1,000 Recovered Carts", "20 Brand Referrals"]
+    },
+    {
+      id: "duffel", state: "locked", name: "Leather duffel", color: "brown", year: "Upcoming",
+      imgs: ["rewards/duffel.png", "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"],
+      paths: ["$10M Lifetime Retained", "250K Labels Printed", "15,000 Exchanges", "3,000 Recovered Carts", "50 Brand Referrals"]
+    }
+  ];
+
+  let milestonesBuilt = false;
+  function buildMilestones() {
+    if (milestonesBuilt) return;
+
+    // Group by year
+    const groups = {};
+    TIERS.forEach((t) => {
+      if (!groups[t.year]) groups[t.year] = [];
+      groups[t.year].push(t);
+    });
+    const yearOrder = Object.keys(groups).sort((a, b) => {
+      if (a === "Upcoming") return 1;
+      if (b === "Upcoming") return -1;
+      return a.localeCompare(b);
+    });
+
+    $("rewardFan").innerHTML = yearOrder.map((year) => {
+      const items = groups[year];
+      const unlocked = items.filter((t) => t.state === "unlocked").length;
+      const countLabel = year === "Upcoming"
+        ? `${items.length} locked`
+        : `${unlocked} unlocked`;
+      return `
+        <div class="reward-section">
+          <div class="reward-section-head">
+            <h3>${year}</h3>
+            <span class="count">${countLabel}</span>
+          </div>
+          <div class="reward-cards-row">
+            ${items.map((t) => `
+              <div class="reward-card bg-${t.color} ${t.state}" data-id="${t.id}">
+                <div class="rc-badge">
+                  ${t.state === "unlocked"
+                    ? `<i data-lucide="check"></i>${t.date}`
+                    : `<i data-lucide="lock"></i>Locked`}
+                </div>
+                <div class="rc-img" id="rcImg-${t.id}"></div>
+                <div class="rc-title">${t.name}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Pick the first image that actually loads (local file first, then placeholder URL)
+    TIERS.forEach((t) => {
+      const el = document.getElementById(`rcImg-${t.id}`);
+      const sources = t.imgs.slice();
+      const tryNext = () => {
+        if (!sources.length) return;
+        const src = sources.shift();
+        const test = new Image();
+        test.onload = () => { el.style.backgroundImage = `url('${src}')`; };
+        test.onerror = tryNext;
+        test.src = src;
+      };
+      tryNext();
+    });
+    milestonesBuilt = true;
+    if (window.lucide) lucide.createIcons();
+  }
+  $("winClose").addEventListener("click", closeWin);
+  $("winOverlay").addEventListener("click", (e) => { if (e.target === $("winOverlay")) closeWin(); });
+
+  $("wmCopy").addEventListener("click", async () => {
+    const text = $("wmCaption").textContent;
+    try { await navigator.clipboard.writeText(text); } catch (_) {}
+    $("wmCopy").innerHTML = '<i data-lucide="check"></i>Copied';
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => {
+      $("wmCopy").innerHTML = '<i data-lucide="copy"></i>Copy caption';
+      if (window.lucide) lucide.createIcons();
+    }, 1400);
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("winOverlay").classList.contains("hidden")) closeWin();
+  });
+
+  // Resume session AFTER all const declarations + admin code have initialized
+  (function tryResume() {
+    const user = getSession();
+    if (user) enterShell(user);
+  })();
+</script>
+</body>
+</html>
