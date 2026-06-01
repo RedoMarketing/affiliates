@@ -136,6 +136,48 @@
   .nc-textarea { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: 6px; padding: 10px 12px; font-size: 14px; color: hsl(var(--foreground)); font-family: inherit; resize: vertical; min-height: 72px; }
   .nc-textarea:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1); }
 
+  /* Campaign detail card (shared between modal + public page) */
+  .cd-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; max-height: 92vh; }
+  .cd-hero { padding: 28px 30px 24px; }
+  .cd-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; opacity: 0.85; }
+  .cd-tag { font: 500 12px var(--sans); display: inline-flex; align-items: center; gap: 6px; }
+  .cd-tag::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; opacity: 0.7; }
+  .cd-reward { font: 700 14px var(--sans); }
+  .cd-title { font: 700 28px var(--sans); letter-spacing: -0.02em; line-height: 1.1; }
+  .cd-image { aspect-ratio: 16 / 9; background-size: cover; background-position: center; background-color: hsl(var(--muted)); }
+  .cd-image:empty { display: none; }
+  .cd-card:not(:has(#cdImage[style*="background-image"])) .cd-image,
+  .cd-card:not(:has(#publicCdImage[style*="background-image"])) .cd-image { display: var(--cd-image-display, block); }
+  .cd-body { padding: 22px 30px 26px; overflow-y: auto; }
+  .cd-desc { font: 500 15px var(--sans); color: hsl(var(--foreground)); line-height: 1.55; margin-bottom: 14px; }
+  .cd-long { font: 400 14px var(--sans); color: hsl(var(--muted-foreground)); line-height: 1.65; white-space: pre-wrap; }
+  .cd-long:empty { display: none; }
+  .cd-foot { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .cd-ends { font: 500 12.5px var(--sans); color: hsl(var(--muted-foreground)); margin-left: auto; }
+
+  /* Public campaign view */
+  .public-campaign { position: fixed; inset: 0; z-index: 90; background: hsl(var(--background)); display: none; flex-direction: column; overflow: auto; }
+  .public-campaign:not(.hidden) { display: flex; }
+  .public-campaign-stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+  .public-campaign .cd-card { width: 100%; max-width: 640px; box-shadow: 0 24px 60px rgba(0,0,0,0.10); max-height: none; }
+
+  /* Admin row actions */
+  .row-actions { display: inline-flex; gap: 4px; justify-content: flex-end; }
+  .row-action { background: transparent; border: none; padding: 4px; border-radius: 4px; color: hsl(var(--muted-foreground)); cursor: pointer; display: grid; place-items: center; }
+  .row-action:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+  .row-action svg { width: 14px; height: 14px; }
+  .row-action.danger:hover { color: hsl(0 84% 60%); }
+  .row-action.copied { color: hsl(var(--green)); }
+
+  /* Coming soon page state */
+  .coming-soon { text-align: center; padding: 60px 24px 80px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .coming-soon-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); font: 600 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .coming-soon-badge svg { width: 12px; height: 12px; }
+  .coming-soon-title { font: 600 32px var(--sans); letter-spacing: -0.02em; color: hsl(var(--foreground)); margin-top: 8px; }
+  .coming-soon-sub { font: 400 14.5px var(--sans); color: hsl(var(--muted-foreground)); max-width: 56ch; line-height: 1.55; }
+  .coming-soon-icon { width: 56px; height: 56px; border-radius: 14px; background: hsl(var(--muted)); display: grid; place-items: center; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+  .coming-soon-icon svg { width: 26px; height: 26px; }
+
   /* Campaign builder modal */
   .builder-card-wrap { position: relative; width: 100%; max-width: 980px; }
   .builder-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -828,59 +870,11 @@
 
         <!-- ====================== WINS ====================== -->
         <section class="page" data-page="wins">
-          <div class="wins-header">
-            <div class="wh-eyebrow">Your wins · 2026</div>
-            <h1 class="wins-display">A year of moves <em>worth bragging about</em>.</h1>
-            <p class="wins-sub">Every milestone pulled live from your Redo dashboard. Click any card to open the story and copy a ready-to-post caption.</p>
-          </div>
-
-          <div class="wins-scatter">
-            <button class="win-note wn--xl wn--dark" data-win="revenue">
-              <div class="wn-eyebrow">Biggest win</div>
-              <div class="wn-stat">$890K</div>
-              <div class="wn-label">kept in your business this year from refunds.</div>
-            </button>
-            <button class="win-note wn--md" data-win="rank">
-              <div class="wn-eyebrow">Accolade</div>
-              <div class="wn-headline">You're <em>top 5%</em> of every brand on Redo this year.</div>
-            </button>
-            <button class="win-note" data-win="exchange">
-              <div class="wn-stat">58%</div>
-              <div class="wn-label">of returns turned into exchanges. Top quartile on Redo.</div>
-            </button>
-            <button class="win-note wn--list" data-win="csat">
-              <div class="wn-eyebrow">Shopper love</div>
-              <ul>
-                <li>CSAT · 94 / 100</li>
-                <li>NPS · +62</li>
-                <li>Repeat rate · 31%</li>
-              </ul>
-            </button>
-            <button class="win-note wn--md" data-win="quote">
-              <div class="wn-quote">"Redo cut our returns team from four to one. The math sells itself."</div>
-              <div class="wn-attr">Sam, ops lead · pulled from your CS interview, May 9</div>
-            </button>
-            <button class="win-note" data-win="ship">
-              <div class="wn-stat">1.5M</div>
-              <div class="wn-label">packages shipped on time across 2026.</div>
-            </button>
-            <button class="win-note wn--md" data-win="growth">
-              <div class="wn-eyebrow">YoY growth</div>
-              <div class="wn-stat">+42%</div>
-              <div class="wn-label">revenue retained vs 2025. Best year on record.</div>
-            </button>
-            <button class="win-note" data-win="recover">
-              <div class="wn-stat">$214K</div>
-              <div class="wn-label">carts brought back from abandoned. More than your CS team cost.</div>
-            </button>
-            <button class="win-note wn--list wn--dark" data-win="streaks">
-              <div class="wn-eyebrow">Streaks</div>
-              <ul>
-                <li>13-week shipping streak</li>
-                <li>52-week exchange streak</li>
-                <li>0 missed payouts</li>
-              </ul>
-            </button>
+          <div class="coming-soon">
+            <div class="coming-soon-icon"><i data-lucide="trophy"></i></div>
+            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
+            <h1 class="coming-soon-title">Your wins, on tap.</h1>
+            <p class="coming-soon-sub">We're wiring this up to your live Redo data so every shipping streak, exchange-rate jump, recovered cart, and CSAT bump turns into a brag-ready stat with a one-tap caption. Live shortly after the Series B launch.</p>
           </div>
         </section>
 
@@ -889,7 +883,7 @@
           <div class="welcome">
             <div class="welcome-left">
               <h1>Milestone rewards</h1>
-              <p>Every tier ships you something real. Hover any reward to see how to unlock it. Cross any one threshold and we ship within two weeks.</p>
+              <p>What you can earn as you grow with Redo. Hover any reward to see how to unlock it. Personalized progress goes live with the Series B launch.</p>
             </div>
           </div>
           <div class="reward-stage">
@@ -922,148 +916,56 @@
             <div class="cl-card">
               <div class="cl-lbl">Your code</div>
               <div class="cl-row">
-                <div class="cl-val">WILDFLOWER</div>
-                <button class="cl-btn aff-copy" data-copy="WILDFLOWER"><i data-lucide="copy"></i>Copy</button>
+                <div class="cl-val" id="shareCode">—</div>
+                <button class="cl-btn aff-copy" id="shareCodeCopy" data-copy=""><i data-lucide="copy"></i>Copy</button>
               </div>
               <div class="cl-foot">Pair with any link. Customers can paste it at checkout.</div>
             </div>
             <div class="cl-card">
               <div class="cl-lbl">Your link</div>
               <div class="cl-row">
-                <div class="cl-val">redo.com/r/wildflower</div>
-                <button class="cl-btn aff-copy" data-copy="https://redo.com/r/wildflower"><i data-lucide="copy"></i>Copy</button>
+                <div class="cl-val" id="shareLink">—</div>
+                <button class="cl-btn aff-copy" id="shareLinkCopy" data-copy=""><i data-lucide="copy"></i>Copy</button>
               </div>
               <div class="cl-foot">UTM-tracked. Cookie window is 90 days. Drop anywhere.</div>
             </div>
           </div>
 
-          <h3 class="section-title">Ready-to-post content</h3>
-          <div class="toolkit-grid">
-            <div class="tk-card">
-              <div class="tk-type">LinkedIn post</div>
-              <div class="tk-title">Year-in-review brag</div>
-              <div class="tk-preview">This year on Redo: kept $890K from walking out the door, turned 58% of returns into exchanges, and shipped 1.5M packages on time. The wild part is the team didn't grow at all...</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="copy"></i>Copy</button>
-                <button class="btn btn-outline btn-sm"><i data-lucide="pencil"></i>Edit</button>
-              </div>
-            </div>
-            <div class="tk-card">
-              <div class="tk-type">Instagram story</div>
-              <div class="tk-title">"Top 5%" wins card</div>
-              <div class="tk-preview">Image card with your "Top 5%" badge, your logo, the Redo wordmark. Includes your code + swipe-up link.</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="download"></i>Download</button>
-                <button class="btn btn-outline btn-sm"><i data-lucide="instagram"></i>Share</button>
-              </div>
-            </div>
-            <div class="tk-card">
-              <div class="tk-type">Twitter / X</div>
-              <div class="tk-title">One-liner brag</div>
-              <div class="tk-preview">$890K we didn't refund. 1.5M packages. 58% exchange rate. Redo runs the back-half of @wildflowerco. redo.com/r/wildflower</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="copy"></i>Copy</button>
-                <button class="btn btn-outline btn-sm"><i data-lucide="send"></i>Post</button>
-              </div>
-            </div>
-            <div class="tk-card">
-              <div class="tk-type">Email signature</div>
-              <div class="tk-title">"Member, Merchant Led Growth"</div>
-              <div class="tk-preview">A 1-line signature with the Member badge, your code, and the Redo wordmark. Drops into Apple Mail, Gmail, Superhuman.</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="plus"></i>Install</button>
-                <button class="btn btn-outline btn-sm"><i data-lucide="eye"></i>Preview</button>
-              </div>
-            </div>
-            <div class="tk-card">
-              <div class="tk-type">Brand assets</div>
-              <div class="tk-title">Logos, lockups, screenshots</div>
-              <div class="tk-preview">Redo wordmark (orange, black, white), partner badges, high-res screenshots of your wins ready to drop into a deck or post.</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="folder-open"></i>Open kit</button>
-              </div>
-            </div>
-            <div class="tk-card">
-              <div class="tk-type">Quote graphic</div>
-              <div class="tk-title">Your testimonial, formatted</div>
-              <div class="tk-preview">"Redo was the back-half we never had to build. Returns went from a four-person team to one person watching a queue." — pulled from your CS call.</div>
-              <div class="tk-actions">
-                <button class="btn btn-primary btn-sm"><i data-lucide="check"></i>Use it</button>
-                <button class="btn btn-outline btn-sm"><i data-lucide="pencil"></i>Edit</button>
-              </div>
-            </div>
+          <div class="coming-soon" style="padding: 36px 24px 24px;">
+            <div class="coming-soon-icon"><i data-lucide="palette"></i></div>
+            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
+            <h2 class="coming-soon-title" style="font-size: 24px;">Ready-to-post content, personalized.</h2>
+            <p class="coming-soon-sub">LinkedIn posts, Instagram stories, X one-liners, email signatures, brand kits, and quote graphics — all auto-generated from your live store data so you can post a brag in one tap. Coming with the Series B launch.</p>
           </div>
         </section>
 
         <!-- ====================== EARNINGS ====================== -->
         <section class="page" data-page="earnings">
-          <div class="earn-hero">
-            <div>
-              <div class="eh-lbl">Total earned</div>
-              <div class="eh-num">$1,600</div>
-              <div class="eh-sub">Next payout: <b>$400</b> on June 1 · Stripe Connect</div>
-            </div>
-            <button class="btn btn-outline btn-lg">Manage payout method</button>
-          </div>
-
-          <h3 class="section-title">Your pipeline</h3>
-          <div class="pipeline">
-            <div><div class="pl-lbl">Link clicks</div><div class="pl-val">1,284</div><div class="pl-sub">All time</div></div>
-            <div><div class="pl-lbl">Demos booked</div><div class="pl-val">37</div><div class="pl-sub">2.9% conv</div></div>
-            <div><div class="pl-lbl">Brands gone live</div><div class="pl-val">8</div><div class="pl-sub">21.6% close</div></div>
-            <div><div class="pl-lbl">Paid out</div><div class="pl-val">$1,600</div><div class="pl-sub">$400 pending</div></div>
-          </div>
-
-          <h3 class="section-title">All referrals</h3>
-          <div class="ref-grid">
-            <div class="ref-row head">
-              <div></div><div>Brand</div><div>Stage</div><div>Source</div><div>Date</div><div style="text-align:right">Payout</div>
-            </div>
-            <div class="ref-row"><div class="avatar-pill">S</div><div class="brand">Salt &amp; Tide</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Apr 18</div><div class="payout">$200</div></div>
-            <div class="ref-row"><div class="avatar-pill">N</div><div class="brand">Northridge Apparel</div><div><span class="stage demo"><span class="dot"></span>Demo booked</span></div><div class="src">Link</div><div class="date">Apr 22</div><div class="payout pending">Pending</div></div>
-            <div class="ref-row"><div class="avatar-pill">C</div><div class="brand">Cobalt Goods</div><div><span class="stage demo"><span class="dot"></span>Demo booked</span></div><div class="src">Link</div><div class="date">Apr 25</div><div class="payout pending">Pending</div></div>
-            <div class="ref-row"><div class="avatar-pill">H</div><div class="brand">House of Bloom</div><div><span class="stage clicked"><span class="dot"></span>Clicked</span></div><div class="src">Link</div><div class="date">Apr 24</div><div class="payout none">—</div></div>
-            <div class="ref-row"><div class="avatar-pill">M</div><div class="brand">Maple &amp; Vine</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Apr 09</div><div class="payout">$200</div></div>
-            <div class="ref-row"><div class="avatar-pill">D</div><div class="brand">Driftwood &amp; Co.</div><div><span class="stage clicked"><span class="dot"></span>Clicked</span></div><div class="src">Link</div><div class="date">Apr 04</div><div class="payout none">—</div></div>
-            <div class="ref-row"><div class="avatar-pill">B</div><div class="brand">Brio Bottle Co.</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Code</div><div class="date">Mar 28</div><div class="payout">$200</div></div>
-            <div class="ref-row"><div class="avatar-pill">Y</div><div class="brand">Yardline Outfitters</div><div><span class="stage closed"><span class="dot"></span>Closed-won</span></div><div class="src">Link</div><div class="date">Mar 22</div><div class="payout">$200</div></div>
+          <div class="coming-soon">
+            <div class="coming-soon-icon"><i data-lucide="dollar-sign"></i></div>
+            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
+            <h1 class="coming-soon-title">Your earnings ledger.</h1>
+            <p class="coming-soon-sub">Once we wire campaign payouts and referral attribution to your Stripe Connect account, you'll see every dollar earned, queued, and paid here — live. Coming with the Series B launch.</p>
           </div>
         </section>
 
         <!-- ====================== LEADERBOARD ====================== -->
         <section class="page" data-page="leaderboard">
-          <div class="welcome">
-            <div class="welcome-left">
-              <h1>The brag board</h1>
-              <p>The top brands carrying the Merchant Led Growth movement. Refreshed daily. Pin to the top this month and your logo runs in our investor update.</p>
-            </div>
-          </div>
-          <div class="board">
-            <div class="board-row"><span class="rank top">01</span><span class="name">Brio Bottle Co.</span><span class="refs">11 closed · 1,402 clicks</span><span class="earned">$2,200</span></div>
-            <div class="board-row"><span class="rank top">02</span><span class="name">Yardline Outfitters</span><span class="refs">9 closed · 1,180 clicks</span><span class="earned">$1,800</span></div>
-            <div class="board-row me"><span class="rank top">03</span><span class="name">Wildflower Co. (you)</span><span class="refs">8 closed · 1,284 clicks</span><span class="earned">$1,600</span></div>
-            <div class="board-row"><span class="rank">04</span><span class="name">Aero Athletics</span><span class="refs">6 closed · 940 clicks</span><span class="earned">$1,200</span></div>
-            <div class="board-row"><span class="rank">05</span><span class="name">Salt &amp; Tide</span><span class="refs">5 closed · 810 clicks</span><span class="earned">$1,000</span></div>
-            <div class="board-row"><span class="rank">06</span><span class="name">Glasshouse Studio</span><span class="refs">4 closed · 612 clicks</span><span class="earned">$800</span></div>
-            <div class="board-row"><span class="rank">07</span><span class="name">Maple &amp; Vine</span><span class="refs">4 closed · 578 clicks</span><span class="earned">$800</span></div>
-            <div class="board-row"><span class="rank">08</span><span class="name">Driftwood &amp; Co.</span><span class="refs">3 closed · 410 clicks</span><span class="earned">$600</span></div>
-            <div class="board-row"><span class="rank">09</span><span class="name">Northridge Apparel</span><span class="refs">3 closed · 360 clicks</span><span class="earned">$600</span></div>
-            <div class="board-row"><span class="rank">10</span><span class="name">Cobalt Goods</span><span class="refs">2 closed · 290 clicks</span><span class="earned">$400</span></div>
+          <div class="coming-soon">
+            <div class="coming-soon-icon"><i data-lucide="bar-chart-3"></i></div>
+            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
+            <h1 class="coming-soon-title">The brag board.</h1>
+            <p class="coming-soon-sub">Top brands carrying the Merchant Led Growth movement, refreshed daily. Goes live as soon as the first cohort of merchants starts referring through the program.</p>
           </div>
         </section>
 
         <!-- ====================== RESOURCES / SETTINGS ====================== -->
         <section class="page" data-page="resources">
-          <div class="welcome">
-            <div class="welcome-left">
-              <h1>Resources</h1>
-              <p>Brand kits, talking points, and answers to the questions we hear most.</p>
-            </div>
-          </div>
-          <div class="campaigns-grid">
-            <div class="camp-card"><span class="cc-tag alwayson"><span class="dot"></span>Brand kit</span><div class="cc-title">Logos, partner badge, screenshots</div><div class="cc-desc">Everything you need to put Redo on a slide, deck, or post.</div><div class="cc-foot"><span class="reward">Download</span><span class="meta">14 files</span></div></div>
-            <div class="camp-card"><span class="cc-tag alwayson"><span class="dot"></span>Talking points</span><div class="cc-title">What to say in a brag</div><div class="cc-desc">One-liners, two-paragraph posts, and full case-study scripts.</div><div class="cc-foot"><span class="reward">Open doc</span><span class="meta">10 templates</span></div></div>
-            <div class="camp-card"><span class="cc-tag open"><span class="dot"></span>FAQ</span><div class="cc-title">Payouts, taxes, attribution</div><div class="cc-desc">How 1099s work, when commissions hit, what counts as a referral.</div><div class="cc-foot"><span class="reward">Read</span><span class="meta">Updated weekly</span></div></div>
+          <div class="coming-soon">
+            <div class="coming-soon-icon"><i data-lucide="book-open"></i></div>
+            <div class="coming-soon-badge"><i data-lucide="sparkles"></i>Coming soon</div>
+            <h1 class="coming-soon-title">Resources.</h1>
+            <p class="coming-soon-sub">Brand kits, talking points, payout / tax / attribution FAQs — coming together. We're publishing the first batch alongside the Series B launch.</p>
           </div>
         </section>
 
@@ -1204,6 +1106,67 @@
 
       </div>
     </main>
+  </div>
+
+  <!-- ============================== CAMPAIGN DETAIL MODAL ============================== -->
+  <div class="auth-overlay hidden" id="campaignDetailOverlay">
+    <div class="auth-overlay-bg" id="campaignDetailBg"></div>
+    <div class="auth-card-wrap" style="max-width: 640px;">
+      <button class="auth-card-close" id="campaignDetailClose" aria-label="Close" style="top: -42px; right: -2px;"><i data-lucide="x"></i></button>
+      <div class="cd-card" id="cdCard">
+        <div class="cd-hero" id="cdHero">
+          <div class="cd-meta">
+            <span class="cd-tag" id="cdTag"></span>
+            <span class="cd-reward" id="cdReward"></span>
+          </div>
+          <h2 class="cd-title" id="cdTitle"></h2>
+        </div>
+        <div class="cd-image" id="cdImage"></div>
+        <div class="cd-body">
+          <p class="cd-desc" id="cdDesc"></p>
+          <div class="cd-long" id="cdLong"></div>
+          <div class="cd-foot" id="cdFoot">
+            <button class="btn btn-primary" id="cdParticipate"><i data-lucide="rocket"></i>I want in</button>
+            <button class="btn btn-outline" id="cdShareBtn"><i data-lucide="link"></i>Copy share link</button>
+            <span class="cd-ends" id="cdEnds"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== PUBLIC CAMPAIGN PAGE (for ?c=<id>) ============================== -->
+  <div class="public-campaign hidden" id="publicCampaign">
+    <header class="landing-nav">
+      <div class="landing-logo">
+        <img class="redo-wordmark" src="redo-wordmark.svg" alt="Redo" />
+        <span class="landing-badge">Merchant Led Growth</span>
+      </div>
+      <div class="landing-nav-right">
+        <button class="landing-link" type="button" id="publicSignIn">Sign in</button>
+        <button class="landing-cta" type="button" id="publicSignUp">Join the network <i data-lucide="arrow-right"></i></button>
+      </div>
+    </header>
+    <div class="public-campaign-stage">
+      <div class="cd-card" id="publicCdCard">
+        <div class="cd-hero" id="publicCdHero">
+          <div class="cd-meta">
+            <span class="cd-tag" id="publicCdTag"></span>
+            <span class="cd-reward" id="publicCdReward"></span>
+          </div>
+          <h2 class="cd-title" id="publicCdTitle"></h2>
+        </div>
+        <div class="cd-image" id="publicCdImage"></div>
+        <div class="cd-body">
+          <p class="cd-desc" id="publicCdDesc"></p>
+          <div class="cd-long" id="publicCdLong"></div>
+          <div class="cd-foot">
+            <button class="btn btn-primary" type="button" id="publicJoinBtn"><i data-lucide="rocket"></i>Join to participate</button>
+            <span class="cd-ends" id="publicCdEnds"></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ============================== CAMPAIGN BUILDER MODAL ============================== -->
@@ -1386,6 +1349,18 @@
     // Settings profile summary
     const sum = document.getElementById("profileSummary");
     if (sum) sum.textContent = `Signed in as ${user.fullname || user.email} · ${user.email}`;
+    // Share toolkit — code + link derived from the merchant's brand
+    const slug = (user.brand || "brand").toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 20) || "brand";
+    const code = slug.toUpperCase();
+    const link = `redo.com/r/${slug}`;
+    const shareCode = document.getElementById("shareCode");
+    const shareLink = document.getElementById("shareLink");
+    const shareCodeCopy = document.getElementById("shareCodeCopy");
+    const shareLinkCopy = document.getElementById("shareLinkCopy");
+    if (shareCode) shareCode.textContent = code;
+    if (shareLink) shareLink.textContent = link;
+    if (shareCodeCopy) shareCodeCopy.dataset.copy = code;
+    if (shareLinkCopy) shareLinkCopy.dataset.copy = "https://" + link;
   }
 
   async function enterShell(user) {
@@ -1622,16 +1597,25 @@
 
     // Campaigns
     document.getElementById("campaignsList").innerHTML = `
-      <div class="ref-row head" style="grid-template-columns: 1.4fr 2fr auto auto;"><div>Title</div><div>Description</div><div>Reward</div><div>Status</div></div>
+      <div class="ref-row head" style="grid-template-columns: 1.4fr 2fr auto auto 110px;"><div>Title</div><div>Description</div><div>Reward</div><div>Status</div><div style="text-align:right">Actions</div></div>
       ${campaigns.map((c) => `
-        <div class="ref-row" style="grid-template-columns: 1.4fr 2fr auto auto;">
+        <div class="ref-row" style="grid-template-columns: 1.4fr 2fr auto auto 110px;">
           <div class="brand">${c.title}</div>
           <div class="src">${c.desc}</div>
           <div class="payout">${c.reward}</div>
           <div><span class="stage ${c.status === "live" ? "demo" : c.status === "open" ? "closed" : "clicked"}"><span class="dot"></span>${c.status === "alwayson" ? "Always-on" : c.status[0].toUpperCase() + c.status.slice(1)}</span></div>
+          <div class="row-actions">
+            <button class="row-action campaign-share" data-id="${c.id}" title="Copy share link"><i data-lucide="link"></i></button>
+            <button class="row-action campaign-edit" data-id="${c.id}" title="Edit"><i data-lucide="pencil"></i></button>
+            <button class="row-action danger campaign-delete" data-id="${c.id}" title="Delete"><i data-lucide="trash-2"></i></button>
+          </div>
         </div>
       `).join("") || `<div class="ref-row"><div></div><div class="brand" style="grid-column: 2 / -1;">No campaigns yet</div></div>`}
     `;
+    // Wire row action buttons
+    document.querySelectorAll(".campaign-edit").forEach((btn) => btn.addEventListener("click", () => openBuilderForEdit(btn.dataset.id)));
+    document.querySelectorAll(".campaign-share").forEach((btn) => btn.addEventListener("click", () => copyShareLink(btn)));
+    document.querySelectorAll(".campaign-delete").forEach((btn) => btn.addEventListener("click", () => deleteCampaign(btn.dataset.id)));
 
     // Payouts (referrals + payouts tables empty for now — placeholder until data flows in)
     document.getElementById("payoutsList").innerHTML = `
@@ -1730,7 +1714,74 @@
     }
   });
 
-  // Publish
+  // Track which campaign we're editing (null = creating new)
+  let editingCampaignId = null;
+
+  async function openBuilderForEdit(id) {
+    const { data, error } = await sb.from("campaigns").select("*").eq("id", id).single();
+    if (error) { alert("Could not load that campaign: " + error.message); return; }
+    editingCampaignId = id;
+    document.querySelector(".builder-title").textContent = "Edit campaign";
+    document.getElementById("ncSubmit").innerHTML = '<i data-lucide="save"></i>Save changes';
+    document.getElementById("ncTitle").value = data.title || "";
+    document.getElementById("ncTag").value = data.tag || "";
+    document.getElementById("ncReward").value = data.reward || "";
+    document.getElementById("ncDesc").value = data.description || "";
+    document.getElementById("ncBody").value = data.body || "";
+    document.getElementById("ncBgColor").value = data.background_color || "#1c2440";
+    document.getElementById("ncBgColorPicker").value = data.background_color || "#1c2440";
+    document.getElementById("ncTextColor").value = data.text_color || "#f4e759";
+    document.getElementById("ncTextColorPicker").value = data.text_color || "#f4e759";
+    document.getElementById("ncImageUrl").value = data.image_url || "";
+    document.getElementById("ncStatus").value = data.status || "open";
+    document.getElementById("ncCategory").value = data.category || "social";
+    document.getElementById("ncAmount").value = data.reward_amount_cents != null ? data.reward_amount_cents / 100 : "";
+    document.getElementById("ncEndsAt").value = data.ends_at ? new Date(data.ends_at).toISOString().slice(0, 16) : "";
+    document.getElementById("campaignModal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    updatePreview();
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function resetBuilderToCreate() {
+    editingCampaignId = null;
+    document.querySelector(".builder-title").textContent = "Design a new earning opportunity";
+    document.getElementById("ncSubmit").innerHTML = '<i data-lucide="rocket"></i>Publish to network';
+    document.getElementById("newCampaignForm").reset();
+    document.getElementById("ncBgColor").value = "#1c2440";
+    document.getElementById("ncBgColorPicker").value = "#1c2440";
+    document.getElementById("ncTextColor").value = "#f4e759";
+    document.getElementById("ncTextColorPicker").value = "#f4e759";
+    document.getElementById("ncImageStatus").textContent = "";
+    updatePreview();
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Override the New Campaign button to reset state first
+  document.getElementById("newCampaignBtn").addEventListener("click", () => {
+    resetBuilderToCreate();
+  }, true); // capture phase so this runs before the existing open handler
+
+  async function deleteCampaign(id) {
+    if (!confirm("Delete this campaign? Merchants will no longer see it.")) return;
+    const { error } = await sb.from("campaigns").delete().eq("id", id);
+    if (error) { alert("Could not delete: " + error.message); return; }
+    await renderAdmin();
+    await renderMerchantCampaigns();
+  }
+
+  async function copyShareLink(btn) {
+    const id = btn.dataset.id;
+    const url = `${window.location.origin}/?c=${id}`;
+    try { await navigator.clipboard.writeText(url); } catch (_) {}
+    const orig = btn.innerHTML;
+    btn.classList.add("copied");
+    btn.innerHTML = '<i data-lucide="check"></i>';
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1400);
+  }
+
+  // Publish / Save (create or update depending on editingCampaignId)
   document.getElementById("newCampaignForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     showError("ncError", "");
@@ -1757,25 +1808,102 @@
         ends_at: endsAtStr ? new Date(endsAtStr).toISOString() : null,
         published: true
       };
-      await createCampaign(payload);
-      e.target.reset();
-      // Reset preview to default
-      document.getElementById("ncBgColor").value = "#1c2440";
-      document.getElementById("ncBgColorPicker").value = "#1c2440";
-      document.getElementById("ncTextColor").value = "#f4e759";
-      document.getElementById("ncTextColorPicker").value = "#f4e759";
-      document.getElementById("ncImageStatus").textContent = "";
-      updatePreview();
+      if (editingCampaignId) {
+        const { error } = await sb.from("campaigns").update(payload).eq("id", editingCampaignId);
+        if (error) throw error;
+      } else {
+        await createCampaign(payload);
+      }
+      resetBuilderToCreate();
       closeCampaignModal();
       await renderAdmin();
-      await renderMerchantCampaigns(); // also refresh the merchant-facing list in case admin happens to be a merchant too
+      await renderMerchantCampaigns();
     } catch (err) {
-      showError("ncError", err.message || "Could not create the campaign.");
+      showError("ncError", err.message || "Could not save the campaign.");
     } finally {
       submitBtn.disabled = false;
       submitBtn.style.opacity = "";
     }
   });
+
+  // ============================== CAMPAIGN DETAIL (modal) + PUBLIC VIEW ==============================
+  function fillDetailCard(c, ids) {
+    const { card, tag, reward, title, image, desc, body, ends } = ids;
+    document.getElementById(card).style.background = c.background_color || "#1c2440";
+    document.getElementById(card).style.color = c.text_color || "#f4e759";
+    document.getElementById(tag).textContent = c.tag || (c.status === "alwayson" ? "Always-on" : c.status[0].toUpperCase() + c.status.slice(1));
+    document.getElementById(reward).textContent = c.reward || "";
+    document.getElementById(title).textContent = c.title;
+    const imgEl = document.getElementById(image);
+    imgEl.style.backgroundImage = c.image_url ? `url('${c.image_url}')` : "";
+    imgEl.style.display = c.image_url ? "block" : "none";
+    document.getElementById(desc).textContent = c.description || "";
+    document.getElementById(body).textContent = c.body || "";
+    const endsEl = document.getElementById(ends);
+    if (endsEl) endsEl.textContent = c.ends_at ? "Ends " + new Date(c.ends_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
+  }
+
+  async function openCampaignDetailById(id) {
+    const { data, error } = await sb.from("campaigns").select("*").eq("id", id).single();
+    if (error || !data) return;
+    // Force hero/body coloring to use the dark text on light card section
+    const ids = { card: "cdHero", tag: "cdTag", reward: "cdReward", title: "cdTitle", image: "cdImage", desc: "cdDesc", body: "cdLong", ends: "cdEnds" };
+    fillDetailCard(data, ids);
+    // The body section uses the card's normal colors, not the campaign palette — reset
+    document.querySelector("#campaignDetailOverlay .cd-body").style.background = "hsl(var(--card))";
+    document.querySelector("#campaignDetailOverlay .cd-body").style.color = "hsl(var(--foreground))";
+    document.getElementById("cdShareBtn").onclick = async () => {
+      const url = `${window.location.origin}/?c=${id}`;
+      try { await navigator.clipboard.writeText(url); } catch (_) {}
+      const btn = document.getElementById("cdShareBtn");
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="check"></i>Copied';
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1400);
+    };
+    document.getElementById("campaignDetailOverlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    if (window.lucide) lucide.createIcons();
+  }
+  document.getElementById("campaignDetailClose").addEventListener("click", () => {
+    document.getElementById("campaignDetailOverlay").classList.add("hidden");
+    document.body.style.overflow = "";
+  });
+  document.getElementById("campaignDetailBg").addEventListener("click", () => {
+    document.getElementById("campaignDetailOverlay").classList.add("hidden");
+    document.body.style.overflow = "";
+  });
+
+  // Click any merchant brand card → open detail
+  document.getElementById("merchantCampaigns").addEventListener("click", (e) => {
+    const card = e.target.closest("[data-campaign-id]");
+    if (!card) return;
+    openCampaignDetailById(card.dataset.campaignId);
+  });
+
+  // Public view: ?c=<id> renders the campaign in fullscreen with a Join CTA
+  async function maybeShowPublicCampaign() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("c");
+    if (!id) return false;
+    const { data, error } = await sb.from("campaigns").select("*").eq("id", id).single();
+    if (error || !data) return false;
+    // Hide everything else; show the public page
+    $("loginScreen").classList.add("hidden");
+    $("appShell").classList.remove("active");
+    $("adminShell").classList.remove("active");
+    const pub = document.getElementById("publicCampaign");
+    pub.classList.remove("hidden");
+    const ids = { card: "publicCdHero", tag: "publicCdTag", reward: "publicCdReward", title: "publicCdTitle", image: "publicCdImage", desc: "publicCdDesc", body: "publicCdLong", ends: "publicCdEnds" };
+    fillDetailCard(data, ids);
+    document.querySelector("#publicCampaign .cd-body").style.background = "hsl(var(--card))";
+    document.querySelector("#publicCampaign .cd-body").style.color = "hsl(var(--foreground))";
+    document.getElementById("publicSignIn").onclick = () => { pub.classList.add("hidden"); $("loginScreen").classList.remove("hidden"); openAuth("signin"); };
+    document.getElementById("publicSignUp").onclick = () => { pub.classList.add("hidden"); $("loginScreen").classList.remove("hidden"); openAuth("signup"); };
+    document.getElementById("publicJoinBtn").onclick = () => { pub.classList.add("hidden"); $("loginScreen").classList.remove("hidden"); openAuth("signup"); };
+    if (window.lucide) lucide.createIcons();
+    return true;
+  }
 
   // Sidebar nav
   function showPage(name) {
@@ -1897,29 +2025,32 @@
   const amazonSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260"><rect width="400" height="260" rx="10" fill="#232F3E"/><text x="200" y="128" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF" text-anchor="middle">amazon</text><path d="M150 156 Q200 196 250 156" stroke="#FF9900" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M243 152 L256 162 L246 172" stroke="#FF9900" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const amazonCard = "data:image/svg+xml;utf8," + encodeURIComponent(amazonSvg);
 
+  // All tiers shown as the program's reward ladder. Personalized "unlocked / locked" per merchant
+  // turns on once we wire merchant data after Series B. For now everything reads as
+  // "Hit X to unlock" so brands see what's possible.
   const TIERS = [
     {
-      id: "gift", state: "unlocked", name: "Amazon gift card", color: "navy", year: "2024",
+      id: "gift", state: "locked", name: "Amazon gift card", color: "navy", year: "Entry tier",
       imgs: ["rewards/amazon.png", amazonCard],
-      date: "Jan 2024", achievement: "Joined Redo"
+      paths: ["Joining Redo and shipping your first label"]
     },
     {
-      id: "hat", state: "unlocked", name: "Custom hat", color: "brick", year: "2024",
+      id: "hat", state: "locked", name: "Custom hat", color: "brick", year: "Tier 2",
       imgs: ["rewards/hat.png", "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=500&q=80"],
-      date: "Mar 2024", achievement: "$100K Lifetime Retained"
+      paths: ["$100K Lifetime Retained"]
     },
     {
-      id: "hoodie", state: "unlocked", name: "Custom hoodie", color: "ink", year: "2025",
+      id: "hoodie", state: "locked", name: "Custom hoodie", color: "ink", year: "Tier 3",
       imgs: ["rewards/hoodie.png", "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=crop&w=500&q=80"],
-      date: "Feb 2025", achievement: "$1M Lifetime Retained"
+      paths: ["$1M Lifetime Retained"]
     },
     {
-      id: "airpods", state: "locked", name: "AirPods Max", color: "sky", year: "Upcoming",
+      id: "airpods", state: "locked", name: "AirPods Max", color: "sky", year: "Tier 4",
       imgs: ["rewards/headphones.png", "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80"],
       paths: ["$5M Lifetime Retained", "100K Labels Printed", "5,000 Exchanges", "1,000 Recovered Carts", "20 Brand Referrals"]
     },
     {
-      id: "duffel", state: "locked", name: "Leather duffel", color: "brown", year: "Upcoming",
+      id: "duffel", state: "locked", name: "Leather duffel", color: "brown", year: "Tier 5",
       imgs: ["rewards/duffel.png", "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"],
       paths: ["$10M Lifetime Retained", "250K Labels Printed", "15,000 Exchanges", "3,000 Recovered Carts", "50 Brand Referrals"]
     }
@@ -2010,6 +2141,9 @@
   (async function tryResume() {
     const lastEmail = localStorage.getItem("redo_mlg_last_email");
     if (lastEmail) document.getElementById("signinEmail").value = lastEmail;
+    // If the URL has ?c=<id>, render the public campaign view instead of resuming session
+    const isPublicView = await maybeShowPublicCampaign();
+    if (isPublicView) return;
     const user = await loadActiveUser();
     if (user) await enterShell(user);
   })();
