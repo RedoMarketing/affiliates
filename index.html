@@ -229,10 +229,50 @@
   .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .color-cell { display: flex; flex-direction: column; gap: 4px; }
   .color-input-row { display: flex; align-items: center; gap: 8px; }
-  .color-input-row input[type=color] { width: 38px; height: 38px; padding: 0; border: 1px solid hsl(var(--input)); border-radius: 6px; background: hsl(var(--background)); cursor: pointer; flex: none; }
-  .color-input-row input[type=text] { flex: 1; font-family: ui-monospace, Menlo, monospace; }
-  .builder-publish { background: hsl(var(--primary)); margin-top: 6px; height: 42px; font-size: 14px; }
-  .builder-publish svg { width: 15px; height: 15px; }
+
+  /* Polished color swatch picker */
+  .color-input-row input[type=color] {
+    width: 38px; height: 38px; padding: 0; border: none; border-radius: 8px;
+    background: transparent; cursor: pointer; flex: none; overflow: hidden;
+    -webkit-appearance: none; appearance: none;
+    box-shadow: 0 0 0 1px hsl(var(--border)), inset 0 0 0 2px hsl(var(--background));
+    transition: box-shadow .15s ease, transform .15s ease;
+  }
+  .color-input-row input[type=color]:hover { transform: scale(1.04); box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.3), inset 0 0 0 2px hsl(var(--background)); }
+  .color-input-row input[type=color]:focus { outline: none; box-shadow: 0 0 0 2px hsl(var(--foreground)), inset 0 0 0 2px hsl(var(--background)); }
+  .color-input-row input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-input-row input[type=color]::-webkit-color-swatch { border: none; border-radius: 6px; }
+  .color-input-row input[type=color]::-moz-color-swatch { border: none; border-radius: 6px; }
+  .color-input-row input[type=text] { flex: 1; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+
+  /* Close button inside the builder card */
+  .builder-card { position: relative; }
+  .builder-close { position: absolute; top: 14px; right: 14px; z-index: 4; background: transparent; border: none; width: 32px; height: 32px; border-radius: 8px; color: hsl(var(--muted-foreground)); cursor: pointer; display: grid; place-items: center; transition: background .15s ease, color .15s ease; }
+  .builder-close:hover { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+  .builder-close svg { width: 18px; height: 18px; }
+
+  /* Custom drag-drop upload area */
+  .upload-area { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1.5px dashed hsl(var(--border)); border-radius: 10px; background: hsl(var(--muted) / 0.4); cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  .upload-area:hover { border-color: hsl(var(--foreground) / 0.35); background: hsl(var(--muted) / 0.65); }
+  .upload-area.dragover { border-color: hsl(var(--foreground)); background: hsl(var(--muted)); }
+  .upload-area.has-image { padding: 8px; gap: 10px; background-color: hsl(var(--background)); background-size: cover; background-position: center; min-height: 110px; align-items: flex-end; }
+  .upload-area.has-image .upload-icon, .upload-area.has-image .upload-text { display: none; }
+  .upload-area.has-image::after { content: "Image attached — click to change"; background: hsl(var(--card)); border-radius: 6px; padding: 6px 10px; font: 500 12px var(--sans); color: hsl(var(--foreground)); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .upload-icon { width: 36px; height: 36px; border-radius: 8px; background: hsl(var(--card)); display: grid; place-items: center; color: hsl(var(--muted-foreground)); flex: none; border: 1px solid hsl(var(--border)); }
+  .upload-icon svg { width: 18px; height: 18px; }
+  .upload-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .upload-primary { font: 500 13.5px var(--sans); color: hsl(var(--foreground)); }
+  .upload-primary strong { font-weight: 600; }
+  .upload-hint { font: 400 11.5px var(--sans); color: hsl(var(--muted-foreground)); }
+  .upload-divider { display: flex; align-items: center; gap: 10px; font: 500 11.5px var(--sans); color: hsl(var(--muted-foreground)); margin: 6px 0 2px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .upload-divider::before, .upload-divider::after { content: ""; flex: 1; height: 1px; background: hsl(var(--border)); }
+  .upload-status { font: 500 12px var(--sans); color: hsl(var(--muted-foreground)); min-height: 0; }
+  .upload-status:empty { display: none; }
+
+  /* Bigger, more obvious publish button */
+  .builder-publish { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); margin-top: 8px; height: 46px; font: 600 14.5px var(--sans); letter-spacing: -0.005em; box-shadow: 0 1px 2px rgba(0,0,0,0.06); transition: background .15s ease, transform .15s ease, box-shadow .15s ease; }
+  .builder-publish:hover { background: hsl(var(--foreground)); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+  .builder-publish svg { width: 16px; height: 16px; }
 
   @media (max-width: 780px) {
     .builder-body { grid-template-columns: 1fr; }
@@ -1219,8 +1259,8 @@
   <div class="auth-overlay hidden" id="campaignModal">
     <div class="auth-overlay-bg" id="campaignModalBg"></div>
     <div class="builder-card-wrap">
-      <button class="auth-card-close" id="campaignModalClose" aria-label="Close" style="top: -42px; right: -2px;"><i data-lucide="x"></i></button>
       <div class="builder-card">
+        <button class="builder-close" id="campaignModalClose" aria-label="Close"><i data-lucide="x"></i></button>
         <div class="builder-head">
           <div>
             <div class="builder-eyebrow">Campaign builder</div>
@@ -1295,11 +1335,17 @@
 
             <div class="bf-group">
               <div class="bf-group-title">Image</div>
-              <label for="ncImageFile">Upload <span class="optional">(square or 4:3 looks best)</span></label>
-              <input type="file" id="ncImageFile" accept="image/*" />
-              <label for="ncImageUrl">Or paste an image URL</label>
+              <label for="ncImageFile" class="upload-area" id="uploadArea">
+                <div class="upload-icon"><i data-lucide="image-up"></i></div>
+                <div class="upload-text">
+                  <span class="upload-primary">Drop an image or <strong>browse</strong></span>
+                  <span class="upload-hint">PNG, JPG, or WebP · square or 4:3 looks best</span>
+                </div>
+              </label>
+              <input type="file" id="ncImageFile" accept="image/*" style="display: none;" />
+              <div class="upload-divider"><span>or paste a URL</span></div>
               <input type="url" id="ncImageUrl" name="image_url" placeholder="https://..." />
-              <div id="ncImageStatus" style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 4px;"></div>
+              <div id="ncImageStatus" class="upload-status"></div>
             </div>
 
             <div class="bf-group">
@@ -1740,23 +1786,49 @@
     });
   });
 
-  // Image upload to Supabase Storage
-  document.getElementById("ncImageFile").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
+  // Image upload to Supabase Storage + drag-drop on the upload area
+  const uploadArea = document.getElementById("uploadArea");
+  const uploadInput = document.getElementById("ncImageFile");
+
+  async function handleUploadFile(file) {
     if (!file) return;
     const statusEl = document.getElementById("ncImageStatus");
     statusEl.textContent = "Uploading…";
     try {
-      const ext = file.name.split(".").pop() || "png";
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
       const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await sb.storage.from("campaign-images").upload(key, file, { cacheControl: "3600", upsert: false });
       if (error) throw error;
       const { data } = sb.storage.from("campaign-images").getPublicUrl(key);
       document.getElementById("ncImageUrl").value = data.publicUrl;
-      statusEl.textContent = "Uploaded.";
+      uploadArea.classList.add("has-image");
+      uploadArea.style.backgroundImage = `url('${data.publicUrl}')`;
+      statusEl.textContent = "";
       updatePreview();
     } catch (err) {
+      uploadArea.classList.remove("has-image");
+      uploadArea.style.backgroundImage = "";
       statusEl.textContent = "Upload failed: " + (err.message || "unknown error");
+    }
+  }
+
+  uploadInput.addEventListener("change", (e) => handleUploadFile(e.target.files?.[0]));
+  uploadArea.addEventListener("dragover", (e) => { e.preventDefault(); uploadArea.classList.add("dragover"); });
+  uploadArea.addEventListener("dragleave", () => uploadArea.classList.remove("dragover"));
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove("dragover");
+    handleUploadFile(e.dataTransfer.files?.[0]);
+  });
+  // Also reflect URL-paste back into the upload area
+  document.getElementById("ncImageUrl").addEventListener("input", (e) => {
+    const v = e.target.value.trim();
+    if (v) {
+      uploadArea.classList.add("has-image");
+      uploadArea.style.backgroundImage = `url('${v}')`;
+    } else {
+      uploadArea.classList.remove("has-image");
+      uploadArea.style.backgroundImage = "";
     }
   });
 
@@ -1779,6 +1851,8 @@
     document.getElementById("ncTextColor").value = data.text_color || "#f4e759";
     document.getElementById("ncTextColorPicker").value = data.text_color || "#f4e759";
     document.getElementById("ncImageUrl").value = data.image_url || "";
+    const ua2 = document.getElementById("uploadArea");
+    if (data.image_url) { ua2.classList.add("has-image"); ua2.style.backgroundImage = `url('${data.image_url}')`; } else { ua2.classList.remove("has-image"); ua2.style.backgroundImage = ""; }
     document.getElementById("ncStatus").value = data.status || "open";
     document.getElementById("ncCategory").value = data.category || "social";
     document.getElementById("ncAmount").value = data.reward_amount_cents != null ? data.reward_amount_cents / 100 : "";
@@ -1799,6 +1873,8 @@
     document.getElementById("ncTextColor").value = "#f4e759";
     document.getElementById("ncTextColorPicker").value = "#f4e759";
     document.getElementById("ncImageStatus").textContent = "";
+    const ua = document.getElementById("uploadArea");
+    ua.classList.remove("has-image"); ua.style.backgroundImage = "";
     updatePreview();
     if (window.lucide) lucide.createIcons();
   }
