@@ -184,7 +184,9 @@
   .row-action.copied { color: hsl(var(--green)); }
 
   /* Coming soon page state */
-  .coming-soon { text-align: center; padding: 60px 24px 80px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .coming-soon { text-align: center; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  /* When the coming-soon is the only thing on the page, center it vertically in the viewport */
+  section.page > .coming-soon:only-child { min-height: calc(100vh - var(--topbar-h) - 80px); justify-content: center; }
   .coming-soon-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); font: 600 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
   .coming-soon-badge svg { width: 12px; height: 12px; }
   .coming-soon-title { font: 600 32px var(--sans); letter-spacing: -0.02em; color: hsl(var(--foreground)); margin-top: 8px; }
@@ -1416,6 +1418,9 @@
   const SUPABASE_ANON_KEY = "sb_publishable_BqSK1VvQxjaqkAlTonra-g_vjFkgBx8";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Current signed-in user (set by enterShell, cleared by signOut)
+  let currentUser = null;
+
   // Returns the merged session profile: { id, email, fullname, brand, url, role } or null
   async function loadActiveUser() {
     const { data: { session } } = await sb.auth.getSession();
@@ -1456,6 +1461,7 @@
   }
 
   async function enterShell(user) {
+    currentUser = user;
     applyUser(user);
     $("loginScreen").classList.add("hidden");
     // Close the auth modal if it's open (covers both merchant + admin sign-in)
@@ -1559,6 +1565,7 @@
     const { data: { session } } = await sb.auth.getSession();
     if (session) localStorage.setItem("redo_mlg_last_email", session.user.email);
     await sb.auth.signOut();
+    currentUser = null;
     document.querySelector(".brand-switcher .bs-mark").textContent = "?";
     document.querySelector(".brand-switcher .bs-name").textContent = "Brand";
     document.getElementById("brandMenu").classList.add("hidden");
@@ -2025,11 +2032,18 @@
     // The body section uses the card's normal colors, not the campaign palette — reset
     document.querySelector("#campaignDetailOverlay .cd-body").style.background = "hsl(var(--card))";
     document.querySelector("#campaignDetailOverlay .cd-body").style.color = "hsl(var(--foreground))";
-    document.getElementById("cdShareBtn").onclick = () => {
-      // Close the detail modal first so the share modal sits on top of the page, not the detail card
-      document.getElementById("campaignDetailOverlay").classList.add("hidden");
-      openShareModal(id);
-    };
+    // Share button: admins only. Merchants shouldn't be redistributing campaign links —
+    // any sharing they do is about the campaign's actual content (their own post / referral / etc.)
+    const shareBtn = document.getElementById("cdShareBtn");
+    if (isAdmin(currentUser)) {
+      shareBtn.style.display = "";
+      shareBtn.onclick = () => {
+        document.getElementById("campaignDetailOverlay").classList.add("hidden");
+        openShareModal(id);
+      };
+    } else {
+      shareBtn.style.display = "none";
+    }
     document.getElementById("campaignDetailOverlay").classList.remove("hidden");
     document.body.style.overflow = "hidden";
     if (window.lucide) lucide.createIcons();
