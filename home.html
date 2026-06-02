@@ -9,208 +9,357 @@
 <style>
   :root {
     --bg: 0 0% 100%;
-    --fg: 240 10% 3.9%;
-    --muted: 240 4.8% 95.9%;
-    --muted-fg: 240 3.8% 46.1%;
-    --border: 240 5.9% 90%;
-    --primary: 252 78% 58%;        /* Redo purple #5f45e2 */
-    --primary-fg: 0 0% 100%;
-    --orange: 22 100% 51%;         /* Redo orange highlight */
-    --green: 142 71% 38%;
+    --fg: 240 10% 4%;
+    --gray-950: 240 10% 4%;
+    --gray-700: 240 4% 28%;
+    --gray-600: 240 4% 38%;
+    --gray-500: 240 4% 48%;
+    --gray-400: 240 4% 65%;
+    --gray-300: 240 5% 82%;
+    --gray-200: 240 5% 90%;
+    --gray-100: 240 5% 96%;
+    --gray-50:  240 6% 98%;
+    --border: 240 5% 90%;
+    --accent: 240 10% 4%;
+    --accent-fg: 0 0% 100%;
+    --green: 142 71% 36%;
     --amber: 38 92% 50%;
-    --pink: 340 82% 60%;
+    --redo-orange: 22 100% 51%;
 
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    --serif: 'Instrument Serif', Georgia, serif;
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
     --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 
     --sidebar-w: 58px;
     --topbar-h: 56px;
-    --radius: 10px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
+  html, body { height: 100%; min-height: 100%; }
   body { font-family: var(--sans); background: hsl(var(--bg)); color: hsl(var(--fg)); -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 1, "cv11" 1; line-height: 1.5; overflow: hidden; }
-  ::selection { background: hsl(var(--primary) / 0.18); }
+  ::selection { background: hsl(var(--gray-200)); }
   button { font-family: inherit; cursor: pointer; }
 
-  /* ============================== APP SHELL ============================== */
-  .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; }
-
-  /* Redo sidebar (visual mock — matches product) */
-  .rsb { background: #0d0d0d; color: #fafafa; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px; }
-  .rsb-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--orange))); display: grid; place-items: center; font: 800 12px var(--sans); color: white; margin-bottom: 14px; }
+  /* ============================== SHELL ============================== */
+  .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; overflow: hidden; }
+  .rsb { background: #0d0d0d; color: #fafafa; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px; position: relative; }
+  .rsb-logo { width: 30px; height: 30px; border-radius: 8px; background: hsl(var(--accent)); display: grid; place-items: center; font: 800 12px var(--sans); color: white; margin-bottom: 14px; }
   .rsb-item { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: #9a9a9d; display: grid; place-items: center; transition: background .15s ease, color .15s ease; }
   .rsb-item:hover { background: #1a1a1c; color: #fafafa; }
   .rsb-item.active { background: #1f1f22; color: #fafafa; }
   .rsb-item svg { width: 18px; height: 18px; }
+  .rsb-item.style-btn { background: rgba(255, 80, 80, 0.12); border: 1px solid rgba(255, 80, 80, 0.45); color: #ff8585; }
+  .rsb-item.style-btn:hover { background: rgba(255, 80, 80, 0.22); color: #ffb0b0; }
   .rsb-spacer { flex: 1; }
-  .rsb-avatar { width: 30px; height: 30px; border-radius: 999px; background: hsl(var(--orange)); display: grid; place-items: center; color: #1a1100; font: 700 11px var(--sans); margin-top: 8px; }
+  .rsb-avatar { width: 30px; height: 30px; border-radius: 999px; background: hsl(var(--gray-200)); display: grid; place-items: center; color: hsl(var(--gray-700)); font: 700 11px var(--sans); margin-top: 8px; }
 
-  /* Main column */
-  .rmain { display: flex; flex-direction: column; min-width: 0; }
+  /* Style picker — minimal numbered pills */
+  .style-popover { position: fixed; left: 64px; bottom: 70px; z-index: 100; background: white; border: 1px solid hsl(var(--border)); border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 4px; display: flex; gap: 2px; }
+  .style-popover.hidden { display: none; }
+  .sp-option { width: 32px; height: 32px; border-radius: 999px; background: transparent; border: none; cursor: pointer; font: 700 14px var(--sans); color: hsl(var(--gray-500)); transition: background .15s ease, color .15s ease; display: grid; place-items: center; }
+  .sp-option:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .sp-option.active { background: hsl(var(--gray-950)); color: white; }
 
-  /* Redo topbar (visual mock) */
-  .rtb { height: var(--topbar-h); flex: none; display: flex; align-items: center; padding: 0 18px; gap: 14px; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--bg)); }
-  .rtb-store { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px 6px 8px; border-radius: 8px; background: transparent; border: none; }
-  .rtb-store:hover { background: hsl(var(--muted)); }
-  .rtb-store .rtb-mark { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--orange))); display: grid; place-items: center; color: white; font: 700 10px var(--sans); }
-  .rtb-store .rtb-name { font: 600 13.5px var(--sans); color: hsl(var(--fg)); }
-  .rtb-store svg { width: 13px; height: 13px; color: hsl(var(--muted-fg)); }
-
-  .rtb-search { flex: 1; max-width: 560px; margin: 0 auto; background: hsl(var(--muted) / 0.7); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 0 12px; height: 34px; display: flex; align-items: center; gap: 8px; color: hsl(var(--muted-fg)); }
+  /* Main + topbar */
+  .rmain { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; background: hsl(var(--bg)); }
+  .rtb { height: var(--topbar-h); flex: none; display: flex; align-items: center; padding: 0 18px; gap: 14px; border-bottom: 1px solid #1f1f22; background: #0d0d0d; }
+  .rtb-store { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px 6px 8px; border-radius: 8px; background: transparent; border: none; cursor: pointer; }
+  .rtb-store:hover { background: #1a1a1c; }
+  .rtb-store .rtb-mark { width: 22px; height: 22px; border-radius: 6px; background: hsl(var(--accent)); display: grid; place-items: center; color: white; font: 700 10px var(--sans); }
+  .rtb-store .rtb-name { font: 600 13.5px var(--sans); color: #fafafa; }
+  .rtb-store svg { width: 13px; height: 13px; color: #9a9a9d; }
+  .rtb-search { flex: 1; max-width: 480px; margin: 0 auto; background: #1a1a1c; border: 1px solid #2a2a2e; border-radius: 8px; padding: 0 12px; height: 34px; display: flex; align-items: center; gap: 8px; color: #9a9a9d; }
   .rtb-search svg { width: 13px; height: 13px; }
   .rtb-search-text { font: 500 13px var(--sans); flex: 1; }
-  .rtb-kbd { font: 600 11px var(--sans); padding: 2px 5px; background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 4px; color: hsl(var(--muted-fg)); }
-
+  .rtb-kbd { font: 600 11px var(--sans); padding: 2px 5px; background: transparent; border: 1px solid #2a2a2e; border-radius: 4px; color: #9a9a9d; }
   .rtb-right { display: flex; align-items: center; gap: 6px; }
-  .rtb-btn { background: transparent; border: 1px solid hsl(var(--border)); padding: 6px 12px; border-radius: 8px; font: 500 13px var(--sans); color: hsl(var(--fg)); display: inline-flex; align-items: center; gap: 6px; }
-  .rtb-btn:hover { background: hsl(var(--muted)); }
-  .rtb-btn.ask { background: hsl(var(--orange) / 0.1); border-color: hsl(var(--orange) / 0.4); color: hsl(var(--orange)); }
-  .rtb-btn.ask svg { color: hsl(var(--orange)); width: 14px; height: 14px; }
+  .rtb-btn { background: transparent; border: 1px solid #2a2a2e; padding: 6px 12px; border-radius: 8px; font: 500 13px var(--sans); color: #fafafa; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: background .15s ease; }
+  .rtb-btn:hover { background: #1a1a1c; }
   .rtb-btn svg { width: 13px; height: 13px; }
+  .rcontent { flex: 1 1 0; min-height: 0; overflow-y: auto; min-width: 0; }
 
-  .rcrumb { padding: 14px 36px 0; font: 500 13px var(--sans); color: hsl(var(--muted-fg)); display: flex; align-items: center; gap: 6px; flex: none; }
-  .rcrumb svg { width: 12px; height: 12px; }
-  .rcrumb b { color: hsl(var(--fg)); font-weight: 600; }
+  /* Pages — only the active one is visible */
+  .style-page { display: none; }
+  .style-page.active { display: block; }
 
-  /* ============================== HOME CONTENT (REDESIGNED) ============================== */
-  .rcontent { flex: 1; overflow-y: auto; padding: 20px 36px 80px; min-width: 0; }
-  .home { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+  /* Shared utility */
+  .home { max-width: 1280px; margin: 0 auto; padding: 40px 40px 80px; display: flex; flex-direction: column; gap: 36px; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .section-head h2 { font: 600 15px var(--sans); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .section-head .see-all { font: 500 13px var(--sans); color: hsl(var(--gray-500)); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+  .section-head .see-all:hover { color: hsl(var(--fg)); }
+  .section-head .see-all svg { width: 13px; height: 13px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; font: 600 13.5px var(--sans); border: 1px solid hsl(var(--border)); background: hsl(var(--bg)); color: hsl(var(--fg)); transition: background .15s ease; }
+  .btn:hover { background: hsl(var(--gray-100)); }
+  .btn.primary { background: hsl(var(--accent)); color: hsl(var(--accent-fg)); border-color: hsl(var(--accent)); }
+  .btn.primary:hover { opacity: 0.92; background: hsl(var(--accent)); }
+  .btn svg { width: 13px; height: 13px; }
 
-  /* HERO — greeting + this period's earned + spark */
-  .hero { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: stretch; }
-  .hero-left { background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1f 100%); color: #fafafa; border-radius: 16px; padding: 30px 32px; position: relative; overflow: hidden; }
-  .hero-left::before { content: ""; position: absolute; top: -120px; right: -80px; width: 320px; height: 320px; background: radial-gradient(circle, hsl(var(--orange) / 0.45), transparent 65%); }
-  .hero-left::after { content: ""; position: absolute; bottom: -80px; left: 40%; width: 240px; height: 240px; background: radial-gradient(circle, hsl(var(--primary) / 0.45), transparent 60%); }
-  .hero-eyebrow { font: 600 11px var(--sans); color: rgba(255,255,255,0.55); letter-spacing: 0.12em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 2; }
-  .hero-eyebrow .live-dot { width: 6px; height: 6px; border-radius: 999px; background: hsl(var(--green)); box-shadow: 0 0 0 4px hsl(var(--green) / 0.2); }
-  .hero-greet { font-family: var(--serif); font-weight: 400; font-size: 56px; letter-spacing: -0.02em; line-height: 0.95; margin-top: 14px; position: relative; z-index: 2; }
-  .hero-greet em { font-style: italic; color: hsl(var(--orange)); }
-  .hero-sub { font: 500 16px var(--sans); color: rgba(255,255,255,0.78); margin-top: 16px; max-width: 50ch; line-height: 1.55; position: relative; z-index: 2; }
-  .hero-stats { display: flex; gap: 32px; margin-top: 26px; position: relative; z-index: 2; }
-  .hero-stat .lbl { font: 600 10.5px var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
-  .hero-stat .val { font-family: var(--serif); font-weight: 400; font-size: 42px; letter-spacing: -0.02em; line-height: 1; margin-top: 6px; }
-  .hero-stat .delta { font: 500 12px var(--sans); color: hsl(var(--green)); margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; }
-  .hero-stat .delta svg { width: 12px; height: 12px; }
-  .hero-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px; padding: 11px 18px; background: hsl(var(--orange)); color: #1a1100; border: none; border-radius: 999px; font: 700 13.5px var(--sans); position: relative; z-index: 2; transition: transform .15s ease; }
-  .hero-cta:hover { transform: translateY(-1px); }
-  .hero-cta svg { width: 14px; height: 14px; }
+  /* ============================== STYLE 1: GIVE BACK DAY ============================== */
+  .gb-hero { position: relative; border-radius: 20px; overflow: hidden; min-height: 520px; padding: 80px 50px; display: flex; align-items: center; justify-content: center; text-align: center; background: #1a1410 url('give-back-hero.png') center center/cover no-repeat; }
+  .gb-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.6) 100%); }
+  .gb-hero-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 22px; max-width: 580px; }
+  .gb-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.82); display: inline-flex; align-items: center; gap: 8px; }
+  .gb-eyebrow::before { content: "★"; color: hsl(var(--redo-orange)); font-size: 13px; }
+  .gb-headline { font: 400 64px/1.02 var(--serif); color: white; margin: 0; letter-spacing: -0.005em; }
+  .gb-tag { font: 500 14px/1.55 var(--sans); color: rgba(255,255,255,0.9); margin: 0; max-width: 42ch; }
+  .gb-countdown { display: inline-flex; align-items: stretch; margin-top: 10px; padding: 6px 0; }
+  .gb-chip { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 26px; background: transparent; border: none; border-radius: 0; min-width: 0; position: relative; font: inherit; color: inherit; }
+  .gb-chip + .gb-chip::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1px; background: rgba(255,255,255,0.5); }
+  .gb-chip-num { font: 400 64px/1 var(--serif); color: white; letter-spacing: -0.005em; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .gb-chip-lbl { font: 600 9.5px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
 
-  /* Next milestone teaser (right side of hero) */
-  .next-tier { background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 16px; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; }
-  .next-tier-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .next-tier-eyebrow { font: 600 10.5px var(--sans); color: hsl(var(--muted-fg)); letter-spacing: 0.12em; text-transform: uppercase; }
-  .next-tier-pct { font: 700 11px var(--sans); padding: 3px 8px; background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); border-radius: 999px; }
-  .next-tier-product { width: 100%; height: 120px; background: hsl(var(--muted) / 0.4); border-radius: 10px; display: grid; place-items: center; color: hsl(var(--muted-fg)); }
-  .next-tier-product svg { width: 42px; height: 42px; }
-  .next-tier-product img { max-width: 80%; max-height: 100%; object-fit: contain; }
-  .next-tier-name { font: 700 18px var(--sans); letter-spacing: -0.01em; color: hsl(var(--fg)); }
-  .next-tier-progress { height: 6px; background: hsl(var(--muted)); border-radius: 999px; overflow: hidden; }
-  .next-tier-fill { height: 100%; background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--orange))); border-radius: 999px; }
-  .next-tier-detail { font: 500 12.5px var(--sans); color: hsl(var(--muted-fg)); }
-  .next-tier-detail b { color: hsl(var(--fg)); font-weight: 700; }
+  /* Give Back Day modal */
+  .gb-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 28px; }
+  .gb-modal-backdrop.open { display: flex; animation: gb-fade-in .18s ease-out; }
+  @keyframes gb-fade-in { from { opacity: 0; } to { opacity: 1; } }
+  .gb-modal { position: relative; background: #0d0d0d; color: #fafafa; border-radius: 20px; width: 100%; max-width: 960px; display: grid; grid-template-columns: 1.05fr 1fr; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.6); border: 1px solid #1f1f22; animation: gb-scale-in .22s cubic-bezier(.2,.8,.2,1); }
+  @keyframes gb-scale-in { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .gb-modal-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); display: grid; place-items: center; color: white; cursor: pointer; z-index: 2; transition: background .15s ease; }
+  .gb-modal-close:hover { background: rgba(255,255,255,0.18); }
+  .gb-modal-close svg { width: 13px; height: 13px; }
+  .gb-modal-body { padding: 44px 46px 40px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .gb-modal-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin: 0; }
+  .gb-modal-title { font: 400 44px/1.04 var(--serif); letter-spacing: -0.005em; color: white; margin: 0; }
+  .gb-modal-lead { font: 500 14px/1.6 var(--sans); color: rgba(255,255,255,0.78); margin: 0; max-width: 44ch; }
+  .gb-modal-lead b { color: white; font-weight: 600; }
+  .gb-modal-steps-head { font: 600 11px var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin: 6px 0 -4px; }
+  .gb-modal-steps { display: flex; flex-direction: column; gap: 8px; }
+  .gb-modal-step { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; }
+  .gb-modal-step-n { width: 24px; height: 24px; border-radius: 7px; background: hsl(var(--redo-orange)); color: white; font: 700 11px var(--sans); display: grid; place-items: center; flex: none; }
+  .gb-modal-step-text { font: 500 13.5px/1.5 var(--sans); color: rgba(255,255,255,0.88); }
+  .gb-modal-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .gb-modal-primary { background: white; color: hsl(var(--gray-950)); border: none; padding: 9px 16px; border-radius: 8px; font: 600 13px var(--sans); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: background .15s ease; }
+  .gb-modal-primary:hover { background: hsl(var(--gray-100)); }
+  .gb-modal-primary svg { width: 13px; height: 13px; }
+  .gb-modal-form { display: flex; gap: 8px; align-items: center; margin-top: 10px; animation: gb-fade-in .18s ease-out; }
+  .gb-modal-form input { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 9px 14px; font: 500 13px var(--sans); color: white; outline: none; transition: border-color .15s ease, background .15s ease; }
+  .gb-modal-form input::placeholder { color: rgba(255,255,255,0.4); }
+  .gb-modal-form input:focus { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.09); }
+  .gb-modal-form button { background: white; color: hsl(var(--gray-950)); border: none; padding: 9px 16px; border-radius: 8px; font: 600 13px var(--sans); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .gb-modal-form button:hover { background: hsl(var(--gray-100)); }
+  .gb-modal-form button svg { width: 13px; height: 13px; }
+  .gb-modal-success { display: flex; align-items: center; gap: 8px; margin-top: 10px; font: 500 13.5px var(--sans); color: rgba(255,255,255,0.88); animation: gb-fade-in .18s ease-out; }
+  .gb-modal-success svg { width: 16px; height: 16px; color: #4ade80; }
+  .gb-modal-art { position: relative; background: #1a1410 url('give-back-hero.png') center center/cover no-repeat; min-height: 440px; }
+  .gb-modal-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%); }
+  .gb-modal-art-overlay { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; z-index: 1; }
+  .gb-modal-art-overlay .label { font: 600 10px var(--sans); letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.78); }
+  .gb-modal-art-overlay .gb-countdown { margin-top: 0; }
+  .gb-modal-art-overlay .gb-chip { padding: 2px 14px; }
+  .gb-modal-art-overlay .gb-chip-num { font-size: 32px; }
+  .gb-modal-art-overlay .gb-chip-lbl { font-size: 8.5px; letter-spacing: 0.2em; }
+  .gb-sep { display: none; }
+  .gb-pill { background: white; color: hsl(var(--gray-950)); border: none; padding: 7px 14px; border-radius: 8px; font: 500 13px var(--sans); display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; cursor: pointer; }
+  .gb-pill:hover { background: hsl(var(--gray-100)); }
+  .gb-pill svg { width: 13px; height: 13px; }
 
-  /* ============================== STRIPS (3 mini cards) ============================== */
-  .strips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .strip { background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
-  .strip-lbl { font: 600 10.5px var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: hsl(var(--muted-fg)); }
-  .strip-val { font-family: var(--serif); font-weight: 400; font-size: 32px; letter-spacing: -0.02em; line-height: 1; color: hsl(var(--fg)); }
-  .strip-sub { font: 500 12.5px var(--sans); color: hsl(var(--muted-fg)); display: inline-flex; align-items: center; gap: 5px; }
-  .strip-sub.up { color: hsl(var(--green)); }
-  .strip-sub.up svg { width: 12px; height: 12px; }
-  .strip-spark { position: absolute; bottom: 0; right: 0; width: 140px; height: 56px; opacity: 0.65; }
+  /* Redo Home Overview: Hello hero + search + product card sections */
+  .ho-hello { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 0 8px; }
+  .ho-hello-title { font: 400 56px/1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .ho-hello-sub { font: 500 16px var(--sans); color: hsl(var(--gray-500)); margin: 0; }
+  .ho-search { width: 100%; max-width: 720px; margin-top: 6px; background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .ho-search input { flex: 1; border: none; outline: none; background: transparent; font: 500 14px var(--sans); color: hsl(var(--gray-950)); height: 28px; }
+  .ho-search input::placeholder { color: hsl(var(--gray-500)); }
+  .ho-search-submit { width: 28px; height: 28px; border-radius: 999px; border: 1px solid hsl(var(--border)); background: white; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; }
+  .ho-search-submit svg { width: 14px; height: 14px; }
 
-  /* ============================== CAMPAIGNS ROW ============================== */
-  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-  .section-head h2 { font: 700 17px var(--sans); letter-spacing: -0.01em; color: hsl(var(--fg)); }
-  .section-head .see-all { font: 600 12.5px var(--sans); color: hsl(var(--primary)); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
-  .section-head .see-all svg { width: 12px; height: 12px; }
-  .section-head .subhint { font: 500 13px var(--sans); color: hsl(var(--muted-fg)); }
+  .ho-section { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+  .ho-section-head { font: 600 15px var(--sans); color: hsl(var(--gray-950)); letter-spacing: -0.005em; margin: 0; }
+  .ho-empty { font: 500 14px var(--sans); color: hsl(var(--gray-500)); margin: 0; }
 
-  .camp-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .camp { position: relative; border-radius: 14px; padding: 18px; aspect-ratio: 3 / 4; display: flex; flex-direction: column; gap: 12px; cursor: pointer; overflow: hidden; transition: transform .2s ease; color: white; }
-  .camp:hover { transform: translateY(-2px); }
-  .camp .c-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .camp .c-tag { font: 500 11px var(--sans); opacity: 0.85; display: inline-flex; align-items: center; gap: 5px; }
-  .camp .c-tag::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
-  .camp .c-reward { font: 700 14px var(--sans); }
-  .camp .c-title { font: 700 18px var(--sans); letter-spacing: -0.015em; line-height: 1.1; }
-  .camp .c-img { margin-top: auto; aspect-ratio: 4 / 3; border-radius: 10px; background-size: cover; background-position: center; }
-  .camp.navy { background: #1c2440; color: #f4e759; }
-  .camp.brick { background: #efb1a0; color: #5a1b18; }
-  .camp.sky { background: #b8d3e8; color: #182340; }
-  .camp.brown { background: #4a2c1a; color: #f4e4cc; }
-  .camp.ink { background: #0d0d0d; color: #fafafa; }
-  .camp.olive { background: #4d5a3a; color: #f0ecd8; }
+  .ho-jump-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ho-jump-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border: 1px solid hsl(var(--border)); border-radius: 10px; text-decoration: none; cursor: pointer; transition: background .12s ease, border-color .12s ease; }
+  .ho-jump-item:hover { background: hsl(var(--gray-50)); border-color: hsl(var(--gray-300)); }
+  .ho-jump-item .ico { width: 26px; height: 26px; border-radius: 7px; border: 1px solid hsl(var(--border)); display: grid; place-items: center; color: hsl(var(--gray-700)); flex: none; background: white; }
+  .ho-jump-item .ico svg { width: 13px; height: 13px; }
+  .ho-jump-item .name { flex: 1; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ho-jump-item .arrow { color: hsl(var(--gray-400)); flex: none; display: grid; place-items: center; }
+  .ho-jump-item .arrow svg { width: 14px; height: 14px; }
+  .ho-jump-item:hover .arrow { color: hsl(var(--gray-700)); }
 
-  /* ============================== TWO-COL: Activity + Leaderboard ============================== */
-  .two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
-  .card { background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 22px 24px; }
+  .ho-cards { display: flex; flex-direction: column; gap: 12px; }
+  .ho-card { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; min-height: 300px; }
+  .ho-card-body { padding: 36px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+  .ho-card-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-950)); margin: 0; }
+  .ho-card-title { font: 600 18px/1.3 var(--sans); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 14px 0 0; }
+  .ho-card-desc { font: 500 13.5px/1.55 var(--sans); color: hsl(var(--gray-500)); margin: 10px 0 0; }
+  .ho-card-cta { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; background: hsl(var(--gray-950)); color: white; border: none; padding: 8px 16px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; }
+  .ho-card-cta:hover { opacity: 0.92; }
+  .ho-card-cta svg { width: 13px; height: 13px; }
+  .ho-card-art { background-size: cover; background-position: center; background-color: hsl(var(--gray-100)); }
 
-  .activity { display: flex; flex-direction: column; gap: 0; }
-  .act-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
-  .act-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .act-row:first-child { padding-top: 0; }
-  .act-icon { width: 36px; height: 36px; border-radius: 999px; display: grid; place-items: center; flex: none; }
-  .act-icon svg { width: 16px; height: 16px; }
-  .act-icon.cash { background: hsl(var(--green) / 0.12); color: hsl(var(--green)); }
-  .act-icon.click { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-  .act-icon.demo { background: hsl(var(--amber) / 0.15); color: hsl(38 92% 35%); }
-  .act-icon.win { background: hsl(var(--orange) / 0.12); color: hsl(var(--orange)); }
-  .act-icon.social { background: hsl(var(--pink) / 0.12); color: hsl(var(--pink)); }
-  .act-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .act-line { font: 500 13.5px var(--sans); color: hsl(var(--fg)); }
-  .act-line b { font-weight: 700; }
-  .act-time { font: 500 11.5px var(--sans); color: hsl(var(--muted-fg)); }
-  .act-amount { font: 700 14px var(--sans); color: hsl(var(--fg)); flex: none; }
-  .act-amount.up { color: hsl(var(--green)); }
+  .gb-feed { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; padding: 8px; }
+  .gb-feed-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 10px; }
+  .gb-feed-row:hover { background: hsl(var(--gray-50)); }
+  .gb-feed-row + .gb-feed-row { border-top: 1px solid hsl(var(--gray-100)); }
+  .gb-av { width: 34px; height: 34px; border-radius: 999px; background: hsl(var(--gray-100)); display: grid; place-items: center; font: 700 12px var(--sans); color: hsl(var(--gray-700)); flex: none; }
+  .gb-feed-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .gb-feed-line { font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); }
+  .gb-feed-line b { font-weight: 700; }
+  .gb-feed-time { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); }
+  .gb-feed-amt { font: 700 14px var(--sans); color: hsl(var(--green)); flex: none; }
 
-  /* Leaderboard */
-  .lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid hsl(var(--border)); }
-  .lb-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .lb-row:first-child { padding-top: 0; }
-  .lb-rank { font-family: var(--serif); font-size: 20px; color: hsl(var(--muted-fg)); width: 26px; flex: none; letter-spacing: -0.02em; }
-  .lb-row.top .lb-rank { color: hsl(var(--orange)); }
-  .lb-name { font: 600 13.5px var(--sans); color: hsl(var(--fg)); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lb-earned { font: 700 13.5px var(--sans); color: hsl(var(--fg)); flex: none; }
-  .lb-row.me { background: hsl(var(--primary) / 0.06); margin: 0 -14px; padding-left: 14px; padding-right: 14px; border-radius: 8px; border-bottom: none; }
-  .lb-row.me + .lb-row { border-top: none; }
-  .lb-row.me .lb-rank { color: hsl(var(--primary)); font-weight: 600; }
-  .lb-row.me .lb-name { color: hsl(var(--primary)); }
+  /* ============================== STYLE 2: WINS / MILESTONES ============================== */
+  .w-hero { background: hsl(var(--gray-950)); color: white; border-radius: 20px; padding: 56px 56px 48px; position: relative; overflow: hidden; }
+  .w-hero::before { content: ""; position: absolute; bottom: -160px; right: -160px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,140,40,0.10), transparent 60%); }
+  .w-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.6); position: relative; z-index: 2; }
+  .w-title { font: 400 64px/1.02 var(--serif); letter-spacing: -0.005em; margin-top: 14px; max-width: 22ch; position: relative; z-index: 2; }
+  .w-sub { font: 500 14.5px/1.55 var(--sans); color: rgba(255,255,255,0.78); margin-top: 16px; max-width: 52ch; position: relative; z-index: 2; }
+  .w-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 36px; position: relative; z-index: 2; }
+  .w-stat .lbl { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+  .w-stat .val { font: 400 52px/0.95 var(--serif); letter-spacing: -0.005em; color: white; margin-top: 6px; }
+  .w-stat .sub { font: 500 12.5px var(--sans); color: rgba(255,255,255,0.6); margin-top: 8px; }
+  .w-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 28px; padding: 9px 16px; background: white; color: hsl(var(--gray-950)); border: none; border-radius: 8px; font: 500 13px var(--sans); position: relative; z-index: 2; cursor: pointer; transition: background .15s ease; }
+  .w-cta:hover { background: hsl(var(--gray-100)); }
+  .w-cta svg { width: 13px; height: 13px; }
 
-  /* ============================== QUICK ACTIONS ============================== */
-  .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .quick-btn { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: hsl(var(--bg)); border: 1px solid hsl(var(--border)); border-radius: 12px; cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .15s ease; text-align: left; width: 100%; }
-  .quick-btn:hover { transform: translateY(-1px); border-color: hsl(var(--fg) / 0.3); }
-  .quick-btn .qb-icon { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; flex: none; }
-  .quick-btn .qb-icon svg { width: 20px; height: 20px; }
-  .quick-btn.purple .qb-icon { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-  .quick-btn.orange .qb-icon { background: hsl(var(--orange) / 0.12); color: hsl(var(--orange)); }
-  .quick-btn.green .qb-icon { background: hsl(var(--green) / 0.12); color: hsl(var(--green)); }
-  .quick-btn .qb-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .quick-btn .qb-title { font: 700 14px var(--sans); color: hsl(var(--fg)); }
-  .quick-btn .qb-sub { font: 500 12.5px var(--sans); color: hsl(var(--muted-fg)); }
-  .quick-btn .qb-arrow { color: hsl(var(--muted-fg)); flex: none; }
-  .quick-btn:hover .qb-arrow { color: hsl(var(--fg)); transform: translateX(2px); }
-  .quick-btn .qb-arrow svg { width: 14px; height: 14px; transition: transform .15s ease; }
+  .w-milestones { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .w-tier { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+  .w-tier.unlocked { background: hsl(var(--gray-50)); }
+  .w-tier .w-tier-icon { width: 32px; height: 32px; border-radius: 8px; background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); display: grid; place-items: center; margin-bottom: 6px; }
+  .w-tier.unlocked .w-tier-icon { background: hsl(var(--gray-950)); color: white; }
+  .w-tier.current .w-tier-icon { background: hsl(var(--redo-orange)); color: white; }
+  .w-tier .w-tier-icon svg { width: 14px; height: 14px; }
+  .w-tier-name { font: 600 13.5px var(--sans); color: hsl(var(--gray-950)); }
+  .w-tier-status { font: 500 12px var(--sans); color: hsl(var(--gray-500)); }
+  .w-tier.current .w-tier-status { color: hsl(var(--redo-orange)); font-weight: 600; }
+  .w-tier-pct { height: 4px; background: hsl(var(--gray-100)); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+  .w-tier-pct-fill { height: 100%; background: hsl(var(--redo-orange)); border-radius: 999px; }
 
-  /* Reusable button */
-  .pill-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid hsl(var(--border)); background: hsl(var(--bg)); font: 500 12.5px var(--sans); color: hsl(var(--fg)); }
-  .pill-btn:hover { background: hsl(var(--muted)); }
-  .pill-btn svg { width: 13px; height: 13px; }
+  .w-recent { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .w-win { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 26px 28px; }
+  .w-win-val { font: 400 44px/1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); }
+  .w-win-sub { font: 500 13.5px/1.5 var(--sans); color: hsl(var(--gray-500)); margin-top: 10px; }
 
-  /* Responsive */
+  /* ============================== STYLE 3: FREE AIRPODS ============================== */
+  .ap-hero { position: relative; border-radius: 20px; overflow: hidden; min-height: 260px; padding: 0; background: white url('airpods-hero.png?v=2') right center/cover no-repeat; display: flex; align-items: center; border: 1px solid hsl(var(--border)); }
+  .ap-hero-left { position: relative; z-index: 1; padding: 36px 44px; display: flex; flex-direction: column; gap: 10px; max-width: 42%; }
+  .ap-title { font: 400 30px/1.1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .ap-sub { font: 500 13.5px/1.5 var(--sans); color: hsl(var(--gray-700)); max-width: 42ch; margin: 0; }
+  .ap-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: hsl(var(--gray-700)); display: inline-flex; align-items: center; gap: 8px; }
+  .ap-eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: hsl(var(--redo-orange)); box-shadow: 0 0 0 4px rgba(255,140,40,0.18); }
+  .ap-title .ap-free { color: hsl(var(--redo-orange)); font-style: italic; }
+  .ap-cta-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
+  .ap-cta { display: inline-flex; align-items: center; gap: 6px; background: hsl(var(--gray-950)); color: white; border: none; padding: 9px 16px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; transition: opacity .15s ease; }
+  .ap-cta:hover { opacity: 0.9; }
+  .ap-cta svg { width: 13px; height: 13px; }
+  .ap-progress { font: 500 13px var(--sans); color: hsl(var(--gray-700)); display: flex; align-items: center; gap: 6px; }
+  .ap-progress b { color: hsl(var(--gray-950)); font-weight: 700; }
+
+  .ap-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ap-step { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 24px 26px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+  .ap-step-num { width: 26px; height: 26px; border-radius: 7px; background: hsl(var(--gray-100)); color: hsl(var(--gray-500)); font: 700 12px var(--sans); display: grid; place-items: center; margin-bottom: 8px; }
+  .ap-step.done .ap-step-num { background: hsl(var(--redo-orange)); color: white; }
+  .ap-step-title { font: 600 16px var(--sans); color: hsl(var(--gray-950)); letter-spacing: -0.005em; margin-top: 6px; }
+  .ap-step-sub { font: 500 13px var(--sans); color: hsl(var(--gray-500)); }
+  .ap-step-check { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; border-radius: 999px; background: hsl(var(--gray-950)); color: white; display: none; place-items: center; }
+  .ap-step.done .ap-step-check { display: grid; }
+  .ap-step-check svg { width: 14px; height: 14px; }
+
+  .ap-progress-bar-card { background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px; }
+  .ap-pb-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .ap-pb-title { font: 600 16px var(--sans); color: hsl(var(--gray-950)); }
+  .ap-pb-count { font: 500 13.5px var(--sans); color: hsl(var(--gray-500)); }
+  .ap-pb-count b { color: hsl(var(--gray-950)); font-weight: 700; }
+  .ap-pb { height: 10px; background: hsl(var(--gray-100)); border-radius: 999px; overflow: hidden; }
+  .ap-pb-fill { height: 100%; background: hsl(var(--redo-orange)); border-radius: 999px; }
+
+  .ap-winners { background: hsl(var(--gray-50)); border: 1px solid hsl(var(--border)); border-radius: 16px; padding: 26px 28px; }
+  .ap-winners-head { font: 600 13px var(--sans); color: hsl(var(--gray-500)); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+  .ap-winners-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* AirPods hero + tier row */
+  .ap-top-row { display: grid; grid-template-columns: 1.85fr 1fr; gap: 12px; align-items: stretch; }
+  .ap-top-row .ap-hero { min-height: 0; }
+
+  /* Tier card — light */
+  .ap-tier { background: white; color: hsl(var(--gray-950)); border: 1px solid hsl(var(--border)); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .ap-tier-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ap-tier-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-950)); }
+  .ap-tier-expand { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .ap-tier-expand:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .ap-tier-expand svg { width: 12px; height: 12px; }
+  .ap-tier-status { font: 500 13.5px/1.55 var(--sans); color: hsl(var(--gray-600)); margin: -2px 0 6px; }
+  .ap-tier-status b { color: hsl(var(--gray-950)); font-weight: 700; }
+  .ap-tier-status .pulse { display: inline-block; width: 7px; height: 7px; border-radius: 999px; background: hsl(var(--redo-orange)); box-shadow: 0 0 0 3px rgba(255,140,40,0.22); margin: 0 6px 1px 0; vertical-align: middle; }
+  .ap-tier-rewards { display: flex; flex-direction: column; gap: 12px; padding-top: 14px; border-top: 1px solid hsl(var(--gray-100)); }
+  .ap-tier-reward { display: flex; align-items: center; gap: 12px; }
+  .ap-tier-dot { width: 14px; height: 14px; border-radius: 999px; flex: none; display: grid; place-items: center; border: 1.5px solid hsl(var(--gray-300)); background: white; color: white; }
+  .ap-tier-dot svg { width: 9px; height: 9px; stroke-width: 3; }
+  .ap-tier-reward.unlocked .ap-tier-dot { background: hsl(var(--gray-950)); border-color: hsl(var(--gray-950)); }
+  .ap-tier-reward.current .ap-tier-dot { border-color: hsl(var(--redo-orange)); background: hsl(var(--redo-orange)); box-shadow: 0 0 0 4px rgba(255,140,40,0.18); }
+  .ap-tier-name { font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); margin: 0; }
+  .ap-tier-reward.locked .ap-tier-name { color: hsl(var(--gray-400)); }
+
+  /* AirPods wins — simple grid */
+  .ap-wins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* Case studies — vertical cards */
+  .ap-cases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ap-case { background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+  .ap-case:hover { transform: translateY(-3px); box-shadow: 0 14px 32px -14px rgba(0,0,0,0.18); border-color: hsl(var(--gray-300)); }
+  .ap-case-img { width: 100%; aspect-ratio: 4/5; background-size: cover; background-position: center; background-color: hsl(var(--gray-100)); }
+  .ap-case-body { padding: 22px 24px 24px; display: flex; flex-direction: column; gap: 6px; }
+  .ap-case-brand { font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 0; }
+  .ap-case-stat { font: 400 32px/1.05 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 4px 0 0; }
+  .ap-case-desc { font: 500 13px/1.5 var(--sans); color: hsl(var(--gray-500)); margin: 8px 0 0; }
+  .ap-case-link { font: 500 13px var(--sans); color: hsl(var(--gray-950)); display: inline-flex; align-items: center; gap: 4px; margin-top: 14px; }
+  .ap-case-link svg { width: 13px; height: 13px; transition: transform .15s ease; }
+  .ap-case:hover .ap-case-link svg { transform: translateX(3px); }
+  .ap-win { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 24px 26px; }
+  .ap-win-chip { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-950)); margin: 0; }
+  .ap-win-bottom { margin-top: 10px; }
+  .ap-win-val { font: 400 40px/1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .ap-win-sub { font: 500 13px/1.5 var(--sans); color: hsl(var(--gray-500)); margin: 8px 0 0; }
+
+  .ap-share { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; padding: 0; display: grid; grid-template-columns: 1.35fr 1fr; }
+  .ap-share-col { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .ap-share-col-right { border-left: 1px solid hsl(var(--gray-100)); }
+  .ap-share-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ap-share-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-950)); }
+  .ap-share-expand { width: 24px; height: 24px; border-radius: 6px; background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .ap-share-expand:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .ap-share-expand svg { width: 11px; height: 11px; }
+
+  .ap-share-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: 8px 0 10px; border-top: 1px solid hsl(var(--gray-100)); border-bottom: 1px solid hsl(var(--gray-100)); }
+  .ap-share-stat { display: flex; flex-direction: column; gap: 2px; padding: 0 14px; position: relative; }
+  .ap-share-stat + .ap-share-stat::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 1px; background: hsl(var(--gray-100)); }
+  .ap-share-stat-val { font: 600 22px/1 var(--sans); color: hsl(var(--gray-950)); letter-spacing: -0.01em; }
+  .ap-share-stat-lbl { font: 500 11px var(--sans); color: hsl(var(--gray-500)); }
+
+  .ap-share-rows { display: flex; flex-direction: column; gap: 6px; }
+  .ap-share-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--border)); border-radius: 8px; cursor: pointer; transition: background .15s ease, border-color .15s ease; text-align: left; font: inherit; color: inherit; }
+  .ap-share-row:hover { background: hsl(var(--gray-100)); border-color: hsl(var(--gray-300)); }
+  .ap-share-row-ico { color: hsl(var(--gray-500)); display: grid; place-items: center; flex: none; }
+  .ap-share-row-ico svg { width: 13px; height: 13px; }
+  .ap-share-row-value { font: 500 13px var(--sans); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-share-url-pre { color: hsl(var(--gray-500)); }
+  .ap-share-url-handle { color: hsl(var(--gray-950)); font-weight: 600; letter-spacing: 0.01em; }
+  .ap-share-row-action { color: hsl(var(--gray-500)); display: grid; place-items: center; flex: none; transition: color .15s ease; }
+  .ap-share-row:hover .ap-share-row-action { color: hsl(var(--gray-950)); }
+  .ap-share-row-action svg { width: 13px; height: 13px; }
+  .ap-share-row.copied { background: rgba(255,140,40,0.08); border-color: rgba(255,140,40,0.35); }
+  .ap-share-row.copied .ap-share-row-action,
+  .ap-share-row.copied .ap-share-row-ico { color: hsl(var(--redo-orange)); }
+
+  .ap-share-win-select { width: 100%; height: 34px; padding: 0 12px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--border)); border-radius: 8px; font: 500 13px var(--sans); color: hsl(var(--gray-950)); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .ap-share-win-select:focus { outline: none; border-color: hsl(var(--gray-400)); }
+  .ap-share-win-hint { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); margin: 0; }
+  .ap-share-channels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: auto; }
+  .ap-share-channel { height: 32px; padding: 0 10px; border-radius: 7px; background: white; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-700)); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: background .15s ease, color .15s ease; font: 500 12px var(--sans); }
+  .ap-share-channel:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .ap-share-channel svg { width: 12px; height: 12px; }
+  .ap-winner { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: white; border: 1px solid hsl(var(--border)); border-radius: 10px; }
+  .ap-winner .av { width: 30px; height: 30px; border-radius: 999px; background: hsl(var(--gray-100)); display: grid; place-items: center; font: 700 12px var(--sans); color: hsl(var(--gray-700)); flex: none; }
+  .ap-winner .name { font: 600 13px var(--sans); color: hsl(var(--gray-950)); }
+  .ap-winner .when { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); }
+
   @media (max-width: 1080px) {
-    .hero { grid-template-columns: 1fr; }
-    .strips { grid-template-columns: 1fr; }
-    .camp-row { grid-template-columns: repeat(2, 1fr); }
-    .two-col { grid-template-columns: 1fr; }
-    .quick { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 720px) {
-    .hero-greet { font-size: 40px; }
-    .rcontent { padding: 16px 18px 60px; }
+    .home { padding: 24px 22px 60px; gap: 24px; }
+    .gb-hero, .w-hero, .ap-hero { padding: 36px 32px; grid-template-columns: 1fr !important; }
+    .gb-date { font-size: 60px; }
+    .w-title, .ap-title { font-size: 40px; }
+    .gb-share, .w-stats-row, .w-milestones, .w-recent, .ap-steps, .ap-winners-row { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -218,7 +367,6 @@
 
   <div class="shell">
 
-    <!-- ============================== REDO SIDEBAR (mock) ============================== -->
     <aside class="rsb">
       <div class="rsb-logo">R</div>
       <button class="rsb-item active" title="Home"><i data-lucide="home"></i></button>
@@ -230,18 +378,22 @@
       <button class="rsb-item" title="Returns"><i data-lucide="undo-2"></i></button>
       <button class="rsb-item" title="Add"><i data-lucide="plus"></i></button>
       <div class="rsb-spacer"></div>
+      <button class="rsb-item style-btn" id="styleBtn" title="Switch home style"><i data-lucide="palette"></i></button>
       <button class="rsb-item" title="Toggle sidebar"><i data-lucide="panel-left"></i></button>
       <button class="rsb-item" title="Settings"><i data-lucide="settings"></i></button>
       <div class="rsb-avatar">BL</div>
     </aside>
 
-    <!-- ============================== MAIN ============================== -->
+    <!-- Style picker — 1 / 2 / 3 -->
+    <div class="style-popover hidden" id="stylePopover">
+      <button class="sp-option" data-style="give-back" title="Give Back Day">1</button>
+      <button class="sp-option" data-style="airpods" title="Free AirPods">2</button>
+    </div>
+
     <div class="rmain">
 
-      <!-- Redo top bar -->
       <header class="rtb">
         <button class="rtb-store">
-          <span class="rtb-mark">R</span>
           <span class="rtb-name">Store Demo 4</span>
           <i data-lucide="chevron-down"></i>
         </button>
@@ -252,225 +404,364 @@
         </div>
         <div class="rtb-right">
           <button class="rtb-btn">Feedback</button>
-          <button class="rtb-btn ask"><i data-lucide="sparkles"></i>Ask Redo</button>
+          <button class="rtb-btn"><i data-lucide="sparkles"></i>Ask Redo</button>
         </div>
       </header>
 
-      <!-- Crumb -->
-      <nav class="rcrumb"><span>Home</span> <i data-lucide="chevron-right"></i> <b>Overview</b></nav>
-
-      <!-- ============================== CONTENT ============================== -->
       <div class="rcontent">
-        <div class="home">
 
-          <!-- HERO -->
-          <section class="hero">
-            <div class="hero-left">
-              <div class="hero-eyebrow"><span class="live-dot"></span>This month</div>
-              <h1 class="hero-greet">Hello, <em>Braxton</em>.</h1>
-              <p class="hero-sub">Three brands you referred closed this week. Sterling reposted your launch tweet. Your $5M milestone is 64% done. Let's keep it going.</p>
-              <div class="hero-stats">
-                <div class="hero-stat">
-                  <div class="lbl">Earned</div>
-                  <div class="val">$1,600</div>
-                  <div class="delta"><i data-lucide="trending-up"></i>$400 this week</div>
+        <!-- ============================== STYLE 1: GIVE BACK DAY ============================== -->
+        <div class="style-page active" data-style="give-back">
+          <div class="home">
+
+            <section class="gb-hero">
+              <div class="gb-hero-inner">
+                <h2 class="gb-headline">We're giving back to you.</h2>
+                <p class="gb-tag">Tune in June 9th to get your brand seen and participate in our Give Back event.</p>
+                <div class="gb-countdown" id="gbCountdown">
+                  <div class="gb-chip"><div class="gb-chip-num" id="gbDays">14</div><div class="gb-chip-lbl">Days</div></div>
+                  <div class="gb-chip"><div class="gb-chip-num" id="gbHours">10</div><div class="gb-chip-lbl">Hours</div></div>
+                  <div class="gb-chip"><div class="gb-chip-num" id="gbMins">54</div><div class="gb-chip-lbl">Mins</div></div>
                 </div>
-                <div class="hero-stat">
-                  <div class="lbl">Referred</div>
-                  <div class="val">8</div>
-                  <div class="delta"><i data-lucide="trending-up"></i>3 closed-won</div>
-                </div>
-                <div class="hero-stat">
-                  <div class="lbl">Rank</div>
-                  <div class="val">#3</div>
-                  <div class="delta"><i data-lucide="trending-up"></i>up 2 from April</div>
-                </div>
+                <button class="gb-pill">Learn more <i data-lucide="arrow-right"></i></button>
               </div>
-              <button class="hero-cta">Share my link to earn more <i data-lucide="arrow-right"></i></button>
-            </div>
+            </section>
 
-            <!-- Next milestone teaser -->
-            <div class="next-tier">
-              <div class="next-tier-head">
-                <span class="next-tier-eyebrow">Up next</span>
-                <span class="next-tier-pct">64%</span>
+            <section class="ho-hello">
+              <h1 class="ho-hello-title">Hello, Braxton</h1>
+              <p class="ho-hello-sub">What can I do for you today?</p>
+              <div class="ho-search">
+                <input type="text" placeholder="Search or ask Redo AI" />
+                <button class="ho-search-submit" title="Ask"><i data-lucide="arrow-up"></i></button>
               </div>
-              <div class="next-tier-product">
-                <i data-lucide="headphones"></i>
-              </div>
-              <div class="next-tier-name">AirPods Max</div>
-              <div class="next-tier-progress"><div class="next-tier-fill" style="width: 64%"></div></div>
-              <div class="next-tier-detail">$3.2M of <b>$5M</b> lifetime retained · or hit one of 4 other paths</div>
-              <button class="pill-btn" style="align-self: flex-start;"><i data-lucide="medal"></i>See all rewards</button>
-            </div>
-          </section>
+            </section>
 
-          <!-- STRIPS -->
-          <section class="strips">
-            <div class="strip">
-              <div class="strip-lbl">Closed-won this month</div>
-              <div class="strip-val">3</div>
-              <div class="strip-sub up"><i data-lucide="trending-up"></i>+200% over April</div>
-              <svg class="strip-spark" viewBox="0 0 140 56" preserveAspectRatio="none" fill="none"><polyline points="0,42 20,38 40,40 60,32 80,30 100,22 120,18 140,8" stroke="hsl(var(--green))" stroke-width="2"/></svg>
-            </div>
-            <div class="strip">
-              <div class="strip-lbl">Link clicks (7d)</div>
-              <div class="strip-val">312</div>
-              <div class="strip-sub up"><i data-lucide="trending-up"></i>+48 vs last week</div>
-              <svg class="strip-spark" viewBox="0 0 140 56" preserveAspectRatio="none" fill="none"><polyline points="0,38 20,42 40,28 60,34 80,22 100,26 120,14 140,18" stroke="hsl(var(--primary))" stroke-width="2"/></svg>
-            </div>
-            <div class="strip">
-              <div class="strip-lbl">Pending payouts</div>
-              <div class="strip-val">$400</div>
-              <div class="strip-sub">Next on June 1 · Stripe Connect</div>
-              <svg class="strip-spark" viewBox="0 0 140 56" preserveAspectRatio="none" fill="none"><polyline points="0,30 20,32 40,28 60,30 80,28 100,32 120,30 140,28" stroke="hsl(var(--orange))" stroke-width="2"/></svg>
-            </div>
-          </section>
-
-          <!-- ACTIVE CAMPAIGNS -->
-          <section>
-            <div class="section-head">
-              <div>
-                <h2>Live campaigns</h2>
-                <div class="subhint">Fresh drops every Tuesday. Hit a brief, get paid within 24h.</div>
+            <section class="ho-section">
+              <p class="ho-section-head">Jump to your Redo products</p>
+              <div class="ho-jump-grid">
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="octagon-alert"></i></span><span class="name">Claims</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="shopping-cart"></i></span><span class="name">Conversion</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="megaphone"></i></span><span class="name">Email &amp; SMS</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="box"></i></span><span class="name">Shipping</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="mouse-pointer-click"></i></span><span class="name">Post-purchase upsell</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="undo-2"></i></span><span class="name">Returns</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="star"></i></span><span class="name">Reviews</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="message-square"></i></span><span class="name">Support</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="map-pin"></i></span><span class="name">Order tracking</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="warehouse"></i></span><span class="name">Warehouse</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
+                <a class="ho-jump-item" href="#"><span class="ico"><i data-lucide="shield-check"></i></span><span class="name">Warranties</span><span class="arrow"><i data-lucide="arrow-right"></i></span></a>
               </div>
-              <a href="#" class="see-all">See all 7 <i data-lucide="arrow-right"></i></a>
-            </div>
-            <div class="camp-row">
-              <button class="camp navy">
-                <div class="c-meta"><span class="c-tag">Live · ends Friday</span><span class="c-reward">$250</span></div>
-                <h3 class="c-title">$80M raised. We're spending it on you.</h3>
-                <div class="c-img" style="background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&amp;fit=crop&amp;w=600&amp;q=70')"></div>
-              </button>
-              <button class="camp brick">
-                <div class="c-meta"><span class="c-tag">Always-on</span><span class="c-reward">$200</span></div>
-                <h3 class="c-title">Refer a brand that goes live.</h3>
-                <div class="c-img" style="background-image: url('https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?auto=format&amp;fit=crop&amp;w=600&amp;q=70')"></div>
-              </button>
-              <button class="camp sky">
-                <div class="c-meta"><span class="c-tag">Open</span><span class="c-reward">$100</span></div>
-                <h3 class="c-title">"OK to post this quote?"</h3>
-                <div class="c-img" style="background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&amp;fit=crop&amp;w=600&amp;q=70')"></div>
-              </button>
-              <button class="camp brown">
-                <div class="c-meta"><span class="c-tag">Live · ends Friday</span><span class="c-reward">$2K pool</span></div>
-                <h3 class="c-title">Reply to Sterling's launch tweet.</h3>
-                <div class="c-img" style="background-image: url('https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&amp;fit=crop&amp;w=600&amp;q=70')"></div>
-              </button>
-            </div>
-          </section>
+            </section>
 
-          <!-- TWO-COL: Activity + Leaderboard -->
-          <section class="two-col">
-            <div class="card">
-              <div class="section-head" style="margin-bottom: 8px;">
-                <h2>Activity</h2>
-                <span class="subhint">Last 7 days</span>
-              </div>
-              <div class="activity">
-                <div class="act-row">
-                  <div class="act-icon cash"><i data-lucide="dollar-sign"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line"><b>Salt &amp; Tide</b> signed — closed-won via your code</div>
-                    <div class="act-time">2 hours ago</div>
+            <section class="ho-section">
+              <p class="ho-section-head">Check out other products</p>
+              <div class="ho-cards">
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Email &amp; SMS</p>
+                      <p class="ho-card-title">Drive higher engagement at a lower cost.</p>
+                      <p class="ho-card-desc">Interactive email and SMS allows you to increase engagement and separate your emails from anybody else in the inbox.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
                   </div>
-                  <div class="act-amount up">+$200</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/email-sms-advertising.webp');"></div>
                 </div>
-                <div class="act-row">
-                  <div class="act-icon social"><i data-lucide="megaphone"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line"><b>Sterling reposted</b> your launch tweet to 32k followers</div>
-                    <div class="act-time">Yesterday</div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Order Editing</p>
+                      <p class="ho-card-title">Set up order editing in 5 minutes. Free forever.</p>
+                      <p class="ho-card-desc">Let customers change variants, update addresses, and cancel orders themselves right after checkout. Eliminate "I need to change my order" support tickets before fulfillment begins and unlock new upsell revenue.</p>
+                    </div>
+                    <button class="ho-card-cta">Get started <i data-lucide="arrow-up-right"></i></button>
                   </div>
-                  <div class="act-amount up">+$50</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/oms-advertising.webp');"></div>
                 </div>
-                <div class="act-row">
-                  <div class="act-icon demo"><i data-lucide="calendar"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line"><b>Northridge Apparel</b> booked a demo</div>
-                    <div class="act-time">Yesterday</div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">CommentSold</p>
+                      <p class="ho-card-title">Grabbing your audience's attention is only half the battle.</p>
+                      <p class="ho-card-desc">With a fully branded mobile app, cutting-edge live selling technology, and smart automations, we help turn followers into loyal buyers.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
                   </div>
-                  <div class="act-amount">Pending</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/cs-redo.jpg');"></div>
                 </div>
-                <div class="act-row">
-                  <div class="act-icon click"><i data-lucide="mouse-pointer-click"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line">Your code <b>WILDFLOWER</b> got 23 new clicks</div>
-                    <div class="act-time">2 days ago</div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Order tracking</p>
+                      <p class="ho-card-title">Boost your sales with every shipment</p>
+                      <p class="ho-card-desc">Go live in minutes with our no-code tracking page builder. Customize your email triggers, and create beautiful emails for your customers.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
                   </div>
-                  <div class="act-amount">312 total</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/tracking-advertising.webp');"></div>
                 </div>
-                <div class="act-row">
-                  <div class="act-icon win"><i data-lucide="trophy"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line">You crossed <b>$3M lifetime retained</b> — 60% to the Ecom Leader Hat</div>
-                    <div class="act-time">3 days ago</div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Warranties</p>
+                      <p class="ho-card-title">Warranties as a tool to build lifelong customers</p>
+                      <p class="ho-card-desc">Increase brand trust and open a new way to build customer lists from in-store and marketplace purchases.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
                   </div>
-                  <div class="act-amount">🎉</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/warranties-advertising.webp');"></div>
                 </div>
-                <div class="act-row">
-                  <div class="act-icon cash"><i data-lucide="dollar-sign"></i></div>
-                  <div class="act-stack">
-                    <div class="act-line"><b>Maple &amp; Vine</b> signed — closed-won via your link</div>
-                    <div class="act-time">5 days ago</div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Support</p>
+                      <p class="ho-card-title">All your channels. In one place. Enhanced with AI across the full customer journey.</p>
+                      <p class="ho-card-desc">Customer support across all your channels: email, chat, and social media, into one centralized platform with advanced AI features.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
                   </div>
-                  <div class="act-amount up">+$200</div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/support-advertising.webp');"></div>
+                </div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Order Management</p>
+                      <p class="ho-card-title">Ship faster. Ship smarter. Ship cheaper.</p>
+                      <p class="ho-card-desc">Remove 95% of the manual steps of the pick, pack, ship process. Automatically optimize for peak performance.</p>
+                    </div>
+                    <button class="ho-card-cta">Book a demo</button>
+                  </div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/oms-advertising.webp');"></div>
+                </div>
+
+                <div class="ho-card">
+                  <div class="ho-card-body">
+                    <div>
+                      <p class="ho-card-eyebrow">Checkout Conversion</p>
+                      <p class="ho-card-title">Optimize the least tested part of the customer journey.</p>
+                      <p class="ho-card-desc">The checkout experience impacts both conversion rate and profit per checkout. Optimize the least tested part of the customer journey.</p>
+                    </div>
+                    <button class="ho-card-cta">Learn more</button>
+                  </div>
+                  <div class="ho-card-art" style="background-image: url('https://assets.getredo.com/redo-suite/conversion-advertising.webp');"></div>
                 </div>
               </div>
+            </section>
+
+          </div>
+        </div>
+
+
+        <!-- ============================== STYLE 3: FREE AIRPODS ============================== -->
+        <div class="style-page" data-style="airpods">
+          <div class="home">
+
+            <div class="ap-top-row">
+              <section class="ap-hero">
+                <div class="ap-hero-left">
+                  <h1 class="ap-title">Refer a brand. Get <span class="ap-free">free</span> AirPods.</h1>
+                  <p class="ap-sub">On top of your $200 referral payout.</p>
+                  <div class="ap-cta-row">
+                    <button class="ap-cta">Grab my link <i data-lucide="arrow-right"></i></button>
+                  </div>
+                </div>
+              </section>
+              <aside class="ap-tier">
+                <div class="ap-tier-head">
+                  <span class="ap-tier-eyebrow">Milestones</span>
+                  <button class="ap-tier-expand" title="Expand"><i data-lucide="maximize-2"></i></button>
+                </div>
+                <p class="ap-tier-status"><span class="pulse"></span> Hit <b>100K labels</b>, <b>5K exchanges</b>, or <b>1K carts recovered</b> to unlock your next reward.</p>
+                <div class="ap-tier-rewards">
+                  <div class="ap-tier-reward unlocked">
+                    <div class="ap-tier-dot"><i data-lucide="check"></i></div>
+                    <p class="ap-tier-name">Redo Ecom Hat</p>
+                  </div>
+                  <div class="ap-tier-reward current">
+                    <div class="ap-tier-dot"></div>
+                    <p class="ap-tier-name">Redo x Portland Leather Duffle</p>
+                  </div>
+                  <div class="ap-tier-reward locked">
+                    <div class="ap-tier-dot"></div>
+                    <p class="ap-tier-name">Top 100 Plaque</p>
+                  </div>
+                  <div class="ap-tier-reward locked">
+                    <div class="ap-tier-dot"></div>
+                    <p class="ap-tier-name">$1,000 Delta Card</p>
+                  </div>
+                </div>
+              </aside>
             </div>
 
-            <div class="card">
-              <div class="section-head" style="margin-bottom: 8px;">
-                <h2>Top brands</h2>
-                <span class="subhint">This month</span>
+            <section>
+              <div class="ap-wins">
+                <div class="ap-win">
+                  <span class="ap-win-chip">Revenue retained</span>
+                  <div class="ap-win-bottom">
+                    <p class="ap-win-val">$890K</p>
+                    <p class="ap-win-sub">Saved from refunds + churn</p>
+                  </div>
+                </div>
+                <div class="ap-win">
+                  <span class="ap-win-chip">Exchanges made</span>
+                  <div class="ap-win-bottom">
+                    <p class="ap-win-val">1,247</p>
+                    <p class="ap-win-sub">Customers kept, not refunded</p>
+                  </div>
+                </div>
+                <div class="ap-win">
+                  <span class="ap-win-chip">Carts recovered</span>
+                  <div class="ap-win-bottom">
+                    <p class="ap-win-val">$214K</p>
+                    <p class="ap-win-sub">Pre-checkout rescues</p>
+                  </div>
+                </div>
+                <div class="ap-win">
+                  <span class="ap-win-chip">Labels printed</span>
+                  <div class="ap-win-bottom">
+                    <p class="ap-win-val">1.5M</p>
+                    <p class="ap-win-sub">100% on time, every time</p>
+                  </div>
+                </div>
               </div>
-              <div class="leaderboard">
-                <div class="lb-row top"><span class="lb-rank">1</span><span class="lb-name">Brio Bottle Co.</span><span class="lb-earned">$2,200</span></div>
-                <div class="lb-row top"><span class="lb-rank">2</span><span class="lb-name">Yardline Outfitters</span><span class="lb-earned">$1,800</span></div>
-                <div class="lb-row me"><span class="lb-rank">3</span><span class="lb-name">Wildflower Co. (you)</span><span class="lb-earned">$1,600</span></div>
-                <div class="lb-row"><span class="lb-rank">4</span><span class="lb-name">Aero Athletics</span><span class="lb-earned">$1,200</span></div>
-                <div class="lb-row"><span class="lb-rank">5</span><span class="lb-name">Salt &amp; Tide</span><span class="lb-earned">$1,000</span></div>
-              </div>
-              <button class="pill-btn" style="margin-top: 16px;"><i data-lucide="trending-up"></i>1 closed-won away from #2</button>
-            </div>
-          </section>
+            </section>
 
-          <!-- QUICK ACTIONS -->
-          <section>
-            <div class="section-head">
-              <div>
-                <h2>Make a move</h2>
-                <div class="subhint">Most things merchants do here are one click.</div>
+            <section>
+              <div class="section-head"><h2>Brands like yours, winning on Redo</h2></div>
+              <div class="ap-cases">
+                <a class="ap-case" href="#">
+                  <div class="ap-case-img" style="background-image: url('case-nike.jpg');"></div>
+                  <div class="ap-case-body">
+                    <p class="ap-case-brand">Nike Strength</p>
+                    <p class="ap-case-stat">38% faster fulfillment</p>
+                    <p class="ap-case-desc">Redo Order Management routed every pick-pack-ship to the closest warehouse. Same crew, same SKUs, out the door in hours.</p>
+                    <span class="ap-case-link">Read case study <i data-lucide="arrow-right"></i></span>
+                  </div>
+                </a>
+                <a class="ap-case" href="#">
+                  <div class="ap-case-img" style="background-image: url('case-portland.jpg');"></div>
+                  <div class="ap-case-body">
+                    <p class="ap-case-brand">Portland Leather Goods</p>
+                    <p class="ap-case-stat">$1.4M saved</p>
+                    <p class="ap-case-desc">Returns turned into upsells. 91% of would-be refunds became new orders instead.</p>
+                    <span class="ap-case-link">Read case study <i data-lucide="arrow-right"></i></span>
+                  </div>
+                </a>
+                <a class="ap-case" href="#">
+                  <div class="ap-case-img" style="background-image: url('case-malbon.jpg');"></div>
+                  <div class="ap-case-body">
+                    <p class="ap-case-brand">Malbon Golf</p>
+                    <p class="ap-case-stat">$1.2M carts recovered</p>
+                    <p class="ap-case-desc">Pre-checkout rescues across mobile drove their best quarter on record.</p>
+                    <span class="ap-case-link">Read case study <i data-lucide="arrow-right"></i></span>
+                  </div>
+                </a>
               </div>
-            </div>
-            <div class="quick">
-              <button class="quick-btn purple">
-                <div class="qb-icon"><i data-lucide="link"></i></div>
-                <div class="qb-stack">
-                  <div class="qb-title">Share your link</div>
-                  <div class="qb-sub">Copy redo.com/r/wildflower</div>
-                </div>
-                <div class="qb-arrow"><i data-lucide="arrow-right"></i></div>
-              </button>
-              <button class="quick-btn orange">
-                <div class="qb-icon"><i data-lucide="megaphone"></i></div>
-                <div class="qb-stack">
-                  <div class="qb-title">Browse 7 live campaigns</div>
-                  <div class="qb-sub">Up to $2K per brief</div>
-                </div>
-                <div class="qb-arrow"><i data-lucide="arrow-right"></i></div>
-              </button>
-              <button class="quick-btn green">
-                <div class="qb-icon"><i data-lucide="dollar-sign"></i></div>
-                <div class="qb-stack">
-                  <div class="qb-title">$400 ready to pay out</div>
-                  <div class="qb-sub">Lands June 1 via Stripe</div>
-                </div>
-                <div class="qb-arrow"><i data-lucide="arrow-right"></i></div>
-              </button>
-            </div>
-          </section>
+            </section>
 
+            <section>
+              <aside class="ap-share">
+                <div class="ap-share-col">
+                  <div class="ap-share-head">
+                    <span class="ap-share-eyebrow">Refer a brand</span>
+                    <button class="ap-share-expand" title="Expand"><i data-lucide="maximize-2"></i></button>
+                  </div>
+                  <div class="ap-share-stats">
+                    <div class="ap-share-stat">
+                      <span class="ap-share-stat-val">142</span>
+                      <span class="ap-share-stat-lbl">Views</span>
+                    </div>
+                    <div class="ap-share-stat">
+                      <span class="ap-share-stat-val">89</span>
+                      <span class="ap-share-stat-lbl">Codes used</span>
+                    </div>
+                    <div class="ap-share-stat">
+                      <span class="ap-share-stat-val">1</span>
+                      <span class="ap-share-stat-lbl">Brands live</span>
+                    </div>
+                  </div>
+                  <div class="ap-share-rows">
+                    <button class="ap-share-row" data-copy="redo.com/r/wildflower" data-kind="link">
+                      <span class="ap-share-row-ico"><i data-lucide="link"></i></span>
+                      <span class="ap-share-row-value"><span class="ap-share-url-pre">redo.com/r/</span><span class="ap-share-url-handle">wildflower</span></span>
+                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
+                    </button>
+                    <button class="ap-share-row" data-copy="WILDFLOWER20" data-kind="code">
+                      <span class="ap-share-row-ico"><i data-lucide="ticket"></i></span>
+                      <span class="ap-share-row-value"><span class="ap-share-url-handle">WILDFLOWER20</span></span>
+                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
+                    </button>
+                  </div>
+                </div>
+                <div class="ap-share-col ap-share-col-right">
+                  <div class="ap-share-head">
+                    <span class="ap-share-eyebrow">Share a win</span>
+                  </div>
+                  <select class="ap-share-win-select" id="apShareWinSelect">
+                    <option value="revenue">Revenue retained · $890K</option>
+                    <option value="exchanges">Exchanges made · 1,247</option>
+                    <option value="carts">Carts recovered · $214K</option>
+                    <option value="labels">Labels printed · 1.5M</option>
+                  </select>
+                  <p class="ap-share-win-hint">Auto-generates a graphic with your link.</p>
+                  <div class="ap-share-channels">
+                    <button class="ap-share-channel" title="Email"><i data-lucide="mail"></i> Email</button>
+                    <button class="ap-share-channel" title="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X</button>
+                    <button class="ap-share-channel" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg> LinkedIn</button>
+                    <button class="ap-share-channel" title="SMS"><i data-lucide="message-circle"></i> SMS</button>
+                  </div>
+                </div>
+              </aside>
+            </section>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Give Back Day learn-more modal -->
+  <div class="gb-modal-backdrop" id="gbModal" role="dialog" aria-modal="true" aria-labelledby="gbModalTitle">
+    <div class="gb-modal">
+      <button class="gb-modal-close" id="gbModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+      <div class="gb-modal-body">
+        <p class="gb-modal-eyebrow">Redo Give Back Event</p>
+        <h2 class="gb-modal-title" id="gbModalTitle">A whole day, dedicated to you.</h2>
+        <p class="gb-modal-lead">On <b>June 9th</b>, Redo launches our annual Give Back event. Every shopper who tags a brand that runs on Redo gets <b>$100 to spend with that brand</b>, paid out of the network pot.</p>
+        <p class="gb-modal-steps-head">How to participate</p>
+        <div class="gb-modal-steps">
+          <div class="gb-modal-step">
+            <div class="gb-modal-step-n">1</div>
+            <div class="gb-modal-step-text">Comment on the launch post when it drops.</div>
+          </div>
+          <div class="gb-modal-step">
+            <div class="gb-modal-step-n">2</div>
+            <div class="gb-modal-step-text">Share a discount code in the comments.</div>
+          </div>
+          <div class="gb-modal-step">
+            <div class="gb-modal-step-n">3</div>
+            <div class="gb-modal-step-text">Repost so your audience can spend on you.</div>
+          </div>
+        </div>
+        <div class="gb-modal-actions" id="gbModalActions">
+          <button class="gb-modal-primary" id="gbModalNotify">Sign up to get notified <i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+      <div class="gb-modal-art">
+        <div class="gb-modal-art-overlay">
+          <span class="label">Pot opens in</span>
+          <div class="gb-countdown">
+            <div class="gb-chip"><div class="gb-chip-num" id="gbModalDays">14</div><div class="gb-chip-lbl">Days</div></div>
+            <div class="gb-chip"><div class="gb-chip-num" id="gbModalHours">10</div><div class="gb-chip-lbl">Hours</div></div>
+            <div class="gb-chip"><div class="gb-chip-num" id="gbModalMins">54</div><div class="gb-chip-lbl">Mins</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -478,6 +769,133 @@
 
   <script>
     if (window.lucide) lucide.createIcons();
+
+    // ============================== STYLE SWITCHER ==============================
+    const STYLES = ["give-back", "airpods"];
+    const STORE_KEY = "redoHomeStyle";
+
+    function showStyle(name) {
+      if (!STYLES.includes(name)) name = "give-back";
+      localStorage.setItem(STORE_KEY, name);
+      document.querySelectorAll(".style-page").forEach((p) => p.classList.toggle("active", p.dataset.style === name));
+      document.querySelectorAll(".sp-option").forEach((o) => o.classList.toggle("active", o.dataset.style === name));
+      document.querySelector(".rcontent").scrollTo({ top: 0 });
+    }
+
+    // Restore selection
+    showStyle(localStorage.getItem(STORE_KEY) || "give-back");
+
+    // Toggle popover
+    const styleBtn = document.getElementById("styleBtn");
+    const stylePopover = document.getElementById("stylePopover");
+    styleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      stylePopover.classList.toggle("hidden");
+    });
+    document.querySelectorAll(".sp-option").forEach((opt) => {
+      opt.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showStyle(opt.dataset.style);
+        stylePopover.classList.add("hidden");
+      });
+    });
+    document.addEventListener("click", (e) => {
+      if (!stylePopover.classList.contains("hidden") && !stylePopover.contains(e.target) && e.target !== styleBtn && !styleBtn.contains(e.target)) {
+        stylePopover.classList.add("hidden");
+      }
+    });
+
+    if (window.lucide) lucide.createIcons();
+
+    // ============================== AIRPODS SHARE COPY ==============================
+    (function apShareCopy() {
+      document.querySelectorAll(".ap-share-row[data-copy]").forEach((row) => {
+        const action = row.querySelector(".ap-share-row-action");
+        if (!action) return;
+        const originalHTML = action.innerHTML;
+        row.addEventListener("click", async () => {
+          const txt = row.getAttribute("data-copy");
+          try { await navigator.clipboard.writeText(txt); } catch (e) {}
+          row.classList.add("copied");
+          action.innerHTML = '<i data-lucide="check"></i>';
+          if (window.lucide) lucide.createIcons();
+          setTimeout(() => {
+            row.classList.remove("copied");
+            action.innerHTML = originalHTML;
+            if (window.lucide) lucide.createIcons();
+          }, 1400);
+        });
+      });
+    })();
+
+    // ============================== GIVE BACK COUNTDOWN ==============================
+    (function gbCountdown() {
+      const targets = [
+        ["gbDays", "gbHours", "gbMins"],
+        ["gbModalDays", "gbModalHours", "gbModalMins"],
+      ].map((ids) => ids.map((id) => document.getElementById(id))).filter((set) => set.every(Boolean));
+      if (!targets.length) return;
+      function pad(n) { return String(Math.max(0, n)).padStart(2, "0"); }
+      function tick() {
+        const now = new Date();
+        let target = new Date(now.getFullYear(), 5, 15, 9, 0, 0);
+        if (target < now) target = new Date(now.getFullYear() + 1, 5, 15, 9, 0, 0);
+        const diff = Math.max(0, target - now);
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        targets.forEach(([dEl, hEl, mEl]) => {
+          dEl.textContent = pad(d);
+          hEl.textContent = pad(h);
+          mEl.textContent = pad(m);
+        });
+      }
+      tick();
+      setInterval(tick, 30000);
+    })();
+
+    // ============================== GIVE BACK MODAL ==============================
+    (function gbModal() {
+      const modal = document.getElementById("gbModal");
+      const closeBtn = document.getElementById("gbModalClose");
+      const actions = document.getElementById("gbModalActions");
+      const notifyBtn = document.getElementById("gbModalNotify");
+      if (!modal || !closeBtn) return;
+      const trigger = document.querySelector('.style-page[data-style="give-back"] .gb-pill');
+      const initialActionsHTML = actions ? actions.innerHTML : "";
+      function open() { modal.classList.add("open"); document.body.style.overflow = "hidden"; }
+      function close() {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+        if (actions) { actions.className = "gb-modal-actions"; actions.innerHTML = initialActionsHTML; if (window.lucide) lucide.createIcons(); wireNotify(); }
+      }
+      function showForm() {
+        actions.className = "gb-modal-form";
+        actions.innerHTML = '<input type="email" id="gbModalEmail" placeholder="you@brand.com" autocomplete="email" /><button type="button" id="gbModalSubmit">Notify me <i data-lucide="arrow-right"></i></button>';
+        if (window.lucide) lucide.createIcons();
+        const input = document.getElementById("gbModalEmail");
+        const submit = document.getElementById("gbModalSubmit");
+        input.focus();
+        function send() {
+          if (!/.+@.+\..+/.test(input.value.trim())) { input.focus(); input.style.borderColor = "rgba(255,120,120,0.6)"; return; }
+          actions.className = "gb-modal-success";
+          actions.innerHTML = '<i data-lucide="check-circle-2"></i> You\'re on the list. We\'ll email you the morning of June 9th.';
+          if (window.lucide) lucide.createIcons();
+        }
+        submit.addEventListener("click", send);
+        input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); send(); } });
+        input.addEventListener("input", () => { input.style.borderColor = ""; });
+      }
+      function wireNotify() {
+        const btn = document.getElementById("gbModalNotify");
+        if (btn) btn.addEventListener("click", showForm);
+      }
+      wireNotify();
+      if (trigger) trigger.addEventListener("click", (e) => { e.preventDefault(); open(); });
+      closeBtn.addEventListener("click", close);
+      modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("open")) close(); });
+    })();
   </script>
 </body>
 </html>
