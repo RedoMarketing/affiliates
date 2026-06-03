@@ -147,9 +147,9 @@
     <!-- Stats -->
     <section class="stats">
       <div class="stat"><div class="stat-lbl">Active codes</div><div class="stat-val num" id="statCodes">&mdash;</div><div class="stat-sub">codes + links</div></div>
-      <div class="stat"><div class="stat-lbl">Views</div><div class="stat-val num" id="statViews">&mdash;</div><div class="stat-sub">all time</div></div>
-      <div class="stat"><div class="stat-lbl">Views this week</div><div class="stat-val num" id="statViewsWeek">&mdash;</div><div class="stat-sub">last 7 days</div></div>
-      <div class="stat"><div class="stat-lbl">Demos booked</div><div class="stat-val num" id="statDemos">&mdash;</div><div class="stat-sub">all time</div></div>
+      <div class="stat"><div class="stat-lbl">Created this week</div><div class="stat-val num" id="statCodesWeek">&mdash;</div><div class="stat-sub">last 7 days</div></div>
+      <div class="stat"><div class="stat-lbl">Demos booked</div><div class="stat-val num" id="statDemos">&mdash;</div><div class="stat-sub">when HubSpot is wired</div></div>
+      <div class="stat"><div class="stat-lbl">Owners</div><div class="stat-val num" id="statOwners">&mdash;</div><div class="stat-sub">unique brands</div></div>
     </section>
 
     <!-- CODES PANE -->
@@ -204,10 +204,10 @@
                 <th>Code / handle</th>
                 <th>Kind</th>
                 <th>Owner</th>
-                <th>Views</th>
                 <th>Demos</th>
                 <th>Last seen</th>
                 <th>Share URL</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="codesBody"><tr><td colspan="7" class="empty">Loading&hellip;</td></tr></tbody>
@@ -303,16 +303,17 @@
 
   async function refreshStats() {
     const since = new Date(Date.now() - 7 * 86400e3).toISOString();
-    const [codes, views, viewsWeek, demos] = await Promise.all([
+    const [codes, codesWeek, demos, owners] = await Promise.all([
       sb.from("affiliate_codes").select("id", { count: "exact", head: true }).eq("is_active", true),
-      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view"),
-      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view").gte("created_at", since),
+      sb.from("affiliate_codes").select("id", { count: "exact", head: true }).eq("is_active", true).gte("created_at", since),
       sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "demo_booked"),
+      sb.from("affiliate_codes").select("owner_brand").eq("is_active", true),
     ]);
     document.getElementById("statCodes").textContent = codes.count ?? 0;
-    document.getElementById("statViews").textContent = views.count ?? 0;
-    document.getElementById("statViewsWeek").textContent = viewsWeek.count ?? 0;
+    document.getElementById("statCodesWeek").textContent = codesWeek.count ?? 0;
     document.getElementById("statDemos").textContent = demos.count ?? 0;
+    const uniqueBrands = new Set((owners.data || []).map((r) => (r.owner_brand || "").trim().toLowerCase()).filter(Boolean));
+    document.getElementById("statOwners").textContent = uniqueBrands.size;
   }
 
   async function refreshCodes() {
@@ -321,7 +322,16 @@
     if (error) { body.innerHTML = `<tr><td colspan="7" class="empty">Error: ${escapeHtml(error.message)}</td></tr>`; return; }
     if (!data || data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="empty">No codes yet. Create one above.</td></tr>`; return; }
     body.innerHTML = data.map((c) => {
-      const shareUrl = `${BASE_URL}r.html?c=${encodeURIComponent(c.code)}`;
+      // Build the direct share URL: redo.com (or per-code override) with the
+      // affiliate_code + UTMs baked into the query string. No redirector.
+      let url;
+      try { url = new URL(c.redirect_url || "https://redo.com"); }
+      catch (e) { url = new URL("https://redo.com"); }
+      url.searchParams.set("affiliate_code", c.code);
+      url.searchParams.set("utm_source", "affiliate");
+      url.searchParams.set("utm_medium", "referral");
+      url.searchParams.set("utm_campaign", c.code);
+      const shareUrl = url.toString();
       const last = c.last_seen_at ? new Date(c.last_seen_at).toLocaleString() : "&mdash;";
       const ownerLines = [c.owner_brand, c.owner_email].filter(Boolean);
       return `
@@ -332,10 +342,10 @@
             <div>${escapeHtml(c.owner_name || "")}</div>
             <div class="gray">${ownerLines.map(escapeHtml).join(" &middot; ")}</div>
           </td>
-          <td class="num">${c.views || 0}</td>
           <td class="num">${c.demos_booked || 0}</td>
           <td class="gray">${last}</td>
-          <td><button class="copy" data-copy="${escapeHtml(shareUrl)}">Copy URL</button></td>
+          <td class="mono gray" style="font-size: 11.5px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(shareUrl)}</td>
+          <td><button class="copy" data-copy="${escapeHtml(shareUrl)}">Copy</button></td>
         </tr>
       `;
     }).join("");
