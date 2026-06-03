@@ -179,7 +179,7 @@
               <input type="email" id="newOwnerEmail" placeholder="jane@wildflower.co" />
             </label>
             <label>Redirect URL
-              <input type="url" id="newRedirect" value="https://getredo.com" />
+              <input type="url" id="newRedirect" value="https://redo.com" />
             </label>
             <label class="full">Notes (internal)
               <textarea id="newNotes" placeholder="How you sent this, deal context, etc."></textarea>
@@ -387,7 +387,7 @@
       owner_name: document.getElementById("newOwnerName").value.trim(),
       owner_email: document.getElementById("newOwnerEmail").value.trim() || null,
       owner_brand: document.getElementById("newBrand").value.trim() || null,
-      redirect_url: document.getElementById("newRedirect").value.trim() || "https://getredo.com",
+      redirect_url: document.getElementById("newRedirect").value.trim() || "https://redo.com",
       notes: document.getElementById("newNotes").value.trim() || null,
     };
     if (!payload.code) return;
@@ -400,7 +400,7 @@
     msg.textContent = "Created.";
     msg.classList.add("ok");
     document.getElementById("createForm").reset();
-    document.getElementById("newRedirect").value = "https://getredo.com";
+    document.getElementById("newRedirect").value = "https://redo.com";
     await Promise.all([refreshStats(), refreshCodes()]);
     setTimeout(() => { msg.textContent = ""; }, 2500);
   });

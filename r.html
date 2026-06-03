@@ -69,7 +69,7 @@
     if (error || !codeRow) {
       console.warn("code lookup failed", error);
       // Don't dead-end the visitor — send them to Redo anyway
-      window.location.replace("https://getredo.com");
+      window.location.replace("https://redo.com");
       return;
     }
 
@@ -99,10 +99,12 @@
       if (Object.keys(utmStash).length) localStorage.setItem("redo_ref_utm", JSON.stringify(utmStash));
     } catch (e) {}
 
-    // Build destination with UTMs + via=CODE
+    // Build destination with UTMs + via=CODE + affiliate_code (matches the
+    // HubSpot demo-form field internal name so it pre-fills automatically)
     let dest;
     try { dest = new URL(codeRow.redirect_url); }
-    catch (e) { dest = new URL("https://getredo.com"); }
+    catch (e) { dest = new URL("https://redo.com"); }
+    dest.searchParams.set("affiliate_code", code);
     dest.searchParams.set("via", code);
     Object.entries(utm).forEach(([k, v]) => { if (v) dest.searchParams.set(k, v); });
 
