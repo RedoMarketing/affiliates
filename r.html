@@ -23,7 +23,7 @@
   <div class="spin" id="spin"></div>
   <div class="msg" id="msg">Redirecting&hellip;</div>
   <div class="err-detail" id="errDetail" style="display:none"></div>
-  <a class="home-link" id="homeLink" href="https://getredo.com" style="display:none">Go to Redo</a>
+  <a class="home-link" id="homeLink" href="https://redo.com" style="display:none">Go to Redo</a>
 </div>
 <script>
   const SUPABASE_URL = "https://ujlffezngjtziqoysrea.supabase.co";
@@ -108,7 +108,14 @@
     dest.searchParams.set("via", code);
     Object.entries(utm).forEach(([k, v]) => { if (v) dest.searchParams.set(k, v); });
 
-    window.location.replace(dest.toString());
+    const destStr = dest.toString();
+    // Show manual fallback link in case the auto-redirect is blocked
+    const homeLink = document.getElementById("homeLink");
+    homeLink.href = destStr;
+    homeLink.textContent = "Continue to Redo";
+    setTimeout(() => { homeLink.style.display = "inline-block"; }, 1500);
+
+    window.location.replace(destStr);
   }
 
   go();
