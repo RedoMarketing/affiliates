@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Affiliates Admin &mdash; Redo</title>
+<link rel="stylesheet" href="fonts.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    --gray-50: 240 6% 98%;
+    --gray-100: 240 5% 96%;
+    --gray-200: 240 5% 90%;
+    --gray-300: 240 5% 82%;
+    --gray-400: 240 4% 65%;
+    --gray-500: 240 4% 48%;
+    --gray-600: 240 4% 38%;
+    --gray-700: 240 4% 28%;
+    --gray-950: 240 10% 4%;
+    --border: 240 5% 90%;
+    --orange: 22 100% 51%;
+    --green: 142 71% 36%;
+  }
+  body { font: 500 14px var(--sans); background: hsl(var(--gray-50)); color: hsl(var(--gray-950)); -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* Login */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0d0d0d; }
+  .login-card { background: white; border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.4); }
+  .login-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .login-title { font: 400 36px/1 var(--serif); color: hsl(var(--gray-950)); }
+  .login-sub { color: hsl(var(--gray-500)); font: 500 14px var(--sans); margin-bottom: 8px; }
+  .login-card label { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); display: flex; flex-direction: column; gap: 4px; }
+  .login-card input { width: 100%; padding: 11px 14px; border: 1px solid hsl(var(--border)); border-radius: 8px; font: 500 14px var(--sans); }
+  .login-card input:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .login-card button { background: hsl(var(--gray-950)); color: white; border: none; padding: 11px 14px; border-radius: 8px; font: 600 14px var(--sans); margin-top: 6px; }
+  .login-card button:hover { opacity: 0.92; }
+  .login-err { font: 500 13px var(--sans); color: #d33; margin-top: 4px; }
+
+  /* App shell */
+  .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+  .topbar { background: #0d0d0d; color: white; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 20px; }
+  .topbar-title { font: 400 22px var(--serif); }
+  .topbar-tabs { display: flex; gap: 4px; }
+  .tab-btn { background: transparent; border: 1px solid #2a2a2e; color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 8px; font: 500 13px var(--sans); }
+  .tab-btn.active { background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.3); }
+  .tab-btn:hover:not(.active) { color: white; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; font: 500 13px var(--sans); color: rgba(255,255,255,0.7); }
+  .logout-btn { background: transparent; border: 1px solid #2a2a2e; color: white; padding: 6px 12px; border-radius: 8px; font: 500 13px var(--sans); }
+  .logout-btn:hover { background: rgba(255,255,255,0.08); }
+
+  .main { padding: 28px; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 18px 22px; }
+  .stat-lbl { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .stat-val { font: 400 38px/1 var(--serif); color: hsl(var(--gray-950)); margin-top: 8px; letter-spacing: -0.005em; }
+  .stat-sub { font: 500 12px var(--sans); color: hsl(var(--gray-500)); margin-top: 6px; }
+
+  /* Card */
+  .card { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 22px 24px; }
+  .card + .card { margin-top: 12px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+  .card-title { font: 600 15px var(--sans); color: hsl(var(--gray-950)); letter-spacing: -0.005em; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-grid label { display: flex; flex-direction: column; gap: 4px; font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 9px 12px; border: 1px solid hsl(var(--border)); border-radius: 8px; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); background: white; }
+  .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .form-grid textarea { resize: vertical; min-height: 56px; font-family: var(--sans); }
+  .form-actions { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+  .btn-primary { background: hsl(var(--gray-950)); color: white; border: none; padding: 9px 18px; border-radius: 8px; font: 600 13px var(--sans); }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-secondary { background: transparent; color: hsl(var(--gray-700)); border: 1px solid hsl(var(--border)); padding: 8px 14px; border-radius: 8px; font: 500 13px var(--sans); }
+  .btn-secondary:hover { background: hsl(var(--gray-100)); }
+  .form-msg { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); }
+  .form-msg.ok { color: hsl(var(--green)); }
+  .form-msg.err { color: #d33; }
+
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; }
+  .tbl th, .tbl td { padding: 12px 14px; text-align: left; border-bottom: 1px solid hsl(var(--border)); }
+  .tbl th { font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); white-space: nowrap; }
+  .tbl td { font: 500 13px var(--sans); color: hsl(var(--gray-950)); vertical-align: top; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Monaco, Consolas, monospace; font-size: 12.5px; font-weight: 600; }
+  .tbl .gray { color: hsl(var(--gray-500)); }
+  .tbl .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .tbl .copy { background: white; border: 1px solid hsl(var(--border)); padding: 4px 9px; border-radius: 6px; font: 500 11px var(--sans); color: hsl(var(--gray-700)); }
+  .tbl .copy:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .tbl .copy.copied { background: rgba(255,140,40,0.12); color: hsl(var(--orange)); border-color: rgba(255,140,40,0.3); }
+
+  .kind-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font: 700 9.5px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .kind-badge.code { background: rgba(255,140,40,0.12); color: hsl(var(--orange)); }
+  .kind-badge.link { background: rgba(13,148,136,0.12); color: #0d9488; }
+
+  .event-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font: 600 11px var(--sans); }
+  .event-badge.view { background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); }
+  .event-badge.demo { background: rgba(255,140,40,0.14); color: hsl(var(--orange)); }
+
+  .empty { text-align: center; color: hsl(var(--gray-500)); padding: 40px 20px; font: 500 14px var(--sans); }
+
+  .pane { display: none; }
+  .pane.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="loginScreen">
+  <form class="login-card" id="loginForm">
+    <span class="login-eyebrow">Redo</span>
+    <h1 class="login-title">Affiliates admin</h1>
+    <p class="login-sub">Sign in with your Redo account.</p>
+    <label>Email<input type="email" id="loginEmail" required autocomplete="email" placeholder="you@redo.com" /></label>
+    <label>Password<input type="password" id="loginPassword" required autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" /></label>
+    <button type="submit">Sign in</button>
+    <div class="login-err" id="loginErr" style="display:none"></div>
+  </form>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Affiliates</span>
+      <div class="topbar-tabs">
+        <button class="tab-btn active" data-tab="codes">Codes &amp; links</button>
+        <button class="tab-btn" data-tab="activity">Activity</button>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="whoami"></span>
+      <button class="logout-btn" id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Stats -->
+    <section class="stats">
+      <div class="stat"><div class="stat-lbl">Active codes</div><div class="stat-val num" id="statCodes">&mdash;</div><div class="stat-sub">codes + links</div></div>
+      <div class="stat"><div class="stat-lbl">Views</div><div class="stat-val num" id="statViews">&mdash;</div><div class="stat-sub">all time</div></div>
+      <div class="stat"><div class="stat-lbl">Views this week</div><div class="stat-val num" id="statViewsWeek">&mdash;</div><div class="stat-sub">last 7 days</div></div>
+      <div class="stat"><div class="stat-lbl">Demos booked</div><div class="stat-val num" id="statDemos">&mdash;</div><div class="stat-sub">all time</div></div>
+    </section>
+
+    <!-- CODES PANE -->
+    <div class="pane active" data-pane="codes">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Create a code or link</span>
+        </div>
+        <form id="createForm">
+          <div class="form-grid">
+            <label>Kind
+              <select id="newKind" required>
+                <option value="code">Discount code</option>
+                <option value="link">Tracking link</option>
+              </select>
+            </label>
+            <label>Code value
+              <input type="text" id="newCode" required placeholder="WILDFLOWER20" autocapitalize="characters" />
+            </label>
+            <label>Owner brand
+              <input type="text" id="newBrand" placeholder="Wildflower Co." />
+            </label>
+            <label>Owner name
+              <input type="text" id="newOwnerName" required placeholder="Jane Doe" />
+            </label>
+            <label>Owner email
+              <input type="email" id="newOwnerEmail" placeholder="jane@wildflower.co" />
+            </label>
+            <label>Redirect URL
+              <input type="url" id="newRedirect" value="https://getredo.com" />
+            </label>
+            <label class="full">Notes (internal)
+              <textarea id="newNotes" placeholder="How you sent this, deal context, etc."></textarea>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Create</button>
+            <span id="createMsg" class="form-msg"></span>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">All codes &amp; links</span>
+          <button class="btn-secondary" id="refreshCodes">Refresh</button>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl" id="codesTable">
+            <thead>
+              <tr>
+                <th>Code / handle</th>
+                <th>Kind</th>
+                <th>Owner</th>
+                <th>Views</th>
+                <th>Demos</th>
+                <th>Last seen</th>
+                <th>Share URL</th>
+              </tr>
+            </thead>
+            <tbody id="codesBody"><tr><td colspan="7" class="empty">Loading&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY PANE -->
+    <div class="pane" data-pane="activity">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Recent activity</span>
+          <button class="btn-secondary" id="refreshActivity">Refresh</button>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl" id="activityTable">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Code</th>
+                <th>UTM source</th>
+                <th>UTM campaign</th>
+                <th>Referrer</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="activityBody"><tr><td colspan="7" class="empty">Loading&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://ujlffezngjtziqoysrea.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_BqSK1VvQxjaqkAlTonra-g_vjFkgBx8";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const BASE_URL = window.location.href.replace(/\/[^/]*$/, "/");
+
+  const loginScreen = document.getElementById("loginScreen");
+  const app = document.getElementById("app");
+
+  async function showApp(email) {
+    loginScreen.style.display = "none";
+    app.style.display = "grid";
+    document.getElementById("whoami").textContent = email;
+    await Promise.all([refreshStats(), refreshCodes(), refreshActivity()]);
+  }
+
+  async function tryResume() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    if (session.user.email.toLowerCase() !== "braxton@redo.com") {
+      await sb.auth.signOut();
+      return;
+    }
+    await showApp(session.user.email);
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errEl = document.getElementById("loginErr");
+    errEl.style.display = "none";
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { errEl.textContent = error.message; errEl.style.display = "block"; return; }
+    if (email.toLowerCase() !== "braxton@redo.com") {
+      await sb.auth.signOut();
+      errEl.textContent = "Admin access only.";
+      errEl.style.display = "block";
+      return;
+    }
+    await showApp(email);
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await sb.auth.signOut();
+    window.location.reload();
+  });
+
+  // Tabs
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      const target = btn.getAttribute("data-tab");
+      document.querySelectorAll(".pane").forEach((p) => p.classList.toggle("active", p.getAttribute("data-pane") === target));
+    });
+  });
+
+  async function refreshStats() {
+    const since = new Date(Date.now() - 7 * 86400e3).toISOString();
+    const [codes, views, viewsWeek, demos] = await Promise.all([
+      sb.from("affiliate_codes").select("id", { count: "exact", head: true }).eq("is_active", true),
+      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view"),
+      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view").gte("created_at", since),
+      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "demo_booked"),
+    ]);
+    document.getElementById("statCodes").textContent = codes.count ?? 0;
+    document.getElementById("statViews").textContent = views.count ?? 0;
+    document.getElementById("statViewsWeek").textContent = viewsWeek.count ?? 0;
+    document.getElementById("statDemos").textContent = demos.count ?? 0;
+  }
+
+  async function refreshCodes() {
+    const { data, error } = await sb.from("affiliate_code_stats").select("*").order("created_at", { ascending: false });
+    const body = document.getElementById("codesBody");
+    if (error) { body.innerHTML = `<tr><td colspan="7" class="empty">Error: ${escapeHtml(error.message)}</td></tr>`; return; }
+    if (!data || data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="empty">No codes yet. Create one above.</td></tr>`; return; }
+    body.innerHTML = data.map((c) => {
+      const shareUrl = `${BASE_URL}r.html?c=${encodeURIComponent(c.code)}`;
+      const last = c.last_seen_at ? new Date(c.last_seen_at).toLocaleString() : "&mdash;";
+      const ownerLines = [c.owner_brand, c.owner_email].filter(Boolean);
+      return `
+        <tr>
+          <td><span class="mono">${escapeHtml(c.code)}</span></td>
+          <td><span class="kind-badge ${c.kind}">${c.kind}</span></td>
+          <td>
+            <div>${escapeHtml(c.owner_name || "")}</div>
+            <div class="gray">${ownerLines.map(escapeHtml).join(" &middot; ")}</div>
+          </td>
+          <td class="num">${c.views || 0}</td>
+          <td class="num">${c.demos_booked || 0}</td>
+          <td class="gray">${last}</td>
+          <td><button class="copy" data-copy="${escapeHtml(shareUrl)}">Copy URL</button></td>
+        </tr>
+      `;
+    }).join("");
+    body.querySelectorAll(".copy").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(btn.getAttribute("data-copy"));
+        btn.classList.add("copied");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "Copy URL"; }, 1400);
+      });
+    });
+  }
+
+  async function refreshActivity() {
+    const { data, error } = await sb
+      .from("affiliate_events")
+      .select("id, event_type, utm_source, utm_campaign, referrer, email, created_at, affiliate_codes(code)")
+      .order("created_at", { ascending: false })
+      .limit(150);
+    const body = document.getElementById("activityBody");
+    if (error) { body.innerHTML = `<tr><td colspan="7" class="empty">Error: ${escapeHtml(error.message)}</td></tr>`; return; }
+    if (!data || data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="empty">No activity yet. Click an affiliate link to log a view.</td></tr>`; return; }
+    body.innerHTML = data.map((e) => {
+      const isDemo = e.event_type === "demo_booked";
+      return `
+        <tr>
+          <td class="gray">${new Date(e.created_at).toLocaleString()}</td>
+          <td><span class="event-badge ${isDemo ? "demo" : "view"}">${isDemo ? "Demo booked" : "View"}</span></td>
+          <td><span class="mono">${escapeHtml(e.affiliate_codes?.code || "")}</span></td>
+          <td>${escapeHtml(e.utm_source || "—")}</td>
+          <td>${escapeHtml(e.utm_campaign || "—")}</td>
+          <td class="gray">${escapeHtml(e.referrer ? shortUrl(e.referrer) : "—")}</td>
+          <td>${escapeHtml(e.email || "—")}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("refreshCodes").addEventListener("click", refreshCodes);
+  document.getElementById("refreshActivity").addEventListener("click", refreshActivity);
+
+  document.getElementById("createForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("createMsg");
+    msg.textContent = ""; msg.className = "form-msg";
+    const payload = {
+      code: document.getElementById("newCode").value.trim(),
+      kind: document.getElementById("newKind").value,
+      owner_name: document.getElementById("newOwnerName").value.trim(),
+      owner_email: document.getElementById("newOwnerEmail").value.trim() || null,
+      owner_brand: document.getElementById("newBrand").value.trim() || null,
+      redirect_url: document.getElementById("newRedirect").value.trim() || "https://getredo.com",
+      notes: document.getElementById("newNotes").value.trim() || null,
+    };
+    if (!payload.code) return;
+    const { error } = await sb.from("affiliate_codes").insert(payload);
+    if (error) {
+      msg.textContent = error.message;
+      msg.classList.add("err");
+      return;
+    }
+    msg.textContent = "Created.";
+    msg.classList.add("ok");
+    document.getElementById("createForm").reset();
+    document.getElementById("newRedirect").value = "https://getredo.com";
+    await Promise.all([refreshStats(), refreshCodes()]);
+    setTimeout(() => { msg.textContent = ""; }, 2500);
+  });
+
+  function escapeHtml(s) {
+    if (s == null) return "";
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function shortUrl(u) { try { return new URL(u).host; } catch { return u.slice(0, 40); } }
+
+  tryResume();
+</script>
+
+</body>
+</html>

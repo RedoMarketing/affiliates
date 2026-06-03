@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Redo</title>
+<link rel="stylesheet" href="fonts.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0d0d; color: white; font: 500 14px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; display: grid; place-items: center; height: 100vh; margin: 0; }
+  .wrap { text-align: center; max-width: 320px; padding: 20px; }
+  .spin { width: 22px; height: 22px; border: 2px solid rgba(255,255,255,0.18); border-top-color: white; border-radius: 999px; animation: spin .9s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .msg { font-size: 14px; color: rgba(255,255,255,0.6); }
+  .err { color: #ff8585; }
+  .err-detail { color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 6px; }
+  .home-link { display: inline-block; margin-top: 14px; padding: 8px 14px; background: white; color: #0d0d0d; border-radius: 8px; font: 600 13px 'Inter', sans-serif; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="spin" id="spin"></div>
+  <div class="msg" id="msg">Redirecting&hellip;</div>
+  <div class="err-detail" id="errDetail" style="display:none"></div>
+  <a class="home-link" id="homeLink" href="https://getredo.com" style="display:none">Go to Redo</a>
+</div>
+<script>
+  const SUPABASE_URL = "https://ujlffezngjtziqoysrea.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_BqSK1VvQxjaqkAlTonra-g_vjFkgBx8";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const params = new URLSearchParams(window.location.search);
+  const code = (params.get("c") || params.get("ref") || params.get("code") || "").trim();
+  const utm = {
+    utm_source: params.get("utm_source"),
+    utm_medium: params.get("utm_medium"),
+    utm_campaign: params.get("utm_campaign"),
+    utm_term: params.get("utm_term"),
+    utm_content: params.get("utm_content"),
+  };
+
+  function fail(text, detail) {
+    document.getElementById("spin").remove();
+    const msg = document.getElementById("msg");
+    msg.textContent = text;
+    msg.classList.add("err");
+    if (detail) {
+      const d = document.getElementById("errDetail");
+      d.textContent = detail;
+      d.style.display = "block";
+    }
+    document.getElementById("homeLink").style.display = "inline-block";
+  }
+
+  async function go() {
+    if (!code) {
+      fail("No referral code on this link.", "Add ?c=YOUR_CODE to the URL.");
+      return;
+    }
+
+    const { data: codeRow, error } = await sb
+      .from("affiliate_codes")
+      .select("id, redirect_url, kind")
+      .ilike("code", code)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (error || !codeRow) {
+      console.warn("code lookup failed", error);
+      // Don't dead-end the visitor — send them to Redo anyway
+      window.location.replace("https://getredo.com");
+      return;
+    }
+
+    // Log view (await so it lands before redirect)
+    try {
+      await sb.from("affiliate_events").insert({
+        code_id: codeRow.id,
+        event_type: "view",
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
+        utm_term: utm.utm_term,
+        utm_content: utm.utm_content,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent.slice(0, 500),
+      });
+    } catch (e) {
+      console.warn("event insert failed", e);
+    }
+
+    // Stash for downstream demo attribution
+    try {
+      localStorage.setItem("redo_ref", code);
+      localStorage.setItem("redo_ref_at", String(Date.now()));
+      const utmStash = {};
+      Object.entries(utm).forEach(([k, v]) => { if (v) utmStash[k] = v; });
+      if (Object.keys(utmStash).length) localStorage.setItem("redo_ref_utm", JSON.stringify(utmStash));
+    } catch (e) {}
+
+    // Build destination with UTMs + via=CODE
+    let dest;
+    try { dest = new URL(codeRow.redirect_url); }
+    catch (e) { dest = new URL("https://getredo.com"); }
+    dest.searchParams.set("via", code);
+    Object.entries(utm).forEach(([k, v]) => { if (v) dest.searchParams.set(k, v); });
+
+    window.location.replace(dest.toString());
+  }
+
+  go();
+</script>
+</body>
+</html>
