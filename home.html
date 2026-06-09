@@ -340,6 +340,22 @@
   .ap-top-row { display: grid; grid-template-columns: 1.85fr 1fr; gap: 12px; align-items: stretch; }
   .ap-top-row .ap-hero { min-height: 0; }
 
+  /* AirPods hero carousel */
+  .ap-hero-carousel { display: block; padding: 0; background: white; }
+  .ap-hero-track { display: flex; width: 100%; height: 100%; transition: transform .55s cubic-bezier(.4, 0, .2, 1); }
+  .ap-hero-slide { flex: 0 0 100%; min-width: 100%; height: 100%; background-position: right center; background-size: cover; background-repeat: no-repeat; display: flex; align-items: center; }
+  .ap-slide-airpods { background-image: url('airpods-hero.png?v=2'); }
+  .ap-slide-scrim { position: relative; }
+  .ap-slide-scrim::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 0; }
+  .ap-slide-scrim .ap-title { color: #fff; }
+  .ap-slide-scrim .ap-sub { color: rgba(255,255,255,0.92); }
+  .ap-slide-scrim .ap-cta { background: #fff; color: hsl(var(--gray-950)); }
+  .ap-hero-slide .ap-hero-left { z-index: 1; }
+  .ap-hero-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; justify-content: center; gap: 7px; z-index: 3; padding: 6px 9px; border-radius: 999px; background: rgba(20,20,20,0.30); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .ap-hero-dot { width: 7px; height: 7px; padding: 0; border: none; border-radius: 999px; background: rgba(255,255,255,0.5); cursor: pointer; transition: background .2s ease, width .2s ease; }
+  .ap-hero-dot:hover { background: rgba(255,255,255,0.8); }
+  .ap-hero-dot.active { width: 20px; background: #fff; }
+
   /* Tier card — light */
   .ap-tier { background: white; color: hsl(var(--gray-950)); border: 1px solid hsl(var(--border)); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
   .ap-tier-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -381,6 +397,73 @@
   .ap-win-bottom { margin-top: 10px; }
   .ap-win-val { font: 400 40px/1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
   .ap-win-sub { font: 500 13px/1.5 var(--sans); color: hsl(var(--gray-500)); margin: 8px 0 0; }
+
+  /* ============================== AP-SHARE-INLINE (popup-style content, properly proportioned) ============================== */
+  .ap-share-inline { background: #0d0d0d; color: #fafafa; border-radius: 14px; padding: 0; display: grid; grid-template-columns: 1fr 392px; overflow: hidden; border: 1px solid hsl(var(--border)); }
+  .ap-share-inline-body { padding: 28px 32px 26px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .ap-share-inline-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ap-share-inline-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin: 0; }
+  .ap-share-inline-view-link { display: inline-flex; align-items: center; gap: 6px; font: 500 13px var(--sans); color: rgba(255,255,255,0.78); text-decoration: none; padding: 9px 16px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+  .ap-share-inline-view-link:hover { background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.3); }
+  .ap-share-inline-view-link svg { width: 13px; height: 13px; }
+  .ap-share-inline-title { font: 400 36px/1.04 var(--serif); letter-spacing: -0.005em; color: white; margin: 0; }
+  .ap-share-inline-lead { font: 500 13.5px/1.55 var(--sans); color: rgba(255,255,255,0.75); margin: -2px 0 0; max-width: 48ch; }
+  .ap-share-inline-lead b { color: white; font-weight: 600; }
+  .ap-share-inline-stats { display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .ap-share-inline-stat { display: flex; flex-direction: column; gap: 2px; padding: 0 14px; position: relative; }
+  .ap-share-inline-stat + .ap-share-inline-stat::before { content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 1px; background: rgba(255,255,255,0.08); }
+  .ap-share-inline-stat-val { font: 400 28px/1 var(--serif); color: white; letter-spacing: -0.005em; }
+  .ap-share-inline-stat-lbl { font: 500 11px var(--sans); color: rgba(255,255,255,0.5); }
+  .ap-share-inline-rows { display: flex; flex-direction: column; gap: 6px; }
+  .ap-share-inline-row { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer; transition: background .15s ease, border-color .15s ease; text-align: left; font: inherit; color: inherit; }
+  .ap-share-inline-row:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+  .ap-share-inline-row-ico { color: rgba(255,255,255,0.6); display: grid; place-items: center; flex: none; }
+  .ap-share-inline-row-ico svg { width: 14px; height: 14px; }
+  .ap-share-inline-row-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .ap-share-inline-row-lbl { font: 600 9px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .ap-share-inline-row-value { font: 500 13.5px var(--sans); color: white; }
+  .ap-share-inline-pre { color: rgba(255,255,255,0.55); }
+  .ap-share-inline-handle { color: white; font-weight: 600; }
+  .ap-share-inline-row-action { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); display: inline-flex; align-items: center; gap: 5px; transition: color .15s ease; }
+  .ap-share-inline-row:hover .ap-share-inline-row-action { color: white; }
+  .ap-share-inline-row-action svg { width: 11px; height: 11px; }
+  .ap-share-inline-row.copied { background: rgba(255,140,40,0.12); border-color: rgba(255,140,40,0.35); }
+  .ap-share-inline-row.copied .ap-share-inline-row-action,
+  .ap-share-inline-row.copied .ap-share-inline-row-ico { color: hsl(var(--redo-orange)); }
+  .ap-share-inline-share-head { font: 600 10px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin: 2px 0 0; }
+
+  /* Icon-only channel buttons (round, like share-on-* in iOS) */
+  .ap-share-inline-channels { display: flex; gap: 8px; }
+  .ap-share-inline-channel { width: 40px; height: 40px; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.78); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease; padding: 0; }
+  .ap-share-inline-channel:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); color: white; transform: translateY(-1px); }
+  .ap-share-inline-channel svg { width: 15px; height: 15px; }
+
+  /* RIGHT: swipeable wins carousel — proportional */
+  .ap-share-inline-art { background: linear-gradient(135deg, #f5dfc8 0%, #f3eadd 100%); width: 392px; height: 392px; padding: 24px 22px 16px; display: flex; flex-direction: column; justify-content: center; gap: 12px; position: relative; min-width: 0; box-sizing: border-box; }
+  .ap-share-wins-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px; scrollbar-width: none; -ms-overflow-style: none; flex: 1; min-height: 0; align-items: center; }
+  .ap-share-wins-track::-webkit-scrollbar { display: none; }
+  .ap-share-win-card { flex: 0 0 100%; scroll-snap-align: center; background: white; border-radius: 14px; padding: 22px 24px 18px; box-shadow: 0 18px 44px -16px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 4px; transform: rotate(-1.5deg); transition: transform .25s ease; }
+  .ap-share-win-card:nth-child(even) { transform: rotate(1.2deg); }
+  .ap-share-win-card:hover { transform: rotate(0); }
+  .ap-share-win-eyebrow { font: 600 9.5px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .ap-share-win-headline { font: 400 21px/1.18 var(--serif); color: hsl(var(--gray-950)); margin: 5px 0 0; letter-spacing: -0.005em; }
+  .ap-share-win-headline b { font-family: var(--serif); font-weight: 400; color: hsl(var(--gray-950)); position: relative; }
+  .ap-share-win-headline b::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: hsl(var(--redo-orange)); opacity: 0.55; }
+  .ap-share-win-cta { font: 500 11.5px/1.4 var(--sans); color: hsl(var(--gray-500)); margin: 12px 0 0; }
+  .ap-share-win-foot { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 12px; border-top: 1px solid hsl(var(--gray-100)); }
+  .ap-share-win-qr { width: 52px; height: 52px; flex: none; border-radius: 4px; }
+  .ap-share-win-code { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ap-share-win-code-val { font: 700 13px var(--sans); color: hsl(var(--gray-950)); letter-spacing: 0.04em; }
+  .ap-share-win-code-link { font: 500 11px var(--sans); color: hsl(var(--redo-orange)); letter-spacing: 0.01em; }
+  .ap-share-wins-dots { display: flex; justify-content: center; gap: 6px; }
+  .ap-share-wins-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(0,0,0,0.2); border: none; cursor: pointer; transition: background .2s ease, transform .2s ease; padding: 0; }
+  .ap-share-wins-dot.active { background: hsl(var(--gray-950)); transform: scale(1.2); }
+  .ap-share-wins-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.88); border: 1px solid rgba(0,0,0,0.08); color: hsl(var(--gray-950)); display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(6px); transition: background .15s ease, opacity .15s ease; z-index: 2; }
+  .ap-share-wins-nav:hover { background: white; }
+  .ap-share-wins-nav.left { left: 10px; }
+  .ap-share-wins-nav.right { right: 10px; }
+  .ap-share-wins-nav svg { width: 13px; height: 13px; }
+  .ap-share-wins-nav.disabled { opacity: 0.35; cursor: default; }
 
   .ap-share { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; padding: 0; display: grid; grid-template-columns: 1.35fr 1fr; }
   .ap-share-col { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
@@ -634,13 +717,40 @@
           <div class="home">
 
             <div class="ap-top-row">
-              <section class="ap-hero">
-                <div class="ap-hero-left">
-                  <h1 class="ap-title">Refer a brand.<br/>Get <span class="ap-free">free</span> AirPods.</h1>
-                  <p class="ap-sub">On top of your $200 referral payout.</p>
-                  <div class="ap-cta-row">
-                    <button class="ap-cta">Share my link <i data-lucide="arrow-right"></i></button>
+              <section class="ap-hero ap-hero-carousel" id="apHeroCarousel">
+                <div class="ap-hero-track" id="apHeroTrack">
+                  <div class="ap-hero-slide ap-slide-airpods">
+                    <div class="ap-hero-left">
+                      <h1 class="ap-title">Refer a brand.<br/>Get <span class="ap-free">free</span> AirPods.</h1>
+                      <p class="ap-sub">On top of your $200 referral payout.</p>
+                      <div class="ap-cta-row">
+                        <button class="ap-cta">Share my link <i data-lucide="arrow-right"></i></button>
+                      </div>
+                    </div>
                   </div>
+                  <div class="ap-hero-slide ap-slide-scrim" style="background-image: url('give-back-hero.png');">
+                    <div class="ap-hero-left">
+                      <h1 class="ap-title">We're <span class="ap-free">giving back</span><br/>to you.</h1>
+                      <p class="ap-sub">Tune in June 9th to participate.</p>
+                      <div class="ap-cta-row">
+                        <button class="ap-cta">Sign up to get notified <i data-lucide="arrow-right"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ap-hero-slide ap-slide-scrim" style="background-image: url('case-portland.jpg');">
+                    <div class="ap-hero-left">
+                      <h1 class="ap-title" style="white-space: nowrap;">Get <span class="ap-free">paid</span> to be featured.</h1>
+                      <p class="ap-sub">A 30-minute, podcast-style chat with our team. $200 per published case study.</p>
+                      <div class="ap-cta-row">
+                        <button class="ap-cta">Apply for a case study <i data-lucide="arrow-right"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ap-hero-dots" id="apHeroDots">
+                  <button class="ap-hero-dot active" data-i="0" aria-label="Refer a brand"></button>
+                  <button class="ap-hero-dot" data-i="1" aria-label="Give Back event"></button>
+                  <button class="ap-hero-dot" data-i="2" aria-label="Case study"></button>
                 </div>
               </section>
               <aside class="ap-tier">
@@ -737,59 +847,103 @@
             </section>
 
             <section>
-              <aside class="ap-share">
-                <div class="ap-share-col">
-                  <div class="ap-share-head">
-                    <span class="ap-share-eyebrow">Refer a brand</span>
-                    <button class="ap-share-expand" title="Expand"><i data-lucide="maximize-2"></i></button>
+              <div class="ap-share-inline">
+                <div class="ap-share-inline-body">
+                  <div class="ap-share-inline-head">
+                    <p class="ap-share-inline-eyebrow">Refer a brand</p>
+                    <a class="ap-share-inline-view-link" href="earnings.html">View earnings <i data-lucide="arrow-right"></i></a>
                   </div>
-                  <div class="ap-share-stats">
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">142</span>
-                      <span class="ap-share-stat-lbl">Views</span>
-                    </div>
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">89</span>
-                      <span class="ap-share-stat-lbl">Codes used</span>
-                    </div>
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">1</span>
-                      <span class="ap-share-stat-lbl">Brands live</span>
-                    </div>
+                  <h2 class="ap-share-inline-title">Share. Earn. Repeat.</h2>
+
+                  <div class="ap-share-inline-stats">
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">142</span><span class="ap-share-inline-stat-lbl">Views</span></div>
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">89</span><span class="ap-share-inline-stat-lbl">Codes used</span></div>
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">1</span><span class="ap-share-inline-stat-lbl">Brands live</span></div>
                   </div>
-                  <div class="ap-share-rows">
-                    <button class="ap-share-row" data-copy="redo.com/r/wildflower" data-kind="link">
-                      <span class="ap-share-row-ico"><i data-lucide="link"></i></span>
-                      <span class="ap-share-row-value"><span class="ap-share-url-pre">redo.com/r/</span><span class="ap-share-url-handle">wildflower</span></span>
-                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
-                    </button>
-                    <button class="ap-share-row" data-copy="WILDFLOWER20" data-kind="code">
-                      <span class="ap-share-row-ico"><i data-lucide="ticket"></i></span>
-                      <span class="ap-share-row-value"><span class="ap-share-url-handle">WILDFLOWER20</span></span>
-                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
+
+                  <div class="ap-share-inline-rows">
+                    <button class="ap-share-inline-row" data-copy="redo.com/r/wildflower">
+                      <span class="ap-share-inline-row-ico"><i data-lucide="link"></i></span>
+                      <div class="ap-share-inline-row-body">
+                        <span class="ap-share-inline-row-lbl">Your link</span>
+                        <span class="ap-share-inline-row-value"><span class="ap-share-inline-pre">redo.com/r/</span><span class="ap-share-inline-handle">wildflower</span></span>
+                      </div>
+                      <span class="ap-share-inline-row-action"><i data-lucide="copy"></i> Copy</span>
                     </button>
                   </div>
-                </div>
-                <div class="ap-share-col ap-share-col-right">
-                  <div class="ap-share-head">
-                    <span class="ap-share-eyebrow">Share a win</span>
-                  </div>
-                  <select class="ap-share-win-select" id="apShareWinSelect">
-                    <option value="revenue">Revenue retained · $890K</option>
-                    <option value="exchanges">Exchanges made · 1,247</option>
-                    <option value="carts">Carts recovered · $214K</option>
-                    <option value="labels">Labels printed · 1.5M</option>
-                  </select>
-                  <p class="ap-share-win-hint">Auto-generates a graphic with your link.</p>
-                  <div class="ap-share-channels">
-                    <button class="ap-share-channel" title="Email"><i data-lucide="mail"></i> Email</button>
-                    <button class="ap-share-channel" title="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X</button>
-                    <button class="ap-share-channel" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg> LinkedIn</button>
-                    <button class="ap-share-channel" title="SMS"><i data-lucide="message-circle"></i> SMS</button>
+
+                  <div class="ap-share-inline-channels">
+                    <button class="ap-share-inline-channel" title="Email" aria-label="Email"><i data-lucide="mail"></i></button>
+                    <button class="ap-share-inline-channel" title="X" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+                    <button class="ap-share-inline-channel" title="LinkedIn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></button>
+                    <button class="ap-share-inline-channel" title="SMS" aria-label="SMS"><i data-lucide="message-circle"></i></button>
+                    <button class="ap-share-inline-channel" title="More" aria-label="More options"><i data-lucide="more-horizontal"></i></button>
                   </div>
                 </div>
-              </aside>
+
+                <div class="ap-share-inline-art">
+                  <button class="ap-share-wins-nav left" title="Previous"><i data-lucide="chevron-left"></i></button>
+                  <button class="ap-share-wins-nav right" title="Next"><i data-lucide="chevron-right"></i></button>
+                  <div class="ap-share-wins-track">
+                    <div class="ap-share-win-card" data-win="revenue">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">We've saved <b>$890K</b> using Redo's <b>Returns &amp; Exchange Agent</b>.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="exchanges">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">We've made <b>1,247 exchanges</b> &mdash; customers kept, not refunded.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="carts">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">Recovered <b>$214K</b> in carts customers almost lost.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="labels">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">Printed <b>1.5M labels</b> with <b>100%</b> on-time delivery.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ap-share-wins-dots">
+                    <button class="ap-share-wins-dot active" data-idx="0" aria-label="Win 1"></button>
+                    <button class="ap-share-wins-dot" data-idx="1" aria-label="Win 2"></button>
+                    <button class="ap-share-wins-dot" data-idx="2" aria-label="Win 3"></button>
+                    <button class="ap-share-wins-dot" data-idx="3" aria-label="Win 4"></button>
+                  </div>
+                </div>
+              </div>
             </section>
+
 
           </div>
         </div>
@@ -919,59 +1073,103 @@
             </section>
 
             <section>
-              <aside class="ap-share">
-                <div class="ap-share-col">
-                  <div class="ap-share-head">
-                    <span class="ap-share-eyebrow">Refer a brand</span>
-                    <button class="ap-share-expand" title="Expand"><i data-lucide="maximize-2"></i></button>
+              <div class="ap-share-inline">
+                <div class="ap-share-inline-body">
+                  <div class="ap-share-inline-head">
+                    <p class="ap-share-inline-eyebrow">Refer a brand</p>
+                    <a class="ap-share-inline-view-link" href="earnings.html">View earnings <i data-lucide="arrow-right"></i></a>
                   </div>
-                  <div class="ap-share-stats">
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">142</span>
-                      <span class="ap-share-stat-lbl">Views</span>
-                    </div>
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">89</span>
-                      <span class="ap-share-stat-lbl">Codes used</span>
-                    </div>
-                    <div class="ap-share-stat">
-                      <span class="ap-share-stat-val">1</span>
-                      <span class="ap-share-stat-lbl">Brands live</span>
-                    </div>
+                  <h2 class="ap-share-inline-title">Share. Earn. Repeat.</h2>
+
+                  <div class="ap-share-inline-stats">
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">142</span><span class="ap-share-inline-stat-lbl">Views</span></div>
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">89</span><span class="ap-share-inline-stat-lbl">Codes used</span></div>
+                    <div class="ap-share-inline-stat"><span class="ap-share-inline-stat-val">1</span><span class="ap-share-inline-stat-lbl">Brands live</span></div>
                   </div>
-                  <div class="ap-share-rows">
-                    <button class="ap-share-row" data-copy="redo.com/r/wildflower" data-kind="link">
-                      <span class="ap-share-row-ico"><i data-lucide="link"></i></span>
-                      <span class="ap-share-row-value"><span class="ap-share-url-pre">redo.com/r/</span><span class="ap-share-url-handle">wildflower</span></span>
-                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
-                    </button>
-                    <button class="ap-share-row" data-copy="WILDFLOWER20" data-kind="code">
-                      <span class="ap-share-row-ico"><i data-lucide="ticket"></i></span>
-                      <span class="ap-share-row-value"><span class="ap-share-url-handle">WILDFLOWER20</span></span>
-                      <span class="ap-share-row-action"><i data-lucide="copy"></i></span>
+
+                  <div class="ap-share-inline-rows">
+                    <button class="ap-share-inline-row" data-copy="redo.com/r/wildflower">
+                      <span class="ap-share-inline-row-ico"><i data-lucide="link"></i></span>
+                      <div class="ap-share-inline-row-body">
+                        <span class="ap-share-inline-row-lbl">Your link</span>
+                        <span class="ap-share-inline-row-value"><span class="ap-share-inline-pre">redo.com/r/</span><span class="ap-share-inline-handle">wildflower</span></span>
+                      </div>
+                      <span class="ap-share-inline-row-action"><i data-lucide="copy"></i> Copy</span>
                     </button>
                   </div>
-                </div>
-                <div class="ap-share-col ap-share-col-right">
-                  <div class="ap-share-head">
-                    <span class="ap-share-eyebrow">Share a win</span>
-                  </div>
-                  <select class="ap-share-win-select">
-                    <option value="revenue">Revenue retained · $890K</option>
-                    <option value="exchanges">Exchanges made · 1,247</option>
-                    <option value="carts">Carts recovered · $214K</option>
-                    <option value="labels">Labels printed · 1.5M</option>
-                  </select>
-                  <p class="ap-share-win-hint">Auto-generates a graphic with your link.</p>
-                  <div class="ap-share-channels">
-                    <button class="ap-share-channel" title="Email"><i data-lucide="mail"></i> Email</button>
-                    <button class="ap-share-channel" title="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X</button>
-                    <button class="ap-share-channel" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg> LinkedIn</button>
-                    <button class="ap-share-channel" title="SMS"><i data-lucide="message-circle"></i> SMS</button>
+
+                  <div class="ap-share-inline-channels">
+                    <button class="ap-share-inline-channel" title="Email" aria-label="Email"><i data-lucide="mail"></i></button>
+                    <button class="ap-share-inline-channel" title="X" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+                    <button class="ap-share-inline-channel" title="LinkedIn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg></button>
+                    <button class="ap-share-inline-channel" title="SMS" aria-label="SMS"><i data-lucide="message-circle"></i></button>
+                    <button class="ap-share-inline-channel" title="More" aria-label="More options"><i data-lucide="more-horizontal"></i></button>
                   </div>
                 </div>
-              </aside>
+
+                <div class="ap-share-inline-art">
+                  <button class="ap-share-wins-nav left" title="Previous"><i data-lucide="chevron-left"></i></button>
+                  <button class="ap-share-wins-nav right" title="Next"><i data-lucide="chevron-right"></i></button>
+                  <div class="ap-share-wins-track">
+                    <div class="ap-share-win-card" data-win="revenue">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">We've saved <b>$890K</b> using Redo's <b>Returns &amp; Exchange Agent</b>.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="exchanges">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">We've made <b>1,247 exchanges</b> &mdash; customers kept, not refunded.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="carts">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">Recovered <b>$214K</b> in carts customers almost lost.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ap-share-win-card" data-win="labels">
+                      <span class="ap-share-win-eyebrow">Shared by Wildflower Co.</span>
+                      <p class="ap-share-win-headline">Printed <b>1.5M labels</b> with <b>100%</b> on-time delivery.</p>
+                      <p class="ap-share-win-cta">Use this code or scan the QR to try Redo:</p>
+                      <div class="ap-share-win-foot">
+                        <img class="ap-share-win-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=https%3A%2F%2Fredo.com%2Fr%2Fwildflower" alt="QR" />
+                        <div class="ap-share-win-code">
+                          <span class="ap-share-win-code-val">WILDFLOWER20</span>
+                          <span class="ap-share-win-code-link">redo.com/r/wildflower</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ap-share-wins-dots">
+                    <button class="ap-share-wins-dot active" data-idx="0" aria-label="Win 1"></button>
+                    <button class="ap-share-wins-dot" data-idx="1" aria-label="Win 2"></button>
+                    <button class="ap-share-wins-dot" data-idx="2" aria-label="Win 3"></button>
+                    <button class="ap-share-wins-dot" data-idx="3" aria-label="Win 4"></button>
+                  </div>
+                </div>
+              </div>
             </section>
+
 
           </div>
         </div>
@@ -1179,15 +1377,16 @@
 
     // ============================== AIRPODS SHARE COPY ==============================
     (function apShareCopy() {
-      document.querySelectorAll(".ap-share-row[data-copy]").forEach((row) => {
-        const action = row.querySelector(".ap-share-row-action");
+      const sel = ".ap-share-row[data-copy], .ap-share-inline-row[data-copy]";
+      document.querySelectorAll(sel).forEach((row) => {
+        const action = row.querySelector(".ap-share-row-action, .ap-share-inline-row-action");
         if (!action) return;
         const originalHTML = action.innerHTML;
         row.addEventListener("click", async () => {
           const txt = row.getAttribute("data-copy");
           try { await navigator.clipboard.writeText(txt); } catch (e) {}
           row.classList.add("copied");
-          action.innerHTML = '<i data-lucide="check"></i>';
+          action.innerHTML = '<i data-lucide="check"></i> Copied';
           if (window.lucide) lucide.createIcons();
           setTimeout(() => {
             row.classList.remove("copied");
@@ -1195,6 +1394,48 @@
             if (window.lucide) lucide.createIcons();
           }, 1400);
         });
+      });
+    })();
+
+    // ============================== AIRPODS WINS CAROUSEL ==============================
+    (function apWinsCarousel() {
+      document.querySelectorAll(".ap-share-inline-art").forEach((art) => {
+        const track = art.querySelector(".ap-share-wins-track");
+        if (!track) return;
+        const dots = art.querySelectorAll(".ap-share-wins-dot");
+        const prevBtn = art.querySelector(".ap-share-wins-nav.left");
+        const nextBtn = art.querySelector(".ap-share-wins-nav.right");
+        const cards = track.querySelectorAll(".ap-share-win-card");
+        const total = cards.length;
+
+        function scrollToIdx(idx) {
+          if (idx < 0 || idx >= total) return;
+          const c = cards[idx];
+          if (!c) return;
+          track.scrollTo({ left: c.offsetLeft - track.offsetLeft, behavior: "smooth" });
+        }
+        function activeIdx() {
+          let best = 0, bestDist = Infinity;
+          const center = track.scrollLeft + track.clientWidth / 2;
+          cards.forEach((c, i) => {
+            const cardCenter = c.offsetLeft - track.offsetLeft + c.clientWidth / 2;
+            const d = Math.abs(cardCenter - center);
+            if (d < bestDist) { bestDist = d; best = i; }
+          });
+          return best;
+        }
+        function syncDots() {
+          const i = activeIdx();
+          dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
+          if (prevBtn) prevBtn.classList.toggle("disabled", i === 0);
+          if (nextBtn) nextBtn.classList.toggle("disabled", i === total - 1);
+        }
+        dots.forEach((d) => d.addEventListener("click", () => scrollToIdx(parseInt(d.dataset.idx, 10))));
+        if (prevBtn) prevBtn.addEventListener("click", () => scrollToIdx(activeIdx() - 1));
+        if (nextBtn) nextBtn.addEventListener("click", () => scrollToIdx(activeIdx() + 1));
+        let scrollTO;
+        track.addEventListener("scroll", () => { clearTimeout(scrollTO); scrollTO = setTimeout(syncDots, 80); });
+        syncDots();
       });
     })();
 
@@ -1265,6 +1506,43 @@
       closeBtn.addEventListener("click", close);
       modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("open")) close(); });
+    })();
+
+    // ============================== HERO CAROUSEL ==============================
+    (function apHeroCarousel() {
+      const car = document.getElementById("apHeroCarousel");
+      const track = document.getElementById("apHeroTrack");
+      const dots = Array.prototype.slice.call(document.querySelectorAll("#apHeroDots .ap-hero-dot"));
+      if (!car || !track || !dots.length) return;
+      const real = dots.length;
+      // Clone the first slide onto the end so the loop always moves forward (1,2,3,1,2,3...)
+      const clone = track.children[0].cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      track.appendChild(clone);
+      let pos = 0, timer = null;
+      function render(animate) {
+        track.style.transition = animate ? "" : "none";
+        track.style.transform = "translateX(-" + (pos * 100) + "%)";
+        const activeIdx = pos % real;
+        dots.forEach((d, di) => d.classList.toggle("active", di === activeIdx));
+      }
+      function next() { pos++; render(true); }
+      function goTo(idx) { if (idx === pos) return; pos = idx; render(true); }
+      track.addEventListener("transitionend", function (e) {
+        if (e.propertyName !== "transform") return;
+        if (pos === real) {            // reached the clone -> snap back to the real first slide
+          pos = 0;
+          render(false);
+          void track.offsetWidth;      // force reflow so the next move animates
+          track.style.transition = "";
+        }
+      });
+      function start() { stop(); timer = setInterval(next, 8500); }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      dots.forEach((d) => d.addEventListener("click", () => { goTo(Number(d.dataset.i)); start(); }));
+      car.addEventListener("mouseenter", stop);
+      car.addEventListener("mouseleave", start);
+      render(false); start();
     })();
 
     // ============================== MILESTONES MODAL ==============================

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your earnings — Redo</title>
+<link rel="stylesheet" href="fonts.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.51.0/dist/apexcharts.min.js"></script>
+<style>
+  :root {
+    --bg: 0 0% 100%;
+    --fg: 240 10% 4%;
+    --gray-950: 240 10% 4%;
+    --gray-700: 240 4% 28%;
+    --gray-600: 240 4% 38%;
+    --gray-500: 240 4% 48%;
+    --gray-400: 240 4% 65%;
+    --gray-300: 240 5% 82%;
+    --gray-200: 240 5% 90%;
+    --gray-100: 240 5% 96%;
+    --gray-50:  240 6% 98%;
+    --border: 240 5% 90%;
+    --accent: 240 10% 4%;
+    --accent-fg: 0 0% 100%;
+    --green: 142 71% 36%;
+    --amber: 38 92% 50%;
+    --redo-orange: 22 100% 51%;
+    --chart-views: #FFD4B5;
+    --chart-demos: #FE8C5A;
+    --chart-won:   #FE5722;
+
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+
+    --sidebar-w: 58px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { font-family: var(--sans); background: hsl(var(--bg)); color: hsl(var(--fg)); -webkit-font-smoothing: antialiased; line-height: 1.5; overflow: hidden; }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+
+  .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; overflow: hidden; }
+  .rsb { background: #0d0d0d; color: #fafafa; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px; }
+  .rsb-logo { width: 30px; height: 30px; border-radius: 8px; background: hsl(var(--accent)); display: grid; place-items: center; font: 800 12px var(--sans); color: white; margin-bottom: 14px; }
+  .rsb-item { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: #9a9a9d; display: grid; place-items: center; transition: background .15s ease, color .15s ease; }
+  .rsb-item:hover { background: #1a1a1c; color: #fafafa; }
+  .rsb-item.active { background: #1f1f22; color: #fafafa; }
+  .rsb-item svg { width: 18px; height: 18px; }
+  .rsb-spacer { flex: 1; }
+  .rsb-avatar { width: 30px; height: 30px; border-radius: 999px; background: hsl(var(--gray-200)); display: grid; place-items: center; color: hsl(var(--gray-700)); font: 700 11px var(--sans); margin-top: 8px; }
+
+  .rmain { background: #0d0d0d; display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+  .rtb { height: 56px; padding: 0 16px; display: flex; align-items: center; gap: 12px; background: #0d0d0d; flex: none; }
+  .rtb-store { background: transparent; border: none; color: #d0d0d2; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font: 500 13px var(--sans); }
+  .rtb-store:hover { background: rgba(255,255,255,0.06); color: white; }
+  .rtb-store svg { width: 14px; height: 14px; }
+  .rtb-search { flex: 1; max-width: 440px; margin: 0 auto; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 14px; display: flex; align-items: center; gap: 10px; color: #9a9a9d; font: 500 13px var(--sans); }
+  .rtb-search svg { width: 14px; height: 14px; }
+  .rtb-kbd { margin-left: auto; font: 600 11px var(--sans); color: #6a6a6d; }
+  .rtb-right { display: flex; gap: 6px; }
+  .rtb-btn { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #d0d0d2; padding: 7px 12px; border-radius: 8px; font: 500 12.5px var(--sans); display: inline-flex; align-items: center; gap: 6px; }
+  .rtb-btn:hover { background: rgba(255,255,255,0.06); color: white; }
+  .rtb-btn svg { width: 13px; height: 13px; }
+
+  .rcontent { background: white; border-top-left-radius: 16px; flex: 1 1 0; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-left: 2px; }
+  .page { padding: 36px 44px 80px; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font: 500 12.5px var(--sans); color: hsl(var(--gray-600)); padding: 6px 10px 6px 8px; border: 1px solid hsl(var(--border)); border-radius: 8px; align-self: flex-start; }
+  .back-link:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .back-link svg { width: 13px; height: 13px; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+  .page-head h1 { font: 400 44px/1 var(--serif); letter-spacing: -0.01em; color: hsl(var(--gray-950)); margin: 0; }
+  .page-head p { font: 500 14px/1.55 var(--sans); color: hsl(var(--gray-500)); margin: 8px 0 0; max-width: 56ch; }
+
+  /* Totals strip */
+  .totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; overflow: hidden; }
+  .total-item { padding: 18px 22px; position: relative; }
+  .total-item + .total-item::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 1px; background: hsl(var(--gray-100)); }
+  .total-lbl { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .total-val { font: 400 32px/1 var(--serif); color: hsl(var(--gray-950)); letter-spacing: -0.005em; font-variant-numeric: tabular-nums; margin-top: 8px; }
+  .total-sub { font: 500 12px var(--sans); color: hsl(var(--gray-500)); margin-top: 5px; }
+  .total-sub.up { color: hsl(var(--green)); }
+
+  /* Active campaigns strip */
+  .section-title { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+  .section-title h2 { font: 600 14.5px var(--sans); color: hsl(var(--gray-950)); margin: 0; }
+  .section-title p { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); margin: 2px 0 0; }
+
+  .camps-scroll-wrap { position: relative; }
+  .camps-scroll { display: flex; gap: 16px; overflow-x: auto; padding: 12px 6px 28px; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; align-items: stretch; margin: -12px -6px -28px; }
+  .camps-scroll::-webkit-scrollbar { display: none; }
+
+  /* Active campaign card — uniform shape: text left + thumbnail right + clear foot row */
+  .camp-card { flex: 0 0 380px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; border: 1px solid hsl(var(--border)); cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; display: flex; flex-direction: column; background: white; text-decoration: none; color: inherit; font: inherit; text-align: left; padding: 0; }
+  .camp-card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -14px rgba(0,0,0,0.18); border-color: hsl(var(--gray-300)); }
+  .camp-card-body { padding: 20px 22px 16px; display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 16px; align-items: start; flex: 1 1 auto; }
+  .camp-card-text { display: flex; flex-direction: column; min-width: 0; }
+  .camp-eyebrow { font: 600 9.5px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 0 0 8px; }
+  .camp-title { font: 400 20px/1.18 var(--serif); color: hsl(var(--gray-950)); letter-spacing: -0.005em; margin: 0; }
+  .camp-title em { font-style: italic; color: hsl(var(--redo-orange)); font-family: var(--serif); }
+  .camp-sub { font: 500 12.5px/1.5 var(--sans); color: hsl(var(--gray-600)); margin: 8px 0 0; }
+  .camp-thumb { width: 76px; height: 76px; border-radius: 10px; background-color: hsl(var(--gray-100)); background-size: cover; background-position: center; background-repeat: no-repeat; flex: none; align-self: start; border: 1px solid hsl(var(--border)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+  .camp-card-meta { padding: 0 22px 12px; font: 500 12px var(--sans); color: hsl(var(--gray-500)); }
+  .camp-card-foot { padding: 12px 22px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid hsl(var(--gray-100)); }
+  .camp-card-state { font: 600 12.5px var(--sans); color: hsl(var(--gray-950)); display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+  .camp-card-state-dot { width: 8px; height: 8px; border-radius: 999px; background: hsl(var(--green)); flex: none; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
+  .camp-card-state-dot.queued { background: hsl(var(--amber)); box-shadow: 0 0 0 3px rgba(245,158,11,0.14); }
+  .camp-card-state-dot.always-on { background: hsl(var(--redo-orange)); box-shadow: 0 0 0 3px rgba(255,140,40,0.14); }
+  .camp-card-cta { font: 600 12px var(--sans); color: hsl(var(--gray-700)); display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 999px; border: 1px solid hsl(var(--border)); transition: background .12s ease, color .12s ease, border-color .12s ease; white-space: nowrap; flex: none; }
+  .camp-card:hover .camp-card-cta { background: hsl(var(--gray-950)); color: white; border-color: hsl(var(--gray-950)); }
+  .camp-card-cta svg { width: 12px; height: 12px; }
+
+  /* Chart range dropdown */
+  .chart-range { padding: 7px 30px 7px 12px; border: 1px solid hsl(var(--border)); border-radius: 8px; background: white; font: 600 12.5px var(--sans); color: hsl(var(--gray-700)); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737383' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; transition: background-color .12s ease, border-color .12s ease, color .12s ease; }
+  .chart-range:hover { background-color: hsl(var(--gray-50)); border-color: hsl(var(--gray-300)); color: hsl(var(--gray-950)); }
+  .chart-range:focus { outline: none; border-color: hsl(var(--gray-700)); }
+
+  /* Chart card */
+  .chart-card { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; overflow: hidden; }
+  .chart-head { padding: 18px 24px 12px; border-bottom: 1px solid hsl(var(--gray-100)); display: flex; align-items: center; gap: 14px; }
+  .chart-head-text { flex: 1; }
+  .chart-head-title { font: 600 14.5px var(--sans); color: hsl(var(--gray-950)); }
+  .chart-head-sub { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); margin-top: 2px; }
+  .chart-legend { display: flex; gap: 14px; }
+  .chart-legend-item { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--sans); color: hsl(var(--gray-700)); }
+  .chart-legend-swatch { width: 10px; height: 10px; border-radius: 3px; }
+  .chart-body { padding: 12px 12px 4px; }
+
+  /* Brands list (now with payout action) */
+  .brands { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; overflow: hidden; }
+  .brands-head { padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .brands-head-title { font: 600 14.5px var(--sans); color: hsl(var(--gray-950)); }
+  .brands-head-count { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); }
+  .brand-cols { display: grid; grid-template-columns: 44px minmax(0, 1.4fr) 90px 90px 110px 130px; gap: 16px; align-items: center; padding: 10px 22px; background: hsl(var(--gray-50)); border-top: 1px solid hsl(var(--gray-100)); border-bottom: 1px solid hsl(var(--gray-100)); }
+  .brand-col-lbl { font: 600 10px var(--sans); letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .brand-row { display: grid; grid-template-columns: 44px minmax(0, 1.4fr) 90px 90px 110px 130px; gap: 16px; align-items: center; padding: 14px 22px; border-bottom: 1px solid hsl(var(--gray-100)); transition: background .15s ease; }
+  .brand-row:last-child { border-bottom: none; }
+  .brand-row:hover { background: hsl(var(--gray-50)); }
+  .brand-logo { width: 44px; height: 44px; border-radius: 10px; background: hsl(var(--gray-100)); display: grid; place-items: center; font: 400 18px var(--serif); color: hsl(var(--gray-700)); flex: none; }
+  .brand-name { font: 600 14px var(--sans); color: hsl(var(--gray-950)); display: flex; flex-direction: column; gap: 1px; }
+  .brand-name-sub { font: 500 12px var(--sans); color: hsl(var(--gray-500)); }
+  .brand-stat-val { font: 600 14px var(--sans); color: hsl(var(--gray-950)); font-variant-numeric: tabular-nums; }
+  .brand-status { padding: 4px 10px; border-radius: 999px; font: 700 9.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; justify-self: start; }
+  .brand-status.pending { background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); }
+  .brand-status.requested { background: rgba(38,134,255,0.18); color: #0066cc; }
+  .brand-status.paid { background: rgba(34,197,94,0.18); color: #15803d; }
+  .brand-status.closed { background: rgba(254,87,34,0.16); color: #c2410c; }
+  .brand-status.shipped { background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); }
+  .ledger-amount.reward { color: hsl(var(--redo-orange)); font: 700 12.5px var(--sans); letter-spacing: 0.01em; }
+  .brand-payout { display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; background: hsl(var(--gray-950)); color: white; border: none; border-radius: 8px; font: 600 12.5px var(--sans); cursor: pointer; transition: opacity .15s ease, transform .15s ease; }
+  .brand-payout:hover { opacity: 0.9; transform: translateX(2px); }
+  .brand-payout svg { width: 12px; height: 12px; }
+
+  /* Earnings ledger */
+  .ledger { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; overflow: hidden; }
+  .ledger-head { padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .ledger-head-title { font: 600 14.5px var(--sans); color: hsl(var(--gray-950)); }
+  .ledger-head-count { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); }
+  .ledger-cols { display: grid; grid-template-columns: 100px minmax(0, 1.2fr) minmax(0, 1.6fr) 170px 100px; gap: 14px; padding: 10px 22px; background: hsl(var(--gray-50)); border-top: 1px solid hsl(var(--gray-100)); border-bottom: 1px solid hsl(var(--gray-100)); align-items: center; }
+  .ledger-col-lbl { font: 600 10px var(--sans); letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .ledger-row { display: grid; grid-template-columns: 100px minmax(0, 1.2fr) minmax(0, 1.6fr) 170px 100px; gap: 14px; padding: 14px 22px; border-bottom: 1px solid hsl(var(--gray-100)); align-items: center; transition: background .15s ease; }
+  .ledger-confirm { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: white; color: hsl(var(--gray-950)); border: 1px solid hsl(var(--gray-300)); border-radius: 999px; font: 600 12px var(--sans); cursor: pointer; transition: background .12s ease, border-color .12s ease, transform .12s ease; justify-self: start; }
+  .ledger-confirm:hover { background: hsl(var(--gray-50)); border-color: hsl(var(--gray-700)); transform: translateX(2px); }
+  .ledger-confirm svg { width: 12px; height: 12px; }
+  .ledger-row:last-child { border-bottom: none; }
+  .ledger-row:hover { background: hsl(var(--gray-50)); }
+  .ledger-date { font: 500 12.5px var(--sans); color: hsl(var(--gray-700)); font-variant-numeric: tabular-nums; }
+  .ledger-source { display: flex; align-items: center; gap: 8px; }
+  .ledger-source-dot { width: 8px; height: 8px; border-radius: 999px; flex: none; }
+  .ledger-source-name { font: 600 13px var(--sans); color: hsl(var(--gray-950)); }
+  .ledger-detail { font: 500 13px var(--sans); color: hsl(var(--gray-700)); }
+  .ledger-amount { font: 700 14px var(--sans); color: hsl(var(--gray-950)); font-variant-numeric: tabular-nums; text-align: right; }
+  .ledger-amount.zero { color: hsl(var(--gray-400)); font-weight: 500; }
+
+  /* Campaign detail popup — large 2-column light-mode card */
+  .camp-pop-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 28px; }
+  .camp-pop-backdrop.open { display: flex; animation: camp-pop-fade .18s ease-out; }
+  @keyframes camp-pop-fade { from { opacity: 0; } to { opacity: 1; } }
+  .camp-pop { background: white; border-radius: 20px; width: 100%; max-width: 960px; max-height: 88vh; overflow: hidden; display: grid; grid-template-columns: 1.05fr 1fr; box-shadow: 0 32px 80px -20px rgba(0,0,0,0.45); border: 1px solid hsl(var(--gray-200)); animation: camp-pop-scale .22s cubic-bezier(.2,.8,.2,1); }
+  @keyframes camp-pop-scale { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .camp-pop-body { padding: 44px 46px 30px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; min-width: 0; }
+  .camp-pop-eyebrow { font: 600 11px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 0; }
+  .camp-pop-title { font: 400 44px/1.04 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .camp-pop-title em { font-style: italic; color: hsl(var(--redo-orange)); font-family: var(--serif); }
+  .camp-pop-subtitle { font: 500 14.5px/1.55 var(--sans); color: hsl(var(--gray-700)); margin: 0; max-width: 44ch; }
+  .camp-pop-state { display: inline-flex; align-items: center; gap: 7px; font: 600 12.5px var(--sans); color: hsl(var(--gray-950)); padding: 7px 14px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--gray-100)); border-radius: 999px; align-self: flex-start; margin-top: 6px; }
+  .camp-pop-body-text { font: 500 14px/1.7 var(--sans); color: hsl(var(--gray-600)); margin: 12px 0 4px; max-width: 50ch; }
+  .camp-pop-foot { display: flex; gap: 10px; margin-top: auto; padding-top: 20px; }
+  .camp-pop-btn { padding: 11px 20px; border-radius: 10px; font: 600 13.5px var(--sans); cursor: pointer; border: 1px solid; transition: background .12s ease, opacity .12s ease; display: inline-flex; align-items: center; gap: 6px; }
+  .camp-pop-btn svg { width: 13px; height: 13px; }
+  .camp-pop-btn.secondary { background: white; border-color: hsl(var(--border)); color: hsl(var(--gray-700)); }
+  .camp-pop-btn.secondary:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .camp-pop-btn.primary { background: hsl(var(--gray-950)); border-color: hsl(var(--gray-950)); color: white; }
+  .camp-pop-btn.primary:hover { opacity: 0.92; }
+  .camp-pop-img { position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: hsl(var(--gray-100)); min-height: 480px; }
+  .camp-pop-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08); color: hsl(var(--gray-700)); display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(6px); transition: background .15s ease, color .15s ease; z-index: 2; }
+  .camp-pop-close:hover { background: white; color: hsl(var(--gray-950)); }
+  .camp-pop-close svg { width: 14px; height: 14px; }
+  @media (max-width: 800px) {
+    .camp-pop { grid-template-columns: 1fr; max-width: 540px; }
+    .camp-pop-img { min-height: 220px; order: -1; }
+    .camp-pop-body { padding: 28px 28px 24px; }
+    .camp-pop-title { font-size: 32px; }
+  }
+
+  /* Payout drawer */
+  .drawer-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: stretch; justify-content: flex-end; padding: 18px; }
+  .drawer-backdrop.open { display: flex; }
+  .drawer { background: white; width: 100%; max-width: 460px; height: 100%; border-radius: 16px; overflow-y: auto; box-shadow: 0 24px 80px -20px rgba(0,0,0,0.4); display: flex; flex-direction: column; }
+  .drawer-head { padding: 22px 26px 14px; border-bottom: 1px solid hsl(var(--gray-100)); display: flex; align-items: center; justify-content: space-between; flex: none; }
+  .drawer-title { font: 600 15px var(--sans); color: hsl(var(--gray-950)); }
+  .drawer-close { background: transparent; border: 1px solid hsl(var(--border)); width: 28px; height: 28px; border-radius: 8px; color: hsl(var(--gray-500)); display: grid; place-items: center; font: 600 14px/1 var(--sans); }
+  .drawer-close:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .drawer-body { padding: 18px 26px 26px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .drawer-summary { background: hsl(var(--gray-50)); border: 1px solid hsl(var(--gray-100)); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .drawer-summary-lbl { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .drawer-summary-amount { font: 400 32px/1 var(--serif); color: hsl(var(--gray-950)); letter-spacing: -0.005em; }
+  .drawer-summary-meta { font: 500 12px var(--sans); color: hsl(var(--gray-500)); margin-top: 4px; }
+  .drawer-section-title { font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 6px 0 -4px; }
+  .drawer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .drawer-grid .full { grid-column: 1 / -1; }
+  .drawer label { display: flex; flex-direction: column; gap: 4px; font: 600 10.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .drawer input { width: 100%; padding: 9px 12px; border: 1px solid hsl(var(--border)); border-radius: 8px; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); background: white; }
+  .drawer input:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .drawer-foot { display: flex; gap: 10px; padding: 16px 26px 22px; border-top: 1px solid hsl(var(--gray-100)); flex: none; }
+  .drawer-btn { padding: 10px 16px; border-radius: 9px; font: 600 13px var(--sans); cursor: pointer; border: 1px solid; flex: 1; }
+  .drawer-btn.secondary { background: white; border-color: hsl(var(--border)); color: hsl(var(--gray-700)); }
+  .drawer-btn.secondary:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .drawer-btn.primary { background: hsl(var(--gray-950)); border-color: hsl(var(--gray-950)); color: white; flex: 2; }
+  .drawer-btn.primary:hover { opacity: 0.92; }
+  .drawer-success { text-align: center; padding: 38px 22px 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .drawer-success-icon { width: 56px; height: 56px; border-radius: 999px; background: rgba(34,197,94,0.16); color: #15803d; display: grid; place-items: center; }
+  .drawer-success-icon svg { width: 28px; height: 28px; }
+  .drawer-success-title { font: 400 24px/1.2 var(--serif); color: hsl(var(--gray-950)); margin: 0; }
+  .drawer-success-sub { font: 500 13px/1.55 var(--sans); color: hsl(var(--gray-500)); margin: 0; max-width: 34ch; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="rsb">
+    <div class="rsb-logo">R</div>
+    <a class="rsb-item" href="home.html" title="Home"><i data-lucide="home"></i></a>
+    <button class="rsb-item" title="Orders"><i data-lucide="shopping-bag"></i></button>
+    <button class="rsb-item" title="Customers"><i data-lucide="smile"></i></button>
+    <button class="rsb-item" title="Products"><i data-lucide="box"></i></button>
+    <button class="rsb-item" title="Checkout"><i data-lucide="shopping-cart"></i></button>
+    <button class="rsb-item" title="Marketing"><i data-lucide="megaphone"></i></button>
+    <button class="rsb-item" title="Returns"><i data-lucide="undo-2"></i></button>
+    <button class="rsb-item active" title="Earnings"><i data-lucide="hand-coins"></i></button>
+    <div class="rsb-spacer"></div>
+    <button class="rsb-item" title="Settings"><i data-lucide="settings"></i></button>
+    <div class="rsb-avatar">BL</div>
+  </aside>
+
+  <div class="rmain">
+    <header class="rtb">
+      <button class="rtb-store">
+        <span>Store Demo 4</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="rtb-search">
+        <i data-lucide="search"></i>
+        <span>Search</span>
+        <span class="rtb-kbd">⌘K</span>
+      </div>
+      <div class="rtb-right">
+        <button class="rtb-btn">Feedback</button>
+        <button class="rtb-btn"><i data-lucide="sparkles"></i>Ask Redo</button>
+      </div>
+    </header>
+
+    <div class="rcontent">
+      <div class="page">
+        <a class="back-link" href="home.html"><i data-lucide="chevron-left"></i> Back to home</a>
+
+        <div class="page-head">
+          <div>
+            <h1>Your earnings</h1>
+            <p>Everything you've earned across every Redo campaign &mdash; referrals, case studies, posts, and more.</p>
+          </div>
+        </div>
+
+        <!-- TOTALS STRIP -->
+        <div class="totals" id="totals"></div>
+
+        <!-- ACTIVE CAMPAIGNS STRIP -->
+        <div>
+          <div class="section-title" style="margin-bottom: 12px;">
+            <div>
+              <h2>Active campaigns</h2>
+              <p>Every program you can earn from right now &mdash; scroll for more.</p>
+            </div>
+          </div>
+          <div class="camps-scroll-wrap">
+            <div class="camps-scroll" id="campsScroll"></div>
+          </div>
+        </div>
+
+        <!-- REFERRAL FUNNEL -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div class="chart-head-text">
+              <div class="chart-head-title">Refer-a-brand funnel</div>
+              <div class="chart-head-sub" id="chartSub">Showing total events for the last 7 days</div>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background: var(--chart-views);"></span>Views</span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background: var(--chart-demos);"></span>Demos</span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background: var(--chart-won);"></span>Closed-won</span>
+            </div>
+            <select class="chart-range" id="chartRange" aria-label="Date range">
+              <option value="7d" selected>Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 3 months</option>
+            </select>
+          </div>
+          <div class="chart-body">
+            <div id="referralsChart"></div>
+          </div>
+        </div>
+
+        <!-- ALL EARNINGS LEDGER (synthetic + live closed-won) -->
+        <div class="ledger">
+          <div class="ledger-head">
+            <div class="ledger-head-title">All earnings activity</div>
+            <div class="ledger-head-count" id="ledgerCount">&mdash;</div>
+          </div>
+          <div class="ledger-cols">
+            <span class="ledger-col-lbl">Date</span>
+            <span class="ledger-col-lbl">Source</span>
+            <span class="ledger-col-lbl">Detail</span>
+            <span class="ledger-col-lbl">Status</span>
+            <span class="ledger-col-lbl" style="text-align: right;">Amount</span>
+          </div>
+          <div id="ledgerList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAMPAIGN DETAIL POPUP -->
+<div class="camp-pop-backdrop" id="campPopup" role="dialog" aria-modal="true">
+  <div class="camp-pop">
+    <div class="camp-pop-body">
+      <p class="camp-pop-eyebrow" id="campPopupEyebrow"></p>
+      <h2 class="camp-pop-title" id="campPopupTitle"></h2>
+      <p class="camp-pop-subtitle" id="campPopupSubtitle"></p>
+      <span class="camp-pop-state" id="campPopupState"></span>
+      <p class="camp-pop-body-text" id="campPopupBody"></p>
+      <div class="camp-pop-foot">
+        <button type="button" class="camp-pop-btn primary" id="campPopupAction">
+          <span id="campPopupActionLabel">Take action</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="camp-pop-img" id="campPopupImage">
+      <button class="camp-pop-close" id="campPopupClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYOUT DRAWER -->
+<div class="drawer-backdrop" id="payoutDrawer">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title" id="drawerTitle">Confirm invoice</span>
+      <button class="drawer-close" id="drawerClose">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawerBody">
+      <div class="drawer-summary">
+        <span class="drawer-summary-lbl">Payout amount</span>
+        <span class="drawer-summary-amount" id="drawerAmount">$0</span>
+        <span class="drawer-summary-meta" id="drawerMeta"></span>
+      </div>
+      <div class="drawer-section-title">Where to send it</div>
+      <form id="payoutForm" class="drawer-grid">
+        <label class="full">Legal name
+          <input type="text" id="poName" placeholder="Jane Doe" required />
+        </label>
+        <label class="full">Street address
+          <input type="text" id="poAddress" placeholder="123 Main St" required />
+        </label>
+        <label>City
+          <input type="text" id="poCity" placeholder="Salt Lake City" required />
+        </label>
+        <label>State
+          <input type="text" id="poState" placeholder="UT" maxlength="2" required />
+        </label>
+        <label>ZIP
+          <input type="text" id="poZip" placeholder="84101" required />
+        </label>
+        <label>Bank name
+          <input type="text" id="poBankName" placeholder="Chase" required />
+        </label>
+        <label>Routing number
+          <input type="text" id="poRouting" inputmode="numeric" placeholder="9 digits" maxlength="9" pattern="[0-9]{9}" required />
+        </label>
+        <label>Account number
+          <input type="text" id="poAccount" inputmode="numeric" placeholder="Account #" required />
+        </label>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button type="button" class="drawer-btn secondary" id="drawerCancel">Cancel</button>
+      <button type="button" class="drawer-btn primary" id="drawerSubmit">Submit &amp; confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+
+  // ============================================================
+  // DATA LAYER — synthetic for now. To switch to Supabase later:
+  // each function below becomes an async call to sb.from(...).select().
+  // The UI never reaches into the synthetic data directly; it only
+  // calls Data.x(), so the swap is one function-per-section.
+  // ============================================================
+  const Data = (() => {
+    const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+    function seededRand(seed) { let x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+    // 90 days of synthetic referral events
+    const REFERRAL_DAILY = [];
+    for (let i = 89; i >= 0; i--) {
+      const d = new Date(TODAY); d.setDate(d.getDate() - i);
+      const dayBoost = 1 + Math.sin(i / 7) * 0.25;
+      const trend = 1 + (89 - i) / 200;
+      const views = Math.max(2, Math.round((30 + seededRand(i + 1) * 90) * dayBoost * trend));
+      const demos = Math.max(0, Math.round(views * (0.07 + seededRand(i + 91) * 0.06)));
+      const won   = Math.max(0, Math.round(demos * (0.18 + seededRand(i + 181) * 0.12)));
+      REFERRAL_DAILY.push({ date: d.toISOString().slice(0, 10), views, demos, won });
+    }
+
+    // Brands that have come through the referral funnel
+    const BRANDS = [
+      { id: "wf", name: "Wildflower Co.",     domain: "wildflower.co",         status: "live",      views: 142, demos: 8, won: 3, joined: "2026-04-12", amountCents: 60000, payoutState: "available" },
+      { id: "st", name: "Sterling Outdoors",  domain: "sterling-outdoors.com", status: "live",      views: 96,  demos: 5, won: 2, joined: "2026-04-26", amountCents: 40000, payoutState: "available" },
+      { id: "bb", name: "Bramble & Bloom",    domain: "brambleandbloom.shop",  status: "live",      views: 71,  demos: 4, won: 1, joined: "2026-05-09", amountCents: 20000, payoutState: "available" },
+      { id: "ha", name: "Halcyon Athletica",  domain: "halcyonathletica.com",  status: "pending",   views: 58,  demos: 2, won: 0, joined: "2026-05-22", amountCents: 0,     payoutState: "n/a" },
+      { id: "np", name: "North Pier Goods",   domain: "northpier.co",          status: "pending",   views: 33,  demos: 1, won: 0, joined: "2026-06-01", amountCents: 0,     payoutState: "n/a" },
+    ];
+
+    // Active campaigns — uniform card shape: eyebrow + title + subtitle + state + CTA + thumbnail
+    const CAMPAIGNS = [
+      {
+        id: "refer-a-brand", eyebrow: "Refer a brand",
+        titleHtml: "Refer a brand. Get <em>free</em> AirPods.",
+        subtitle: "Free AirPods on their demo, $200 when they go live.",
+        thumb: "airpods-hero.png", endsAt: null,
+        body: "Send your link or code to any brand considering Redo. When a brand you refer books a demo, we ship you a free pair of AirPods Pro. When they go live on Redo, you earn $200. No cap on how many brands you can bring.",
+        actionLabel: "Share my link", actionHref: "home.html",
+      },
+      {
+        id: "give-back", eyebrow: "Redo Give Back Event",
+        titleHtml: "We're giving back to you.",
+        subtitle: "Tune in June 9th to participate.",
+        thumb: "give-back-hero.png", endsAt: "2026-06-09",
+        body: "On June 9th we launch our annual Give Back event. Every shopper who tags a brand running on Redo gets $100 to spend with that brand, paid out of the network pot. Comment on the launch post, share a discount code, or repost, and your audience spends on you. This one's for your shoppers, not a payout to you.",
+        actionLabel: "Sign up to get notified", actionHref: "#",
+      },
+      {
+        id: "case-study", eyebrow: "Case study",
+        titleHtml: "Get featured at the top of redo.com.",
+        subtitle: "A 30-minute chat, turned into a written and video case study.",
+        thumb: "case-portland.jpg", endsAt: null,
+        body: "Sit for a 30-minute interview with our content team. We turn it into a polished written case study plus a 90-second video, featured at the top of redo.com and across our LinkedIn and X. $200 paid on publish.",
+        actionLabel: "Apply for a case study", actionHref: "#",
+      },
+    ];
+
+    // All-earnings ledger
+    const LEDGER = [
+      { id: "L1", date: "2026-06-03", source: "Refer a brand", detail: "Sterling Outdoors went live", amountCents: 20000, status: "available" },
+      { id: "L2", date: "2026-05-28", source: "Case study",    detail: "\"Saved $890K with Redo\" published", amountCents: 20000, status: "paid", paidDate: "2026-05-30" },
+      { id: "L3", date: "2026-05-22", source: "Refer a brand", detail: "Sterling Outdoors booked a demo", amountCents: 0, rewardLabel: "AirPods Pro", status: "shipped" },
+      { id: "L4", date: "2026-05-18", source: "Refer a brand", detail: "Wildflower Co. went live", amountCents: 20000, status: "paid", paidDate: "2026-05-21" },
+      { id: "L5", date: "2026-05-12", source: "Refer a brand", detail: "Wildflower Co. booked a demo", amountCents: 0, rewardLabel: "AirPods Pro", status: "shipped" },
+      { id: "L6", date: "2026-05-09", source: "Refer a brand", detail: "Bramble & Bloom went live", amountCents: 20000, status: "available" },
+      { id: "L7", date: "2026-05-02", source: "Refer a brand", detail: "Bramble & Bloom booked a demo", amountCents: 0, rewardLabel: "AirPods Pro", status: "shipped" },
+    ];
+
+    function filterRange(range) {
+      const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
+      return REFERRAL_DAILY.slice(-days);
+    }
+
+    // ---- HubSpot closed-won (live) ----
+    const HUBSPOT_FN_URL = "https://ujlffezngjtziqoysrea.supabase.co/functions/v1/hubspot-closed-won";
+    // The affiliate whose dashboard this is. Swap for the logged-in merchant's
+    // code once the earnings portal has real auth.
+    const AFFILIATE_CODE = "WILDFLOWER20";
+
+    return {
+      // To go real: replace each below with Supabase queries.
+      async getReferralFunnel(range) { return filterRange(range); },
+      async getCampaigns()           { return [...CAMPAIGNS]; },
+      async getLedger()              { return [...LEDGER]; },
+      // Live closed-won from HubSpot, attributed by utm_campaign / affiliate_code.
+      async getClosedWon() {
+        try {
+          const res = await fetch(HUBSPOT_FN_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: AFFILIATE_CODE }),
+          });
+          const data = await res.json();
+          const b = (data.byCode && data.byCode[AFFILIATE_CODE]) || { count: 0, totalCents: 0, deals: [] };
+          return { configured: data.configured !== false, code: AFFILIATE_CODE, ...b };
+        } catch (e) {
+          return { configured: false, code: AFFILIATE_CODE, count: 0, totalCents: 0, deals: [], error: String(e) };
+        }
+      },
+      async getSummary() {
+        const paid      = LEDGER.filter(x => x.status === "paid").reduce((a, x) => a + x.amountCents, 0);
+        const available = LEDGER.filter(x => x.status === "available").reduce((a, x) => a + x.amountCents, 0);
+        const requested = LEDGER.filter(x => x.status === "requested").reduce((a, x) => a + x.amountCents, 0);
+        return {
+          paidCents: paid,
+          availableCents: available,
+          requestedCents: requested,
+          totalEarnedCents: paid + available + requested,
+          activeCampaigns: CAMPAIGNS.length,
+        };
+      },
+      // Mutations
+      async requestPayout({ itemId, bankInfo }) {
+        const li = LEDGER.find(x => x.id === itemId);
+        if (li) li.status = "requested";
+        return { ok: true };
+      },
+    };
+  })();
+
+  // ============================================================
+  // UTILS
+  // ============================================================
+  const fmt = (n) => {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+    return String(n);
+  };
+  const usd = (cents) => "$" + (cents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  function escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  // ============================================================
+  // RENDER: Totals strip
+  // ============================================================
+  async function renderTotals() {
+    const s = await Data.getSummary();
+    document.getElementById("totals").innerHTML = `
+      <div class="total-item">
+        <div class="total-lbl">Total earned</div>
+        <div class="total-val">${usd(s.totalEarnedCents)}</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Available now</div>
+        <div class="total-val">${usd(s.availableCents)}</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Paid out</div>
+        <div class="total-val">${usd(s.paidCents)}</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Active campaigns</div>
+        <div class="total-val">${s.activeCampaigns}</div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // RENDER: Active campaigns strip
+  // ============================================================
+  function stateLabel(endsAt) {
+    if (!endsAt) return "Live";
+    // Parse YYYY-MM-DD as a local date so the day isn't shifted by timezone
+    const [y, mo, d] = endsAt.split("-").map(Number);
+    const date = new Date(y, mo - 1, d);
+    return "Live until " + date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  async function renderCampaigns() {
+    const wrap = document.getElementById("campsScroll");
+    if (!wrap) return;
+    const list = await Data.getCampaigns();
+    wrap.innerHTML = list.map(c => `
+      <button type="button" class="camp-card" data-camp="${escHtml(c.id)}">
+        <div class="camp-card-body">
+          <div class="camp-card-text">
+            ${c.eyebrow ? `<p class="camp-eyebrow">${escHtml(c.eyebrow)}</p>` : ""}
+            <h3 class="camp-title">${c.titleHtml || escHtml(c.title || "")}</h3>
+            ${c.subtitle ? `<p class="camp-sub">${escHtml(c.subtitle)}</p>` : ""}
+          </div>
+          <div class="camp-thumb" style="background-image: url('${escHtml(c.thumb || "")}');"></div>
+        </div>
+        <div class="camp-card-foot">
+          <span class="camp-card-state">
+            <span class="camp-card-state-dot"></span>
+            ${escHtml(stateLabel(c.endsAt))}
+          </span>
+          <span class="camp-card-cta">Details <i data-lucide="arrow-right"></i></span>
+        </div>
+      </button>
+    `).join("");
+    if (window.lucide) lucide.createIcons();
+    // Wire each card to open the campaign popup
+    document.querySelectorAll(".camp-card[data-camp]").forEach((card) => {
+      card.addEventListener("click", () => openCampaignPopup(card.dataset.camp));
+    });
+  }
+
+  // ============================================================
+  // CAMPAIGN DETAIL POPUP
+  // ============================================================
+  async function openCampaignPopup(id) {
+    const list = await Data.getCampaigns();
+    const c = list.find((x) => x.id === id);
+    if (!c) return;
+    const pop = document.getElementById("campPopup");
+    document.getElementById("campPopupEyebrow").textContent = c.eyebrow || "";
+    document.getElementById("campPopupTitle").innerHTML = c.titleHtml || escHtml(c.title || "");
+    document.getElementById("campPopupSubtitle").textContent = c.subtitle || "";
+    document.getElementById("campPopupBody").textContent = c.body || "";
+    document.getElementById("campPopupImage").style.backgroundImage = c.thumb ? `url("${c.thumb}")` : "";
+    document.getElementById("campPopupState").innerHTML = `<span class="camp-card-state-dot"></span> ${escHtml(stateLabel(c.endsAt))}`;
+    const action = document.getElementById("campPopupAction");
+    document.getElementById("campPopupActionLabel").textContent = c.actionLabel || "Take action";
+    action.dataset.href = c.actionHref || "#";
+    pop.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeCampaignPopup() {
+    document.getElementById("campPopup").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("campPopupClose").addEventListener("click", closeCampaignPopup);
+  document.getElementById("campPopup").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("campPopup")) closeCampaignPopup();
+  });
+  document.getElementById("campPopupAction").addEventListener("click", () => {
+    const href = document.getElementById("campPopupAction").dataset.href || "#";
+    if (href && href !== "#") window.location.href = href;
+    else closeCampaignPopup();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeCampaignPopup();
+  });
+
+  // ============================================================
+  // RENDER: Chart (referral funnel)
+  // ============================================================
+  let chart;
+  async function renderChart(range) {
+    const data = await Data.getReferralFunnel(range);
+    const series = [
+      { name: "Views",      data: data.map(d => ({ x: d.date, y: d.views })) },
+      { name: "Demos",      data: data.map(d => ({ x: d.date, y: d.demos })) },
+      { name: "Closed-won", data: data.map(d => ({ x: d.date, y: d.won })) },
+    ];
+    const options = {
+      chart: { type: "area", height: 280, stacked: false, toolbar: { show: false }, zoom: { enabled: false }, animations: { speed: 240 }, fontFamily: "Inter, sans-serif" },
+      colors: ["#FFD4B5", "#FE8C5A", "#FE5722"],
+      dataLabels: { enabled: false },
+      stroke: { curve: "smooth", width: [2, 2.5, 3] },
+      fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: [0.45, 0.5, 0.55], opacityTo: [0.02, 0.05, 0.08], stops: [0, 100] } },
+      markers: { size: 0, hover: { size: 4 } },
+      grid: { borderColor: "#eeeef0", strokeDashArray: 0, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } }, padding: { top: 0, right: 16, bottom: 0, left: 8 } },
+      xaxis: { type: "datetime", axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { colors: "#737383", fontSize: "11px", fontWeight: 500 }, format: "MMM d" } },
+      yaxis: { labels: { style: { colors: "#737383", fontSize: "11px", fontWeight: 500 }, formatter: (v) => fmt(Math.round(v)) } },
+      legend: { show: false },
+      tooltip: { shared: true, x: { format: "MMM d, yyyy" }, marker: { show: true }, style: { fontFamily: "Inter, sans-serif" } },
+      series,
+    };
+    if (chart) chart.destroy();
+    chart = new ApexCharts(document.getElementById("referralsChart"), options);
+    chart.render();
+    const label = range === "7d" ? "last 7 days" : range === "30d" ? "last 30 days" : "last 3 months";
+    document.getElementById("chartSub").textContent = `Showing total events for the ${label}`;
+  }
+
+  // ============================================================
+  // RENDER: Earnings ledger
+  // ============================================================
+  async function renderLedger() {
+    const [base, cw] = await Promise.all([Data.getLedger(), Data.getClosedWon()]);
+    // Live closed-won deals from HubSpot become activity entries in this feed.
+    const cwRows = (cw.configured && Array.isArray(cw.deals))
+      ? cw.deals.map(d => ({
+          id: "cw-" + d.id,
+          date: (d.closedate || "").slice(0, 10) || null,
+          source: "Closed won",
+          detail: d.brand,
+          status: "closed",
+          amountCents: d.amountCents || 0,
+        }))
+      : [];
+    const list = [...base, ...cwRows].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+    document.getElementById("ledgerCount").textContent = `${list.length} entries`;
+    document.getElementById("ledgerList").innerHTML = list.map(it => {
+      let statusCell;
+      if (it.status === "paid") {
+        statusCell = `<span class="brand-status paid">Paid ${new Date(it.paidDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>`;
+      } else if (it.status === "available") {
+        statusCell = `<button class="ledger-confirm" data-ledger="${it.id}">Confirm invoice <i data-lucide="arrow-right"></i></button>`;
+      } else if (it.status === "requested") {
+        statusCell = `<span class="brand-status requested">Processing</span>`;
+      } else if (it.status === "closed") {
+        statusCell = `<span class="brand-status closed">Closed won</span>`;
+      } else if (it.status === "shipped") {
+        statusCell = `<span class="brand-status shipped">Shipped</span>`;
+      } else if (it.status === "pool") {
+        statusCell = `<span class="brand-status pending" title="${escHtml(it.note || "")}">In pool</span>`;
+      } else {
+        statusCell = `<span class="brand-status pending">${escHtml(it.status)}</span>`;
+      }
+      return `
+        <div class="ledger-row">
+          <span class="ledger-date">${new Date(it.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+          <span class="ledger-source">
+            <span class="ledger-source-name">${escHtml(it.source)}</span>
+          </span>
+          <span class="ledger-detail">${escHtml(it.detail)}</span>
+          ${statusCell}
+          ${it.rewardLabel
+            ? `<span class="ledger-amount reward" style="text-align: right;">${escHtml(it.rewardLabel)}</span>`
+            : `<span class="ledger-amount ${it.amountCents === 0 ? "zero" : ""}" style="text-align: right;">${it.amountCents ? usd(it.amountCents) : "—"}</span>`}
+        </div>
+      `;
+    }).join("");
+    if (window.lucide) lucide.createIcons();
+    document.querySelectorAll("[data-ledger]").forEach(btn => {
+      btn.addEventListener("click", () => openPayoutDrawer({ kind: "ledger", itemId: btn.dataset.ledger }));
+    });
+  }
+
+  // ============================================================
+  // PAYOUT DRAWER
+  // ============================================================
+  const drawer = document.getElementById("payoutDrawer");
+  const drawerBody = document.getElementById("drawerBody");
+  let payoutCtx = null;
+
+  async function openPayoutDrawer({ itemId }) {
+    const ledger = await Data.getLedger();
+    const l = ledger.find(x => x.id === itemId);
+    if (!l) return;
+    const amountCents = l.amountCents;
+    const title = `Confirm invoice · ${l.source}`;
+    const meta = `${l.detail} · ACH transfer arrives in 1-2 business days.`;
+    payoutCtx = { itemId, amountCents };
+    document.getElementById("drawerTitle").textContent = title;
+    document.getElementById("drawerAmount").textContent = usd(amountCents);
+    document.getElementById("drawerMeta").textContent = meta;
+    drawer.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeDrawer() {
+    drawer.classList.remove("open");
+    document.body.style.overflow = "";
+    payoutCtx = null;
+    // Reset success state if shown
+    drawerBody.innerHTML = drawerBody.dataset.original || drawerBody.innerHTML;
+  }
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  document.getElementById("drawerCancel").addEventListener("click", closeDrawer);
+  drawer.addEventListener("click", (e) => { if (e.target === drawer) closeDrawer(); });
+  drawerBody.dataset.original = drawerBody.innerHTML;
+
+  document.getElementById("drawerSubmit").addEventListener("click", async () => {
+    if (!payoutCtx) return;
+    const required = ["poName", "poAddress", "poCity", "poState", "poZip", "poBankName", "poRouting", "poAccount"];
+    const missing = required.filter(id => !document.getElementById(id).value.trim());
+    if (missing.length) { document.getElementById(missing[0]).focus(); return; }
+    const bankInfo = {
+      name: document.getElementById("poName").value.trim(),
+      address: document.getElementById("poAddress").value.trim(),
+      city: document.getElementById("poCity").value.trim(),
+      state: document.getElementById("poState").value.trim().toUpperCase(),
+      zip: document.getElementById("poZip").value.trim(),
+      bankName: document.getElementById("poBankName").value.trim(),
+      routing: document.getElementById("poRouting").value.trim(),
+      account: document.getElementById("poAccount").value.trim(),
+    };
+    await Data.requestPayout({ itemId: payoutCtx.itemId, bankInfo });
+    // Show success
+    drawerBody.innerHTML = `
+      <div class="drawer-success">
+        <span class="drawer-success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <h3 class="drawer-success-title">Invoice on the way.</h3>
+        <p class="drawer-success-sub">${usd(payoutCtx.amountCents)} will arrive in your account ending in <b>${escHtml(bankInfo.account.slice(-4))}</b> within 1-2 business days. We'll email you a receipt.</p>
+      </div>
+    `;
+    document.querySelector(".drawer-foot").innerHTML = `<button type="button" class="drawer-btn primary" id="drawerDone" style="flex: 1;">Done</button>`;
+    document.getElementById("drawerDone").addEventListener("click", () => {
+      closeDrawer();
+      // Re-render to reflect the new status
+      renderTotals(); renderLedger();
+      // Restore foot
+      document.querySelector(".drawer-foot").innerHTML = `
+        <button type="button" class="drawer-btn secondary" id="drawerCancel">Cancel</button>
+        <button type="button" class="drawer-btn primary" id="drawerSubmit">Submit &amp; confirm</button>
+      `;
+      // Re-bind (cheap)
+      document.getElementById("drawerCancel").addEventListener("click", closeDrawer);
+    });
+  });
+
+  // ============================================================
+  // CHART RANGE DROPDOWN
+  // ============================================================
+  document.getElementById("chartRange").addEventListener("change", (e) => {
+    renderChart(e.target.value);
+  });
+
+  // ============================================================
+  // BOOT
+  // ============================================================
+  (async function boot() {
+    await renderTotals();
+    await renderCampaigns();
+    await renderChart("7d");
+    await renderLedger();
+    if (window.lucide) lucide.createIcons();
+  })();
+</script>
+
+</body>
+</html>

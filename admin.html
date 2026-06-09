@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Affiliates Admin &mdash; Redo</title>
+<title>Redo MLG Admin</title>
 <link rel="stylesheet" href="fonts.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -40,20 +41,352 @@
   .login-card button:hover { opacity: 0.92; }
   .login-err { font: 500 13px var(--sans); color: #d33; margin-top: 4px; }
 
-  /* App shell */
-  .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-  .topbar { background: #0d0d0d; color: white; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
-  .topbar-left { display: flex; align-items: center; gap: 20px; }
-  .topbar-title { font: 400 22px var(--serif); }
-  .topbar-tabs { display: flex; gap: 4px; }
-  .tab-btn { background: transparent; border: 1px solid #2a2a2e; color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 8px; font: 500 13px var(--sans); }
-  .tab-btn.active { background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.3); }
-  .tab-btn:hover:not(.active) { color: white; }
-  .topbar-right { display: flex; align-items: center; gap: 12px; font: 500 13px var(--sans); color: rgba(255,255,255,0.7); }
-  .logout-btn { background: transparent; border: 1px solid #2a2a2e; color: white; padding: 6px 12px; border-radius: 8px; font: 500 13px var(--sans); }
-  .logout-btn:hover { background: rgba(255,255,255,0.08); }
+  /* App shell — sidebar + main */
+  .app { min-height: 100vh; display: grid; grid-template-columns: 60px 1fr; background: #0d0d0d; }
 
-  .main { padding: 28px; max-width: 1280px; margin: 0 auto; width: 100%; }
+  /* Sidebar */
+  .sidebar { background: #0d0d0d; color: #fafafa; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px; position: sticky; top: 0; height: 100vh; }
+  .sb-logo { width: 32px; height: 32px; border-radius: 8px; background: hsl(var(--gray-950)); border: 1px solid #2a2a2e; display: grid; place-items: center; font: 800 13px var(--sans); color: white; margin-bottom: 14px; letter-spacing: -0.02em; }
+  .sb-item { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: #9a9a9d; display: grid; place-items: center; cursor: pointer; transition: background .12s ease, color .12s ease; position: relative; }
+  .sb-item:hover { background: #1a1a1c; color: #fafafa; }
+  .sb-item.active { background: #1f1f22; color: #fafafa; }
+  .sb-item svg { width: 18px; height: 18px; }
+  .sb-spacer { flex: 1; }
+  .sb-tooltip { position: absolute; left: 48px; top: 50%; transform: translateY(-50%); background: hsl(var(--gray-950)); color: white; padding: 4px 9px; border-radius: 6px; font: 500 11.5px var(--sans); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .12s ease; z-index: 10; box-shadow: 0 4px 14px -2px rgba(0,0,0,0.4); }
+  .sb-item:hover .sb-tooltip { opacity: 1; }
+  .sb-avatar { width: 30px; height: 30px; border-radius: 999px; background: hsl(var(--gray-200)); color: hsl(var(--gray-700)); display: grid; place-items: center; font: 700 11px var(--sans); margin-top: 8px; }
+
+  /* Main content area */
+  .main-wrap { background: #0d0d0d; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  .main-head { background: #0d0d0d; border-bottom: 1px solid #1f1f22; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .main-head-title { font: 600 14px var(--sans); color: white; letter-spacing: -0.005em; }
+  .main-head-sub { font: 500 12.5px var(--sans); color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .main-head-right { display: flex; align-items: center; gap: 12px; font: 500 13px var(--sans); color: rgba(255,255,255,0.65); }
+  .main-scroll { background: hsl(var(--gray-50)); border-top-left-radius: 16px; flex: 1; overflow-y: auto; }
+  .logout-btn { background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-700)); padding: 6px 12px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; }
+  .logout-btn:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+
+  /* Hero section title sits at the top of the white content area */
+  .page-hero { padding: 28px 28px 0; max-width: 1280px; margin: 0 auto; width: 100%; }
+  .page-hero-title { font: 400 32px/1 var(--serif); color: hsl(var(--gray-950)); letter-spacing: -0.005em; }
+  .page-hero-sub { font: 500 13.5px var(--sans); color: hsl(var(--gray-500)); margin-top: 6px; }
+
+  .main { padding: 28px; max-width: 1280px; margin: 0 auto; width: 100%; flex: 1; }
+
+  /* Section toolbar */
+  .section-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 12px; }
+  .section-toolbar .left { display: flex; align-items: center; gap: 10px; font: 500 13px var(--sans); color: hsl(var(--gray-500)); }
+  .section-toolbar .left b { font-weight: 700; color: hsl(var(--gray-950)); }
+  .section-toolbar .btn-primary { display: inline-flex; align-items: center; gap: 6px; }
+  .section-toolbar .btn-primary svg { width: 13px; height: 13px; }
+
+  /* Campaign cards — each one looks like a mini hero block */
+  .campaigns-list { display: flex; flex-direction: column; gap: 8px; }
+  .campaigns-empty { text-align: center; padding: 60px 20px; background: white; border: 1px dashed hsl(var(--gray-300)); border-radius: 14px; color: hsl(var(--gray-500)); font: 500 14px var(--sans); }
+  .cl-row { background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: 56px 1fr auto auto auto auto; gap: 14px; align-items: center; cursor: pointer; transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease; }
+  .cl-slot { font: 700 9.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: rgba(255,140,40,0.14); color: hsl(var(--orange)); white-space: nowrap; }
+  .cl-row:hover { border-color: hsl(var(--gray-300)); box-shadow: 0 4px 14px -6px rgba(0,0,0,0.08); }
+  .cl-thumb { width: 56px; height: 56px; border-radius: 10px; background-size: cover; background-position: center; background-color: hsl(var(--gray-100)); position: relative; overflow: hidden; display: grid; place-items: center; flex: none; }
+  .cl-thumb-letter { font: 400 26px/1 var(--serif); letter-spacing: -0.01em; color: inherit; }
+  .cl-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .cl-title { font: 600 14px var(--sans); color: hsl(var(--gray-950)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-sub { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cl-status { font: 700 9.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); white-space: nowrap; }
+  .cl-status.live { background: rgba(34,197,94,0.18); color: #15803d; }
+  .cl-status.draft { background: hsl(var(--gray-100)); color: hsl(var(--gray-700)); }
+  .cl-status.closed { background: rgba(248,113,113,0.18); color: #b91c1c; }
+  .cl-status.alwayson { background: rgba(255,140,40,0.18); color: hsl(var(--orange)); }
+  .cl-date { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cl-edit { background: transparent; border: 1px solid hsl(var(--border)); width: 32px; height: 32px; border-radius: 8px; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; padding: 0; }
+  .cl-edit:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); border-color: hsl(var(--gray-300)); }
+  .cl-edit svg { width: 14px; height: 14px; }
+
+  /* ============== SIMPLE CAMPAIGN EDITOR ============== */
+  .se-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(380px, 1fr); gap: 22px; align-items: start; }
+  .se-form { background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .se-field { display: flex; flex-direction: column; gap: 7px; }
+  .se-field-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .se-field-label { font: 600 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: hsl(var(--gray-500)); display: inline-flex; align-items: center; gap: 6px; }
+  .se-field-label-hint { font: 500 11px var(--sans); color: hsl(var(--gray-400)); text-transform: none; letter-spacing: 0; }
+  .se-hidden-toggle { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--sans); color: hsl(var(--gray-500)); cursor: pointer; user-select: none; padding: 4px 7px; border-radius: 7px; transition: background .12s ease, color .12s ease; }
+  .se-hidden-toggle:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .se-hidden-toggle input { margin: 0; cursor: pointer; }
+  .se-hidden-toggle.is-hidden { color: hsl(var(--orange)); }
+  .se-input { width: 100%; padding: 11px 13px; border: 1px solid hsl(var(--border)); border-radius: 9px; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); background: white; box-sizing: border-box; }
+  .se-input:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .se-input.serif { font-family: var(--serif); font-size: 19px; line-height: 1.2; }
+  .se-input.eyebrow { letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; font-size: 12px; }
+  .se-row-button { display: grid; grid-template-columns: 1fr 150px; gap: 10px; }
+  .se-row-button-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .se-color-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; border: 1px solid hsl(var(--border)); border-radius: 8px; background: white; }
+  .se-color-row input[type="color"] { width: 30px; height: 30px; padding: 2px; border: 1px solid hsl(var(--border)); border-radius: 7px; background: white; cursor: pointer; flex: none; }
+  .se-color-row input[type="text"] { flex: 1; border: none; padding: 0; background: transparent; font: 500 12.5px ui-monospace, SFMono-Regular, Monaco, monospace; color: hsl(var(--gray-700)); outline: none; min-width: 0; }
+  .se-color-row label { font: 600 9.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); white-space: nowrap; }
+  .se-select { width: 100%; padding: 11px 32px 11px 13px; border: 1px solid hsl(var(--border)); border-radius: 9px; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); background: white; box-sizing: border-box; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737383' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; }
+  .se-image-upload { border: 1.5px dashed hsl(var(--gray-300)); border-radius: 10px; background: hsl(var(--gray-50)); padding: 14px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: border-color .12s ease, background .12s ease; }
+  .se-image-upload:hover, .se-image-upload.dragover { border-color: hsl(var(--gray-700)); background: white; }
+  .se-image-upload.has-image { border-style: solid; background: white; }
+  .se-image-thumb { width: 64px; height: 64px; border-radius: 8px; background: hsl(var(--gray-100)); background-size: cover; background-position: center; display: grid; place-items: center; color: hsl(var(--gray-500)); flex: none; }
+  .se-image-thumb svg { width: 22px; height: 22px; }
+  .se-image-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .se-image-title { font: 600 13px var(--sans); color: hsl(var(--gray-950)); }
+  .se-image-sub { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); }
+  .se-image-clear { background: transparent; border: 1px solid hsl(var(--border)); width: 28px; height: 28px; border-radius: 7px; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; flex: none; }
+  .se-image-clear:hover { background: hsl(var(--gray-100)); color: #b91c1c; border-color: rgba(220,38,38,0.3); }
+  .se-image-clear svg { width: 13px; height: 13px; }
+  .se-image-upload input[type="file"] { display: none; }
+  /* Segmented control (used for text alignment) */
+  .se-segmented { display: inline-flex; gap: 2px; background: hsl(var(--gray-100)); border-radius: 9px; padding: 3px; }
+  .se-seg { background: transparent; border: none; padding: 7px 12px; border-radius: 7px; color: hsl(var(--gray-500)); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .12s ease, color .12s ease; }
+  .se-seg:hover { color: hsl(var(--gray-950)); }
+  .se-seg.active { background: white; color: hsl(var(--gray-950)); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .se-seg svg { width: 14px; height: 14px; }
+
+  .se-sliders { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .se-slider-row { display: grid; grid-template-columns: 70px 1fr 60px; align-items: center; gap: 12px; }
+  .se-slider-lbl { font: 600 10px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .se-slider-row input[type="range"] { width: 100%; accent-color: hsl(var(--gray-950)); }
+  .se-slider-val { font: 600 12px var(--sans); color: hsl(var(--gray-700)); font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* Right-column previews */
+  .se-previews { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 12px; }
+  .se-preview-label { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .se-preview-label::after { content: ""; flex: 1; height: 1px; background: hsl(var(--gray-200)); }
+
+  /* COVER preview — looks like a hero block */
+  .se-cover { position: relative; overflow: hidden; border-radius: 14px; min-height: 280px; border: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: center; padding: 36px 30px; background: white; }
+  .se-cover-img { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; transform-origin: center; transition: opacity .15s ease, transform .15s ease; }
+  .se-cover-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; max-width: 460px; }
+  .se-cover-eyebrow { font: 600 10.5px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.78); margin: 0; mix-blend-mode: difference; }
+  .se-cover-eyebrow.on-light { color: hsl(var(--gray-700)); mix-blend-mode: normal; }
+  .se-cover-title { font: 400 36px/1.05 var(--serif); letter-spacing: -0.005em; color: white; margin: 0; mix-blend-mode: difference; }
+  .se-cover-title.on-light { color: hsl(var(--gray-950)); mix-blend-mode: normal; }
+  .se-cover-sub { font: 500 13px/1.5 var(--sans); color: rgba(255,255,255,0.88); margin: 0; max-width: 36ch; mix-blend-mode: difference; }
+  .se-cover-sub.on-light { color: hsl(var(--gray-700)); mix-blend-mode: normal; }
+  .se-cover-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; font: 600 13px var(--sans); border: none; margin-top: 4px; cursor: default; }
+  .se-cover-btn svg { width: 13px; height: 13px; }
+
+  /* THUMBNAIL preview — same shape as earnings card */
+  .se-thumb-card { border: 1px solid hsl(var(--border)); border-radius: 14px; background: white; max-width: 380px; }
+  .se-thumb-body { padding: 20px 22px 16px; display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 16px; align-items: start; }
+  .se-thumb-text { display: flex; flex-direction: column; min-width: 0; }
+  .se-thumb-eyebrow { font: 600 9.5px var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 0 0 8px; }
+  .se-thumb-title { font: 400 20px/1.18 var(--serif); color: hsl(var(--gray-950)); letter-spacing: -0.005em; margin: 0; }
+  .se-thumb-sub { font: 500 12.5px/1.5 var(--sans); color: hsl(var(--gray-600)); margin: 8px 0 0; }
+  .se-thumb-img { width: 76px; height: 76px; border-radius: 10px; background-color: hsl(var(--gray-100)); background-size: cover; background-position: center; flex: none; align-self: start; border: 1px solid hsl(var(--border)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+  .se-thumb-foot { padding: 12px 22px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid hsl(var(--gray-100)); }
+  .se-thumb-state { font: 600 12.5px var(--sans); color: hsl(var(--gray-950)); display: inline-flex; align-items: center; gap: 7px; }
+  .se-thumb-state-dot { width: 8px; height: 8px; border-radius: 999px; background: hsl(var(--green)); flex: none; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
+  .se-thumb-btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 999px; font: 600 12px var(--sans); border: 1px solid hsl(var(--border)); cursor: default; white-space: nowrap; }
+  .se-thumb-btn svg { width: 12px; height: 12px; }
+
+  /* Visually de-emphasize fields when their value is hidden */
+  .se-field.is-hidden .se-input,
+  .se-field.is-hidden .se-row-button,
+  .se-field.is-hidden .se-row-button-colors { opacity: 0.45; }
+
+  /* Campaign editor modal */
+  /* ============== CANVAS EDITOR ============== */
+  .ce-topbar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; margin-bottom: 12px; }
+  .ce-topbar-back { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid hsl(var(--border)); padding: 7px 12px 7px 10px; border-radius: 8px; font: 500 13px var(--sans); color: hsl(var(--gray-700)); cursor: pointer; }
+  .ce-topbar-back:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .ce-topbar-back svg { width: 13px; height: 13px; }
+  .ce-topbar-title { font: 600 14px var(--sans); color: hsl(var(--gray-950)); }
+  .ce-topbar-tpl { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); padding: 4px 9px; background: hsl(var(--gray-100)); border-radius: 999px; }
+  .ce-topbar-spacer { flex: 1; }
+  .ce-topbar-btn { padding: 7px 14px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: 1px solid hsl(var(--border)); background: white; color: hsl(var(--gray-700)); }
+  .ce-topbar-btn:hover { background: hsl(var(--gray-100)); }
+  .ce-topbar-btn svg { width: 13px; height: 13px; }
+  .ce-topbar-btn.primary { background: hsl(var(--gray-950)); color: white; border-color: hsl(var(--gray-950)); }
+  .ce-topbar-btn.primary:hover { opacity: 0.92; background: hsl(var(--gray-950)); }
+  .ce-topbar-msg { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); margin-right: 6px; }
+  .ce-topbar-msg.ok { color: hsl(var(--green)); }
+  .ce-topbar-msg.err { color: #d33; }
+
+  .ce-workspace { display: grid; grid-template-columns: 60px minmax(0, 1fr) 280px; gap: 12px; align-items: start; }
+
+  /* Left toolbar */
+  .ce-tools { display: flex; flex-direction: column; gap: 4px; background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 8px; position: sticky; top: 12px; }
+  .ce-tool { width: 44px; height: 44px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: hsl(var(--gray-700)); display: grid; place-items: center; cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; padding: 0; position: relative; }
+  .ce-tool:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .ce-tool svg { width: 18px; height: 18px; }
+  .ce-tool-divider { height: 1px; background: hsl(var(--gray-100)); margin: 4px 6px; }
+
+  /* Canvases area */
+  .ce-canvases { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .ce-canvas-block { background: white; border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 14px 14px 18px; min-width: 0; }
+  .ce-canvas-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ce-canvas-label { font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .ce-canvas-meta { font: 500 11px var(--sans); color: hsl(var(--gray-500)); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .ce-canvas-width { display: flex; align-items: center; gap: 6px; }
+  .ce-canvas-width input[type="range"] { width: 80px; }
+  .ce-canvas-viewport { position: relative; background: hsl(var(--gray-50)); border: 1px dashed hsl(var(--gray-200)); border-radius: 10px; overflow: auto; padding: 24px; display: grid; place-items: start center; min-height: 240px; }
+  .ce-stage { position: relative; background: white; border-radius: 10px; overflow: visible; box-shadow: 0 4px 20px -8px rgba(0,0,0,0.18); transform-origin: top left; cursor: default; }
+  .ce-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 10px; }
+
+  /* Canvas elements (rendered absolute) */
+  .ce-el { position: absolute; box-sizing: border-box; cursor: move; user-select: none; }
+  .ce-el.selected { outline: 2px solid #2986ff; outline-offset: 1px; z-index: 100; }
+  .ce-el-text { display: flex; align-items: center; }
+  .ce-el-text > span { display: block; width: 100%; }
+  .ce-el-text em { font-style: italic; }
+  .ce-el-image { background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: inherit; }
+  .ce-el-image-tint { position: absolute; inset: 0; background: var(--tint, transparent); }
+  .ce-el-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 14px; font: 600 13px var(--sans); cursor: move; }
+  .ce-el-shape { width: 100%; height: 100%; }
+  .ce-el-countdown { display: flex; align-items: stretch; justify-content: center; gap: 0; pointer-events: none; }
+  .ce-el-countdown .cd-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 18px; position: relative; }
+  .ce-el-countdown .cd-chip + .cd-chip::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 1px; background: currentColor; opacity: 0.5; }
+  .ce-el-countdown .cd-num { font-family: var(--serif); font-size: 48px; line-height: 1; letter-spacing: -0.005em; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .ce-el-countdown .cd-lbl { font: 600 10px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.7; }
+
+  /* Resize handles when selected */
+  .ce-handle { position: absolute; width: 10px; height: 10px; background: white; border: 2px solid #2986ff; border-radius: 2px; z-index: 200; }
+  .ce-handle.tl { top: -6px; left: -6px; cursor: nwse-resize; }
+  .ce-handle.tr { top: -6px; right: -6px; cursor: nesw-resize; }
+  .ce-handle.bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
+  .ce-handle.br { bottom: -6px; right: -6px; cursor: nwse-resize; }
+  .ce-handle.t { top: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+  .ce-handle.b { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+  .ce-handle.l { left: -6px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+  .ce-handle.r { right: -6px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+
+  /* Right property panel */
+  .ce-props { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 14px; position: sticky; top: 12px; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .ce-props-empty { font: 500 12.5px/1.5 var(--sans); color: hsl(var(--gray-500)); padding: 24px 8px; text-align: center; }
+  .ce-props-section { font: 600 10px var(--sans); letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 14px 0 8px; padding-bottom: 6px; border-bottom: 1px solid hsl(var(--gray-100)); }
+  .ce-props-section:first-child { margin-top: 0; }
+  .ce-prop { margin-bottom: 10px; }
+  .ce-prop-label { font: 600 10.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); display: block; margin-bottom: 4px; }
+  .ce-prop input[type="text"], .ce-prop input[type="number"], .ce-prop select, .ce-prop textarea { width: 100%; padding: 7px 10px; border: 1px solid hsl(var(--border)); border-radius: 7px; font: 500 12.5px var(--sans); color: hsl(var(--gray-950)); background: white; box-sizing: border-box; }
+  .ce-prop input:focus, .ce-prop select:focus, .ce-prop textarea:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .ce-prop textarea { resize: vertical; min-height: 56px; font-family: var(--sans); line-height: 1.4; }
+  .ce-prop-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .ce-prop-color { display: flex; align-items: center; gap: 6px; }
+  .ce-prop-color input[type="color"] { width: 30px; height: 30px; padding: 2px; border: 1px solid hsl(var(--border)); border-radius: 7px; background: white; cursor: pointer; flex: none; }
+  .ce-prop-color input[type="text"] { flex: 1; font-family: ui-monospace, SFMono-Regular, Monaco, monospace !important; font-size: 11.5px !important; }
+  .ce-prop-toggle { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--gray-100)); border-radius: 7px; cursor: pointer; }
+  .ce-prop-toggle input { margin: 0; }
+  .ce-prop-toggle span { font: 500 12px var(--sans); color: hsl(var(--gray-700)); }
+  .ce-prop-delete { width: 100%; padding: 8px; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: #b91c1c; border-radius: 7px; font: 500 12.5px var(--sans); cursor: pointer; margin-top: 12px; }
+  .ce-prop-delete:hover { background: rgba(220,38,38,0.16); }
+
+  /* Settings drawer */
+  .ce-drawer-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.4); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1500; display: none; align-items: center; justify-content: flex-end; padding: 18px; }
+  .ce-drawer-backdrop.open { display: flex; }
+  .ce-drawer { background: white; width: 100%; max-width: 420px; height: 100%; border-radius: 14px; padding: 20px 22px; overflow-y: auto; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5); }
+  .ce-drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .ce-drawer-title { font: 600 15px var(--sans); color: hsl(var(--gray-950)); }
+  .ce-drawer-close { background: transparent; border: 1px solid hsl(var(--border)); width: 26px; height: 26px; border-radius: 7px; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; font: 600 14px/1 var(--sans); }
+
+  /* In-section editor view (replaces the old modal) */
+  .editor-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid hsl(var(--gray-100)); }
+  .editor-back { display: inline-flex; align-items: center; gap: 7px; background: transparent; border: 1px solid hsl(var(--border)); padding: 7px 12px 7px 10px; border-radius: 8px; font: 500 13px var(--sans); color: hsl(var(--gray-700)); cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; }
+  .editor-back:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); border-color: hsl(var(--gray-300)); }
+  .editor-back svg { width: 13px; height: 13px; }
+  .editor-title { font: 600 17px var(--sans); color: hsl(var(--gray-950)); letter-spacing: -0.005em; }
+  .editor-spacer { flex: 1; }
+  .editor-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(420px, 1fr); gap: 24px; align-items: start; }
+  .cm-form-col { min-width: 0; }
+  .cm-preview-col { background: hsl(var(--gray-50)); border: 1px solid hsl(var(--gray-100)); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; }
+  .cm-section-title { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); margin: 22px 0 14px; padding-bottom: 8px; border-bottom: 1px solid hsl(var(--gray-100)); }
+  .cm-section-title:first-of-type { margin-top: 0; }
+  .cm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+  .cm-grid .full { grid-column: 1 / -1; }
+  .cm-grid label { display: flex; flex-direction: column; gap: 6px; font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .cm-grid input[type="text"], .cm-grid input[type="url"], .cm-grid input[type="number"], .cm-grid input[type="datetime-local"], .cm-grid select, .cm-grid textarea { width: 100%; padding: 10px 12px; border: 1px solid hsl(var(--border)); border-radius: 8px; font: 500 13.5px var(--sans); color: hsl(var(--gray-950)); background: white; box-sizing: border-box; }
+  .cm-grid input:focus, .cm-grid select:focus, .cm-grid textarea:focus { outline: none; border-color: hsl(var(--gray-700)); }
+  .cm-grid textarea { resize: vertical; min-height: 80px; font-family: var(--sans); line-height: 1.45; }
+  .cm-grid select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .cm-color-row { display: flex; align-items: center; gap: 8px; }
+  .cm-color-row input[type="color"] { width: 38px; height: 38px; padding: 3px; border-radius: 8px; border: 1px solid hsl(var(--border)); background: white; cursor: pointer; flex: none; }
+  .cm-color-row input[type="text"] { flex: 1; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Monaco, Consolas, monospace !important; font-size: 12.5px !important; }
+  .cm-preview-label { font: 600 10.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: hsl(var(--gray-500)); display: flex; align-items: center; gap: 8px; }
+  .cm-preview-label::after { content: ""; flex: 1; height: 1px; background: hsl(var(--gray-200)); }
+  .cm-preview { position: relative; border-radius: 16px; overflow: hidden; transition: background .15s ease, color .15s ease, min-height .15s ease; border: 1px solid hsl(var(--border)); }
+  .cm-preview-hint { font: 500 11.5px/1.5 var(--sans); color: hsl(var(--gray-500)); padding: 10px 14px; background: white; border: 1px dashed hsl(var(--gray-300)); border-radius: 10px; }
+  .cm-preview-hint b { color: hsl(var(--gray-700)); font-weight: 600; }
+
+  /* TPL: Give Back Day — mirrors .gb-hero from home.html */
+  .cm-preview.tpl-give-back { min-height: 360px; padding: 44px 30px; display: flex; align-items: center; justify-content: center; text-align: center; background-color: #1a1410; background-position: center; background-size: cover; background-repeat: no-repeat; color: white; }
+  .cm-preview.tpl-give-back::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.6) 100%); z-index: 0; }
+  .cm-preview .gb-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 480px; }
+  .cm-preview .gb-headline { font: 400 36px/1.05 var(--serif); color: white; margin: 0; letter-spacing: -0.005em; }
+  .cm-preview .gb-tag { font: 500 13px/1.5 var(--sans); color: rgba(255,255,255,0.9); margin: 0; max-width: 42ch; }
+  .cm-preview .gb-countdown { display: inline-flex; align-items: stretch; margin-top: 2px; padding: 4px 0; }
+  .cm-preview .gb-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px 18px; position: relative; }
+  .cm-preview .gb-chip + .gb-chip::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 1px; background: rgba(255,255,255,0.5); }
+  .cm-preview .gb-chip-num { font: 400 36px/1 var(--serif); color: white; letter-spacing: -0.005em; font-feature-settings: "lnum" 1, "tnum" 1; }
+  .cm-preview .gb-chip-lbl { font: 600 8.5px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+  .cm-preview .gb-pill { display: inline-flex; align-items: center; gap: 7px; background: white; color: hsl(var(--gray-950)); padding: 10px 18px; border-radius: 999px; font: 600 12px var(--sans); border: none; margin-top: 4px; }
+  .cm-preview .gb-pill svg { width: 12px; height: 12px; }
+
+  /* TPL: Free AirPods / AirPods Jump — mirrors .ap-hero from home.html */
+  .cm-preview.tpl-free-airpods, .cm-preview.tpl-airpods-jump { min-height: 230px; padding: 0; background: white; background-position: right center; background-size: contain; background-repeat: no-repeat; color: hsl(var(--gray-950)); display: flex; align-items: center; }
+  .cm-preview .ap-inner { position: relative; z-index: 1; padding: 26px 28px; display: flex; flex-direction: column; gap: 8px; max-width: 60%; }
+  .cm-preview .ap-title { font: 400 24px/1.12 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
+  .cm-preview .ap-title em { color: hsl(var(--orange)); font-style: italic; font-family: var(--serif); }
+  .cm-preview .ap-sub { font: 500 12.5px/1.5 var(--sans); color: hsl(var(--gray-700)); max-width: 36ch; margin: 0; }
+  .cm-preview .ap-cta { display: inline-flex; align-items: center; gap: 6px; background: hsl(var(--gray-950)); color: white; border: none; padding: 8px 14px; border-radius: 8px; font: 500 12px var(--sans); margin-top: 4px; align-self: flex-start; }
+  .cm-preview .ap-cta svg { width: 12px; height: 12px; }
+
+  /* POPUP PREVIEW — mirrors .gb-modal from home.html, scaled to preview pane */
+  .cm-popup { position: relative; background: #0d0d0d; color: #fafafa; border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 1.05fr 0.85fr; min-height: 240px; border: 1px solid #1f1f22; box-shadow: 0 14px 36px -16px rgba(0,0,0,0.5); }
+  .cm-popup-body { padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .cm-popup-eyebrow { font: 600 9.5px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin: 0; }
+  .cm-popup-title { font: 400 24px/1.05 var(--serif); letter-spacing: -0.005em; color: white; margin: 0; }
+  .cm-popup-body-text { font: 500 12px/1.55 var(--sans); color: rgba(255,255,255,0.76); margin: 0; max-width: 36ch; }
+  .cm-popup-cta { background: white; color: hsl(var(--gray-950)); border: none; padding: 8px 14px; border-radius: 8px; font: 600 12px var(--sans); display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: 2px; }
+  .cm-popup-cta svg { width: 11px; height: 11px; }
+  .cm-popup-art { position: relative; background: #1a1410 center center / cover no-repeat; min-height: 220px; }
+  .cm-popup-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%); }
+  .cm-popup-art-overlay { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 1; }
+  .cm-popup-art-overlay .lbl { font: 600 8.5px var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.78); }
+  .cm-popup-art-overlay .mini-countdown { display: inline-flex; align-items: stretch; }
+  .cm-popup-art-overlay .mc-chip { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 10px; position: relative; }
+  .cm-popup-art-overlay .mc-chip + .mc-chip::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: rgba(255,255,255,0.45); }
+  .cm-popup-art-overlay .mc-num { font: 400 24px/1 var(--serif); color: white; }
+  .cm-popup-art-overlay .mc-lbl { font: 600 7.5px var(--sans); letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+  .cm-popup.tpl-free-airpods, .cm-popup.tpl-airpods-jump { grid-template-columns: 1fr; min-height: 180px; }
+  .cm-popup.tpl-free-airpods .cm-popup-art, .cm-popup.tpl-airpods-jump .cm-popup-art { display: none; }
+  .cm-popup.tpl-free-airpods .cm-popup-body, .cm-popup.tpl-airpods-jump .cm-popup-body { padding: 22px 24px; }
+  .cm-popup-empty { font: 500 12px/1.5 var(--sans); color: hsl(var(--gray-500)); padding: 26px 22px; text-align: center; background: hsl(var(--gray-50)); border: 1px dashed hsl(var(--gray-300)); border-radius: 14px; min-height: 80px; display: grid; place-items: center; }
+
+  /* TPL: Custom (generic — same as before but tightened) */
+  .cm-preview.tpl-custom { min-height: 280px; padding: 32px 30px; display: flex; align-items: center; background: #f5dfc8; color: #0d0d0d; }
+  .cm-preview.tpl-custom.has-bg-image { background-size: cover; background-position: center; }
+  .cm-preview.tpl-custom.has-bg-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.35)); z-index: 0; }
+  .cm-preview .custom-inner { display: flex; flex-direction: column; gap: 12px; min-width: 0; z-index: 1; position: relative; }
+  .cm-preview .custom-title { font: 400 28px/1.08 var(--serif); letter-spacing: -0.01em; word-wrap: break-word; margin: 0; }
+  .cm-preview .custom-title em { font-style: italic; color: hsl(var(--orange)); font-family: var(--serif); }
+  .cm-preview .custom-sub { font: 500 13px/1.45 var(--sans); opacity: 0.82; margin: 0; }
+  .cm-preview .custom-cta { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; background: hsl(var(--gray-950)); color: white; padding: 8px 14px; border-radius: 999px; font: 600 12px var(--sans); margin-top: 2px; border: none; }
+  .cm-preview .custom-cta svg { width: 12px; height: 12px; }
+  .cm-preview .custom-cta.on-light { background: white; color: hsl(var(--gray-950)); }
+  .cm-preview .custom-countdown { display: inline-flex; gap: 6px; margin-top: 2px; }
+  .cm-preview .custom-countdown span { background: rgba(0,0,0,0.12); border-radius: 6px; padding: 5px 10px; font: 600 11px var(--sans); font-variant-numeric: tabular-nums; }
+
+  /* Image upload widget */
+  .cm-upload { display: flex; flex-direction: column; gap: 6px; font: 600 11px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: hsl(var(--gray-500)); }
+  .cm-upload-zone { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1.5px dashed hsl(var(--gray-300)); border-radius: 10px; background: hsl(var(--gray-50)); cursor: pointer; transition: border-color .12s ease, background .12s ease; }
+  .cm-upload-zone:hover, .cm-upload-zone.dragover { border-color: hsl(var(--gray-700)); background: white; }
+  .cm-upload-zone.has-image { border-style: solid; padding: 8px; }
+  .cm-upload-thumb { width: 56px; height: 56px; border-radius: 8px; background: hsl(var(--gray-100)); background-size: cover; background-position: center; display: grid; place-items: center; color: hsl(var(--gray-500)); flex: none; }
+  .cm-upload-thumb svg { width: 20px; height: 20px; }
+  .cm-upload-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; text-transform: none; letter-spacing: 0; }
+  .cm-upload-title { font: 600 13px var(--sans); color: hsl(var(--gray-950)); }
+  .cm-upload-sub { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); }
+  .cm-upload-clear { background: transparent; border: 1px solid hsl(var(--border)); width: 28px; height: 28px; border-radius: 7px; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; flex: none; }
+  .cm-upload-clear:hover { background: hsl(var(--gray-100)); color: #b91c1c; border-color: rgba(220,38,38,0.3); }
+  .cm-upload-clear svg { width: 13px; height: 13px; }
+  .cm-upload input[type="file"] { display: none; }
+
+  /* Coming-soon placeholder */
+  .placeholder { background: white; border: 1px dashed hsl(var(--gray-300)); border-radius: 16px; padding: 60px 40px; text-align: center; }
+  .placeholder-icon { width: 44px; height: 44px; border-radius: 12px; background: hsl(var(--gray-100)); color: hsl(var(--gray-500)); display: inline-grid; place-items: center; margin-bottom: 14px; }
+  .placeholder-icon svg { width: 22px; height: 22px; }
+  .placeholder-title { font: 400 26px/1 var(--serif); color: hsl(var(--gray-950)); margin-bottom: 6px; letter-spacing: -0.005em; }
+  .placeholder-sub { font: 500 13.5px/1.55 var(--sans); color: hsl(var(--gray-500)); max-width: 38ch; margin: 0 auto; }
 
   /* Stats */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
@@ -94,9 +427,40 @@
   .tbl .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Monaco, Consolas, monospace; font-size: 12.5px; font-weight: 600; }
   .tbl .gray { color: hsl(var(--gray-500)); }
   .tbl .num { font-variant-numeric: tabular-nums; font-weight: 600; }
-  .tbl .copy { background: white; border: 1px solid hsl(var(--border)); padding: 4px 9px; border-radius: 6px; font: 500 11px var(--sans); color: hsl(var(--gray-700)); }
-  .tbl .copy:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
-  .tbl .copy.copied { background: rgba(255,140,40,0.12); color: hsl(var(--orange)); border-color: rgba(255,140,40,0.3); }
+  .tbl td.row-actions { vertical-align: middle; text-align: right; padding-top: 8px; padding-bottom: 8px; }
+  .row-actions-inner { display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end; }
+  .icon-btn { width: 28px; height: 28px; border-radius: 7px; background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-500)); display: inline-grid; place-items: center; cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; padding: 0; }
+  .icon-btn:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); border-color: hsl(var(--gray-300)); }
+  .icon-btn svg { width: 14px; height: 14px; pointer-events: none; }
+  .icon-btn.copied { background: rgba(255,140,40,0.12); color: hsl(var(--orange)); border-color: rgba(255,140,40,0.3); }
+  .em-delete-btn { background: transparent; border: 1px solid rgba(220,38,38,0.25); color: #b91c1c; padding: 9px 16px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; }
+  .em-delete-btn:hover { background: rgba(220,38,38,0.08); border-color: rgba(220,38,38,0.5); }
+
+  /* Edit modal */
+  .em-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .em-backdrop.open { display: flex; }
+  .em-card { background: white; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px -20px rgba(0,0,0,0.4); }
+  .em-head { padding: 22px 26px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .em-title { font: 600 16px var(--sans); color: hsl(var(--gray-950)); }
+  .em-close { background: transparent; border: 1px solid hsl(var(--border)); width: 28px; height: 28px; border-radius: 8px; color: hsl(var(--gray-500)); display: grid; place-items: center; cursor: pointer; font: 600 16px/1 var(--sans); }
+  .em-close:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .em-body { padding: 18px 26px 26px; }
+  .em-stats { display: flex; gap: 16px; padding: 12px 14px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--border)); border-radius: 8px; margin-bottom: 14px; font: 500 12.5px var(--sans); color: hsl(var(--gray-700)); }
+  .em-stats b { color: hsl(var(--gray-950)); font-weight: 700; }
+  .em-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid hsl(var(--border)); }
+  .em-actions .left { display: flex; gap: 8px; align-items: center; }
+
+  /* Custom checkbox row */
+  .em-toggle { display: flex !important; flex-direction: row !important; align-items: flex-start !important; gap: 12px !important; padding: 12px 14px; background: hsl(var(--gray-50)); border: 1px solid hsl(var(--border)); border-radius: 10px; cursor: pointer; text-transform: none !important; letter-spacing: 0 !important; color: hsl(var(--gray-950)) !important; transition: background .12s ease, border-color .12s ease; }
+  .em-toggle:hover { background: hsl(var(--gray-100)); border-color: hsl(var(--gray-300)); }
+  .em-toggle input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; margin: 0; }
+  .em-toggle-check { width: 18px; height: 18px; border-radius: 5px; background: white; border: 1.5px solid hsl(var(--gray-300)); display: grid; place-items: center; flex: none; margin-top: 1px; transition: background .12s ease, border-color .12s ease; }
+  .em-toggle-check svg { width: 11px; height: 11px; color: white; opacity: 0; transition: opacity .12s ease; }
+  .em-toggle input:checked ~ .em-toggle-check { background: hsl(var(--gray-950)); border-color: hsl(var(--gray-950)); }
+  .em-toggle input:checked ~ .em-toggle-check svg { opacity: 1; }
+  .em-toggle-text { display: flex; flex-direction: column; gap: 2px; }
+  .em-toggle-title { font: 600 13px var(--sans); color: hsl(var(--gray-950)); }
+  .em-toggle-sub { font: 500 11.5px var(--sans); color: hsl(var(--gray-500)); }
 
   .kind-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font: 700 9.5px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
   .kind-badge.code { background: rgba(255,140,40,0.12); color: hsl(var(--orange)); }
@@ -108,8 +472,15 @@
 
   .empty { text-align: center; color: hsl(var(--gray-500)); padding: 40px 20px; font: 500 14px var(--sans); }
 
+  .section { display: none; }
+  .section.active { display: block; }
   .pane { display: none; }
   .pane.active { display: block; }
+
+  .subtabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab-btn { background: white; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-700)); padding: 7px 14px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; }
+  .tab-btn.active { background: hsl(var(--gray-950)); color: white; border-color: hsl(var(--gray-950)); }
+  .tab-btn:hover:not(.active) { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
 </style>
 </head>
 <body>
@@ -129,44 +500,63 @@
 
 <!-- APP -->
 <div class="app" id="app" style="display:none">
-  <header class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-title">Affiliates</span>
-      <div class="topbar-tabs">
-        <button class="tab-btn active" data-tab="codes">Codes &amp; links</button>
-        <button class="tab-btn" data-tab="activity">Activity</button>
+  <aside class="sidebar">
+    <div class="sb-logo">R</div>
+    <button class="sb-item active" data-section="affiliates" title="Affiliates">
+      <i data-lucide="link"></i>
+      <span class="sb-tooltip">Affiliates</span>
+    </button>
+    <button class="sb-item" data-section="campaigns" title="Campaigns">
+      <i data-lucide="megaphone"></i>
+      <span class="sb-tooltip">Campaigns</span>
+    </button>
+    <button class="sb-item" data-section="cases" title="Case studies">
+      <i data-lucide="file-text"></i>
+      <span class="sb-tooltip">Case studies</span>
+    </button>
+    <div class="sb-spacer"></div>
+    <button class="sb-item" id="logoutBtn" title="Sign out">
+      <i data-lucide="log-out"></i>
+      <span class="sb-tooltip">Sign out</span>
+    </button>
+    <div class="sb-avatar" id="sbAvatar">B</div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="main-head">
+      <div class="main-head-right">
+        <span id="whoami"></span>
       </div>
-    </div>
-    <div class="topbar-right">
-      <span id="whoami"></span>
-      <button class="logout-btn" id="logoutBtn">Sign out</button>
-    </div>
-  </header>
+    </header>
 
-  <main class="main">
-    <!-- Stats -->
-    <section class="stats">
-      <div class="stat"><div class="stat-lbl">Active codes</div><div class="stat-val num" id="statCodes">&mdash;</div><div class="stat-sub">codes + links</div></div>
-      <div class="stat"><div class="stat-lbl">Views</div><div class="stat-val num" id="statViews">&mdash;</div><div class="stat-sub">all time</div></div>
-      <div class="stat"><div class="stat-lbl">Views this week</div><div class="stat-val num" id="statViewsWeek">&mdash;</div><div class="stat-sub">last 7 days</div></div>
-      <div class="stat"><div class="stat-lbl">Demos booked</div><div class="stat-val num" id="statDemos">&mdash;</div><div class="stat-sub">via HubSpot webhook</div></div>
-    </section>
+    <div class="main-scroll">
+      <div class="page-hero">
+        <div class="page-hero-title" id="sectionTitle">Affiliates</div>
+        <div class="page-hero-sub" id="sectionSub">Manage codes, links, and demo attribution.</div>
+      </div>
+    <main class="main">
+      <!-- AFFILIATES SECTION -->
+      <section class="section active" data-section="affiliates">
+        <div class="subtabs">
+          <button class="tab-btn active" data-tab="codes">Codes &amp; links</button>
+          <button class="tab-btn" data-tab="activity">Activity</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-lbl">Active codes</div><div class="stat-val num" id="statCodes">&mdash;</div><div class="stat-sub">codes + links</div></div>
+          <div class="stat"><div class="stat-lbl">Views</div><div class="stat-val num" id="statViews">&mdash;</div><div class="stat-sub">all time</div></div>
+          <div class="stat"><div class="stat-lbl">Demos booked</div><div class="stat-val num" id="statDemos">&mdash;</div><div class="stat-sub">via HubSpot webhook</div></div>
+          <div class="stat"><div class="stat-lbl">Closed won</div><div class="stat-val num" id="statClosedWon">&mdash;</div><div class="stat-sub">live from HubSpot</div></div>
+        </div>
 
-    <!-- CODES PANE -->
-    <div class="pane active" data-pane="codes">
+        <div class="pane active" data-pane="codes">
       <div class="card">
         <div class="card-head">
-          <span class="card-title">Create a code or link</span>
+          <span class="card-title">Create an affiliate link</span>
         </div>
         <form id="createForm">
+          <input type="hidden" id="newKind" value="code" />
           <div class="form-grid">
-            <label>Kind
-              <select id="newKind" required>
-                <option value="code">Discount code</option>
-                <option value="link">Tracking link</option>
-              </select>
-            </label>
-            <label>Code value
+            <label>UTM value
               <input type="text" id="newCode" required placeholder="WILDFLOWER20" autocapitalize="characters" />
             </label>
             <label>Owner brand
@@ -194,24 +584,23 @@
 
       <div class="card">
         <div class="card-head">
-          <span class="card-title">All codes &amp; links</span>
+          <span class="card-title">All affiliate links</span>
           <button class="btn-secondary" id="refreshCodes">Refresh</button>
         </div>
         <div class="tbl-wrap">
           <table class="tbl" id="codesTable">
             <thead>
               <tr>
-                <th>Code / handle</th>
-                <th>Kind</th>
+                <th>UTM value</th>
                 <th>Owner</th>
                 <th>Views</th>
                 <th>Demos</th>
+                <th>Closed won</th>
                 <th>Last seen</th>
-                <th>Share URL</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody id="codesBody"><tr><td colspan="8" class="empty">Loading&hellip;</td></tr></tbody>
+            <tbody id="codesBody"><tr><td colspan="7" class="empty">Loading&hellip;</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -242,8 +631,342 @@
         </div>
       </div>
     </div>
-  </main>
+      </section>
+
+      <!-- CAMPAIGNS SECTION -->
+      <section class="section" data-section="campaigns">
+        <!-- LIST VIEW -->
+        <div id="campaignsListView">
+          <div class="section-toolbar">
+            <div class="left"><b id="campaignsCount">0</b> total &middot; <span id="campaignsPubCount">0</span> published</div>
+            <button class="btn-primary" id="newCampaignBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              New campaign
+            </button>
+          </div>
+          <div class="campaigns-list" id="campaignsGrid">
+            <div class="campaigns-empty">Loading&hellip;</div>
+          </div>
+        </div>
+
+        <!-- EDITOR VIEW (Figma-style canvas) -->
+        <div id="campaignsEditorView" style="display: none;">
+          <div class="ce-topbar">
+            <button class="ce-topbar-back" id="cmCancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              Back
+            </button>
+            <span class="ce-topbar-title" id="cmModalTitle">Edit campaign</span>
+            <span class="ce-topbar-spacer"></span>
+            <span class="ce-topbar-msg" id="cmMsg"></span>
+            <button type="button" class="ce-topbar-btn" id="cmSettingsBtn" title="Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Settings
+            </button>
+            <button type="button" class="ce-topbar-btn primary" id="cmSaveBtn">Save</button>
+          </div>
+
+          <div class="se-body">
+            <!-- LEFT: SIMPLE FORM -->
+            <div class="se-form">
+              <div class="se-field" data-field="name">
+                <div class="se-field-head">
+                  <span class="se-field-label">Campaign name <span class="se-field-label-hint">· eyebrow</span></span>
+                  <label class="se-hidden-toggle"><input type="checkbox" id="seNameHidden" /> Hidden</label>
+                </div>
+                <input type="text" class="se-input eyebrow" id="seName" placeholder="REDO GIVE BACK EVENT" />
+              </div>
+
+              <div class="se-field" data-field="header">
+                <div class="se-field-head">
+                  <span class="se-field-label">Header <span class="se-field-label-hint">· big serif title</span></span>
+                  <label class="se-hidden-toggle"><input type="checkbox" id="seHeaderHidden" /> Hidden</label>
+                </div>
+                <input type="text" class="se-input serif" id="seHeader" placeholder="We're giving back to you." />
+              </div>
+
+              <div class="se-field" data-field="subheader">
+                <div class="se-field-head">
+                  <span class="se-field-label">Subheader <span class="se-field-label-hint">· body line under the title</span></span>
+                  <label class="se-hidden-toggle"><input type="checkbox" id="seSubheaderHidden" /> Hidden</label>
+                </div>
+                <input type="text" class="se-input" id="seSubheader" placeholder="On top of your $200 referral payout." />
+              </div>
+
+              <div class="se-field" data-field="align">
+                <div class="se-field-head">
+                  <span class="se-field-label">Text alignment</span>
+                </div>
+                <div class="se-segmented" id="seAlignGroup" role="tablist" aria-label="Text alignment">
+                  <button type="button" class="se-seg" data-align="left" title="Left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" x2="3" y1="6" y2="6"/><line x1="14" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
+                  </button>
+                  <button type="button" class="se-seg active" data-align="center" title="Center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="17" x2="7" y1="12" y2="12"/><line x1="19" x2="5" y1="18" y2="18"/></svg>
+                  </button>
+                  <button type="button" class="se-seg" data-align="right" title="Right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="7" y1="6" y2="6"/><line x1="21" x2="10" y1="12" y2="12"/><line x1="21" x2="7" y1="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="se-field" data-field="button">
+                <div class="se-field-head">
+                  <span class="se-field-label">Button</span>
+                  <label class="se-hidden-toggle"><input type="checkbox" id="seButtonHidden" /> Hidden</label>
+                </div>
+                <div class="se-row-button">
+                  <input type="text" class="se-input" id="seButtonLabel" placeholder="Share my link" />
+                  <select class="se-select" id="seButtonAction">
+                    <option value="url">Link to URL</option>
+                    <option value="open_modal">Open popup</option>
+                  </select>
+                </div>
+                <input type="url" class="se-input" id="seButtonUrl" placeholder="https://&hellip;" />
+                <div class="se-row-button-colors">
+                  <div class="se-color-row">
+                    <input type="color" id="seButtonBgPicker" value="#0d0d0d" />
+                    <label>Background</label>
+                    <input type="text" id="seButtonBg" value="#0d0d0d" />
+                  </div>
+                  <div class="se-color-row">
+                    <input type="color" id="seButtonTextColorPicker" value="#ffffff" />
+                    <label>Text</label>
+                    <input type="text" id="seButtonTextColor" value="#ffffff" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="se-field" data-field="image">
+                <div class="se-field-head">
+                  <span class="se-field-label">Image <span class="se-field-label-hint">· background + thumbnail</span></span>
+                </div>
+                <label class="se-image-upload" id="seImageZone" for="seImageFile">
+                  <div class="se-image-thumb" id="seImageThumb">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  </div>
+                  <div class="se-image-text">
+                    <span class="se-image-title" id="seImageTitle">Drop an image or click to upload</span>
+                    <span class="se-image-sub" id="seImageSub">PNG, JPG, or WEBP up to 5MB</span>
+                  </div>
+                  <button type="button" class="se-image-clear" id="seImageClear" style="display:none;" title="Remove image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                  <input type="file" id="seImageFile" accept="image/png,image/jpeg,image/webp" />
+                </label>
+                <div class="se-sliders">
+                  <div class="se-slider-row">
+                    <span class="se-slider-lbl">Opacity</span>
+                    <input type="range" min="0" max="100" step="1" value="100" id="seImageOpacity" />
+                    <span class="se-slider-val" id="seImageOpacityVal">100%</span>
+                  </div>
+                  <div class="se-slider-row">
+                    <span class="se-slider-lbl">Zoom</span>
+                    <input type="range" min="50" max="200" step="1" value="100" id="seImageZoom" />
+                    <span class="se-slider-val" id="seImageZoomVal">100%</span>
+                  </div>
+                  <div class="se-slider-row">
+                    <span class="se-slider-lbl">Rotate</span>
+                    <input type="range" min="0" max="360" step="1" value="0" id="seImageRotate" />
+                    <span class="se-slider-val" id="seImageRotateVal">0°</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: DUAL PREVIEWS (sticky) -->
+            <div class="se-previews">
+              <div>
+                <div class="se-preview-label">Cover preview &mdash; how it looks as a hero</div>
+                <div class="se-cover" id="seCover">
+                  <div class="se-cover-img" id="seCoverImg"></div>
+                  <div class="se-cover-inner">
+                    <p class="se-cover-eyebrow" id="seCoverEyebrow">Redo Give Back Event</p>
+                    <h2 class="se-cover-title" id="seCoverTitle">We're giving back to you.</h2>
+                    <p class="se-cover-sub" id="seCoverSub">Tune in June 9th to participate.</p>
+                    <button class="se-cover-btn" id="seCoverBtn">
+                      <span id="seCoverBtnLabel">Learn more</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="se-preview-label">Thumbnail preview &mdash; how it looks in earnings</div>
+                <div class="se-thumb-card">
+                  <div class="se-thumb-body">
+                    <div class="se-thumb-text">
+                      <p class="se-thumb-eyebrow" id="seThumbEyebrow">Redo Give Back Event</p>
+                      <h3 class="se-thumb-title" id="seThumbTitle">We're giving back to you.</h3>
+                      <p class="se-thumb-sub" id="seThumbSub">Tune in June 9th to participate.</p>
+                    </div>
+                    <div class="se-thumb-img" id="seThumbImg"></div>
+                  </div>
+                  <div class="se-thumb-foot">
+                    <span class="se-thumb-state"><span class="se-thumb-state-dot"></span> Live</span>
+                    <span class="se-thumb-btn" id="seThumbBtn">
+                      <span id="seThumbBtnLabel">Learn more</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HIDDEN FORM: settings drawer pulls these in. Save handler reads from them. -->
+          <form id="cmForm" style="display: none;">
+            <input type="text" id="cmTitle" />
+            <input type="text" id="cmAccent" />
+            <input type="text" id="cmName" />
+            <input type="text" id="cmSubtitle" />
+            <input type="hidden" id="cmImage" />
+            <input type="color" id="cmBgPicker" value="#f5dfc8" />
+            <input type="text" id="cmBg" />
+            <input type="color" id="cmTextPicker" value="#0d0d0d" />
+            <input type="text" id="cmTextColor" />
+            <input type="text" id="cmCtaLabel" />
+            <select id="cmCtaAction"><option value="url">url</option><option value="open_modal">open_modal</option><option value="none">none</option></select>
+            <input type="url" id="cmCtaUrl" />
+            <input type="checkbox" id="cmHasCountdown" />
+            <input type="datetime-local" id="cmCountdownTarget" />
+            <input type="text" id="cmPopupEyebrow" />
+            <input type="text" id="cmPopupTitle" />
+            <textarea id="cmPopupBody"></textarea>
+            <input type="url" id="cmPopupImage" />
+            <input type="text" id="cmPopupCtaLabel" />
+            <input type="url" id="cmPopupCtaUrl" />
+            <select id="cmStatus"><option value="open">open</option><option value="live">live</option><option value="alwayson">alwayson</option><option value="closed">closed</option></select>
+            <select id="cmAudience"><option value="all">all</option><option value="merchants">merchants</option><option value="admins">admins</option></select>
+            <input type="datetime-local" id="cmEndsAt" />
+            <select id="cmDisplayOrder"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="99">99</option></select>
+            <input type="checkbox" id="cmPublished" />
+            <button type="button" id="cmDelete">Delete</button>
+            <button type="button" id="cmCancel2">Cancel</button>
+            <button type="submit">Save</button>
+          </form>
+
+          <!-- SETTINGS DRAWER (opens from Settings button) -->
+          <div class="ce-drawer-backdrop" id="cmSettingsDrawer">
+            <div class="ce-drawer">
+              <div class="ce-drawer-head">
+                <span class="ce-drawer-title">Campaign settings</span>
+                <button class="ce-drawer-close" id="cmSettingsClose">&times;</button>
+              </div>
+              <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <label class="full" style="grid-column: 1 / -1;">Internal name
+                  <input type="text" id="cmNameDrawer" placeholder="Free AirPods promo" />
+                </label>
+                <label>Status
+                  <select id="cmStatusDrawer">
+                    <option value="open">Draft</option>
+                    <option value="live">Live</option>
+                    <option value="alwayson">Always on</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </label>
+                <label>Audience
+                  <select id="cmAudienceDrawer">
+                    <option value="all">All merchants</option>
+                    <option value="merchants">Merchants only</option>
+                    <option value="admins">Admins only</option>
+                  </select>
+                </label>
+                <label class="full" style="grid-column: 1 / -1;">Home page slot
+                  <select id="cmDisplayOrderDrawer">
+                    <option value="1">Slot 1 (Style 1)</option>
+                    <option value="2">Slot 2 (Style 2)</option>
+                    <option value="3">Slot 3 (Style 3)</option>
+                    <option value="99">Not on home page</option>
+                  </select>
+                </label>
+                <label class="full" style="grid-column: 1 / -1;">Ends at (optional &mdash; auto-hides after)
+                  <input type="datetime-local" id="cmEndsAtDrawer" />
+                </label>
+                <label class="em-toggle full" style="grid-column: 1 / -1; margin-top: 4px;">
+                  <input type="checkbox" id="cmPublishedDrawer" checked />
+                  <span class="em-toggle-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+                  <span class="em-toggle-text">
+                    <span class="em-toggle-title">Published</span>
+                    <span class="em-toggle-sub">Uncheck to keep this as a draft, hidden from merchants.</span>
+                  </span>
+                </label>
+              </div>
+              <button type="button" class="em-delete-btn" id="cmDeleteDrawer" style="margin-top: 18px; display: none;">Delete this campaign</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CASE STUDIES SECTION -->
+      <section class="section" data-section="cases">
+        <div class="placeholder">
+          <div class="placeholder-icon"><i data-lucide="file-text"></i></div>
+          <div class="placeholder-title">Case studies</div>
+          <div class="placeholder-sub">Manage the case study cards that rotate on the merchant home page &mdash; brand image, stat, story, which Redo product it&rsquo;s about. Editing coming next pass.</div>
+        </div>
+      </section>
+    </main>
+    </div>
+  </div>
 </div>
+
+<!-- Edit modal -->
+<div class="em-backdrop" id="editModal" role="dialog" aria-modal="true">
+  <div class="em-card">
+    <div class="em-head">
+      <span class="em-title">Edit affiliate link</span>
+      <button class="em-close" id="editClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="em-body">
+      <div class="em-stats" id="editStats">&mdash;</div>
+      <form id="editForm">
+        <input type="hidden" id="editKind" value="code" />
+        <div class="form-grid">
+          <label>UTM value
+            <input type="text" id="editCode" required autocapitalize="characters" />
+          </label>
+          <label>Owner brand
+            <input type="text" id="editBrand" />
+          </label>
+          <label>Owner name
+            <input type="text" id="editOwnerName" required />
+          </label>
+          <label>Owner email
+            <input type="email" id="editOwnerEmail" />
+          </label>
+          <label>Redirect URL
+            <input type="url" id="editRedirect" />
+          </label>
+          <label class="full">Notes (internal)
+            <textarea id="editNotes"></textarea>
+          </label>
+          <label class="em-toggle full">
+            <input type="checkbox" id="editActive" />
+            <span class="em-toggle-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="em-toggle-text">
+              <span class="em-toggle-title">Active</span>
+              <span class="em-toggle-sub">Uncheck to soft-disable without losing history.</span>
+            </span>
+          </label>
+        </div>
+        <div class="em-actions">
+          <span class="left">
+            <button type="button" class="em-delete-btn" id="editDelete">Delete</button>
+            <span id="editMsg" class="form-msg"></span>
+          </span>
+          <span style="display: flex; gap: 8px;">
+            <button type="button" class="btn-secondary" id="editCancel">Cancel</button>
+            <button type="submit" class="btn-primary">Save</button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <script>
   const SUPABASE_URL = "https://ujlffezngjtziqoysrea.supabase.co";
@@ -258,8 +981,17 @@
     loginScreen.style.display = "none";
     app.style.display = "grid";
     document.getElementById("whoami").textContent = email;
+    const initials = (email.match(/^[a-z]/i) || ["?"])[0].toUpperCase();
+    document.getElementById("sbAvatar").textContent = initials;
+    if (window.lucide) lucide.createIcons();
     await Promise.all([refreshStats(), refreshCodes(), refreshActivity()]);
   }
+
+  const SECTION_META = {
+    affiliates: { title: "Affiliates", sub: "Manage codes, links, and demo attribution." },
+    campaigns: { title: "Campaigns", sub: "Reward programs you offer to affiliates and merchants." },
+    cases: { title: "Case studies", sub: "Success stories that rotate on merchant home pages." },
+  };
 
   async function tryResume() {
     const { data: { session } } = await sb.auth.getSession();
@@ -293,26 +1025,37 @@
     window.location.reload();
   });
 
-  // Tabs
+  // Sidebar section switching
+  document.querySelectorAll(".sb-item[data-section]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-section");
+      document.querySelectorAll(".sb-item[data-section]").forEach((b) => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".section").forEach((s) => s.classList.toggle("active", s.getAttribute("data-section") === target));
+      const meta = SECTION_META[target] || { title: target, sub: "" };
+      document.getElementById("sectionTitle").textContent = meta.title;
+      document.getElementById("sectionSub").textContent = meta.sub;
+      if (target === "campaigns") loadCampaigns();
+      if (window.lucide) lucide.createIcons();
+    });
+  });
+
+  // Sub-tabs inside Affiliates (codes vs activity)
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
       const target = btn.getAttribute("data-tab");
-      document.querySelectorAll(".pane").forEach((p) => p.classList.toggle("active", p.getAttribute("data-pane") === target));
+      document.querySelectorAll('[data-section="affiliates"] .pane').forEach((p) => p.classList.toggle("active", p.getAttribute("data-pane") === target));
     });
   });
 
   async function refreshStats() {
-    const since = new Date(Date.now() - 7 * 86400e3).toISOString();
-    const [codes, views, viewsWeek, demos] = await Promise.all([
+    const [codes, views, demos] = await Promise.all([
       sb.from("affiliate_codes").select("id", { count: "exact", head: true }).eq("is_active", true),
       sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view"),
-      sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "view").gte("created_at", since),
       sb.from("affiliate_events").select("id", { count: "exact", head: true }).eq("event_type", "demo_booked"),
     ]);
     document.getElementById("statCodes").textContent = codes.count ?? 0;
     document.getElementById("statViews").textContent = views.count ?? 0;
-    document.getElementById("statViewsWeek").textContent = viewsWeek.count ?? 0;
     document.getElementById("statDemos").textContent = demos.count ?? 0;
   }
 
@@ -320,7 +1063,7 @@
     const { data, error } = await sb.from("affiliate_code_stats").select("*").order("created_at", { ascending: false });
     const body = document.getElementById("codesBody");
     if (error) { body.innerHTML = `<tr><td colspan="7" class="empty">Error: ${escapeHtml(error.message)}</td></tr>`; return; }
-    if (!data || data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="empty">No codes yet. Create one above.</td></tr>`; return; }
+    if (!data || data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="empty">No affiliate links yet. Create one above.</td></tr>`; return; }
     body.innerHTML = data.map((c) => {
       // Build the direct share URL: redo.com (or per-code override) with the
       // affiliate_code + UTMs baked into the query string. No redirector.
@@ -335,29 +1078,79 @@
       const last = c.last_seen_at ? new Date(c.last_seen_at).toLocaleString() : "&mdash;";
       const ownerLines = [c.owner_brand, c.owner_email].filter(Boolean);
       return `
-        <tr>
+        <tr data-id="${c.id}">
           <td><span class="mono">${escapeHtml(c.code)}</span></td>
-          <td><span class="kind-badge ${c.kind}">${c.kind}</span></td>
           <td>
             <div>${escapeHtml(c.owner_name || "")}</div>
             <div class="gray">${ownerLines.map(escapeHtml).join(" &middot; ")}</div>
           </td>
           <td class="num">${c.views || 0}</td>
           <td class="num">${c.demos_booked || 0}</td>
+          <td class="num" data-cw="${escapeHtml(c.code)}"><span class="gray">&middot;&middot;&middot;</span></td>
           <td class="gray">${last}</td>
-          <td class="mono gray" style="font-size: 11.5px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(shareUrl)}</td>
-          <td><button class="copy" data-copy="${escapeHtml(shareUrl)}">Copy</button></td>
+          <td class="row-actions">
+            <span class="row-actions-inner">
+              <button class="icon-btn copy-btn" data-copy="${escapeHtml(shareUrl)}" title="Copy share URL" aria-label="Copy share URL">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              </button>
+              <button class="icon-btn edit-btn" data-id="${c.id}" title="Edit" aria-label="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+              </button>
+            </span>
+          </td>
         </tr>
       `;
     }).join("");
-    body.querySelectorAll(".copy").forEach((btn) => {
+    // Stash data for edit modal
+    codesById = Object.fromEntries(data.map((c) => [c.id, c]));
+    body.querySelectorAll(".copy-btn").forEach((btn) => {
+      const original = btn.innerHTML;
       btn.addEventListener("click", async () => {
         await navigator.clipboard.writeText(btn.getAttribute("data-copy"));
         btn.classList.add("copied");
-        btn.textContent = "Copied!";
-        setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "Copy URL"; }, 1400);
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+        setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = original; }, 1400);
       });
     });
+    body.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openEditModal(btn.getAttribute("data-id")));
+    });
+    // Live closed-won counts from HubSpot (non-blocking)
+    loadClosedWon(data.map((c) => c.code));
+  }
+  let codesById = {};
+
+  // Pull closed-won deal counts per affiliate code from HubSpot via the edge function.
+  const HUBSPOT_FN_URL = "https://ujlffezngjtziqoysrea.supabase.co/functions/v1/hubspot-closed-won";
+  async function loadClosedWon(codes) {
+    const statEl = document.getElementById("statClosedWon");
+    if (!codes || !codes.length) { if (statEl) statEl.textContent = "0"; return; }
+    let data;
+    try {
+      const res = await fetch(HUBSPOT_FN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codes }),
+      });
+      data = await res.json();
+    } catch (e) {
+      if (statEl) { statEl.textContent = "—"; statEl.title = "Could not reach HubSpot function"; }
+      return;
+    }
+    if (!data || data.configured === false) {
+      if (statEl) { statEl.textContent = "—"; statEl.title = "HubSpot token not configured in Supabase"; }
+      document.querySelectorAll("[data-cw]").forEach((td) => { td.innerHTML = `<span class="gray">—</span>`; });
+      return;
+    }
+    let total = 0;
+    document.querySelectorAll("[data-cw]").forEach((td) => {
+      const code = td.getAttribute("data-cw");
+      const b = (data.byCode && data.byCode[code]) || { count: 0, totalCents: 0 };
+      total += b.count || 0;
+      td.textContent = b.count || 0;
+      if (b.totalCents) td.title = "$" + (b.totalCents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 }) + " closed-won value";
+    });
+    if (statEl) statEl.textContent = total;
   }
 
   async function refreshActivity() {
@@ -416,11 +1209,890 @@
     setTimeout(() => { msg.textContent = ""; }, 2500);
   });
 
+  // ============================== EDIT MODAL ==============================
+  const editModal = document.getElementById("editModal");
+  let editingId = null;
+
+  function openEditModal(id) {
+    const c = codesById[id];
+    if (!c) return;
+    editingId = id;
+    document.getElementById("editKind").value = c.kind;
+    document.getElementById("editCode").value = c.code;
+    document.getElementById("editBrand").value = c.owner_brand || "";
+    document.getElementById("editOwnerName").value = c.owner_name || "";
+    document.getElementById("editOwnerEmail").value = c.owner_email || "";
+    document.getElementById("editRedirect").value = c.redirect_url || "";
+    document.getElementById("editNotes").value = c.notes || "";
+    document.getElementById("editActive").checked = c.is_active !== false;
+    document.getElementById("editStats").innerHTML =
+      `<span><b>${c.views || 0}</b> views</span><span><b>${c.demos_booked || 0}</b> demos</span><span>Created ${new Date(c.created_at).toLocaleDateString()}</span>`;
+    const msg = document.getElementById("editMsg");
+    msg.textContent = ""; msg.className = "form-msg";
+    editModal.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeEditModal() {
+    editModal.classList.remove("open");
+    document.body.style.overflow = "";
+    editingId = null;
+  }
+
+  document.getElementById("editClose").addEventListener("click", closeEditModal);
+  document.getElementById("editCancel").addEventListener("click", closeEditModal);
+  editModal.addEventListener("click", (e) => { if (e.target === editModal) closeEditModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && editModal.classList.contains("open")) closeEditModal(); });
+
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!editingId) return;
+    const msg = document.getElementById("editMsg");
+    msg.textContent = "Saving..."; msg.className = "form-msg";
+    const patch = {
+      kind: document.getElementById("editKind").value,
+      code: document.getElementById("editCode").value.trim(),
+      owner_brand: document.getElementById("editBrand").value.trim() || null,
+      owner_name: document.getElementById("editOwnerName").value.trim(),
+      owner_email: document.getElementById("editOwnerEmail").value.trim() || null,
+      redirect_url: document.getElementById("editRedirect").value.trim() || "https://redo.com",
+      notes: document.getElementById("editNotes").value.trim() || null,
+      is_active: document.getElementById("editActive").checked,
+    };
+    const { error } = await sb.from("affiliate_codes").update(patch).eq("id", editingId);
+    if (error) { msg.textContent = error.message; msg.className = "form-msg err"; return; }
+    msg.textContent = "Saved."; msg.className = "form-msg ok";
+    await Promise.all([refreshStats(), refreshCodes()]);
+    setTimeout(closeEditModal, 600);
+  });
+
+  // ============================== DELETE ==============================
+  document.getElementById("editDelete").addEventListener("click", async () => {
+    if (!editingId) return;
+    const c = codesById[editingId];
+    if (!c) return;
+    const views = c.views || 0;
+    const demos = c.demos_booked || 0;
+    const detail = (views > 0 || demos > 0)
+      ? `\n\nThis also permanently deletes ${views} view${views === 1 ? "" : "s"} and ${demos} demo${demos === 1 ? "" : "s"} from the event history.`
+      : "";
+    const ok = confirm(`Permanently delete "${c.code}"?${detail}\n\nThis can't be undone. Tip: uncheck Active above and Save instead to soft-disable while keeping history.`);
+    if (!ok) return;
+    const btn = document.getElementById("editDelete");
+    const msg = document.getElementById("editMsg");
+    btn.disabled = true; btn.textContent = "Deleting...";
+    msg.textContent = ""; msg.className = "form-msg";
+    const { error } = await sb.from("affiliate_codes").delete().eq("id", editingId);
+    if (error) {
+      msg.textContent = error.message;
+      msg.className = "form-msg err";
+      btn.disabled = false;
+      btn.textContent = "Delete";
+      return;
+    }
+    closeEditModal();
+    await Promise.all([refreshStats(), refreshCodes()]);
+    btn.disabled = false;
+    btn.textContent = "Delete";
+  });
+
   function escapeHtml(s) {
     if (s == null) return "";
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   function shortUrl(u) { try { return new URL(u).host; } catch { return u.slice(0, 40); } }
+
+  // ============================== CAMPAIGNS ==============================
+  let campaignsById = {};
+  let editingCampaignId = null;
+
+  async function loadCampaigns() {
+    const grid = document.getElementById("campaignsGrid");
+    grid.innerHTML = `<div class="campaigns-empty">Loading&hellip;</div>`;
+    const { data, error } = await sb.from("campaigns").select("*").order("display_order", { ascending: true, nullsFirst: false }).order("created_at", { ascending: true });
+    if (error) { grid.innerHTML = `<div class="campaigns-empty">Error: ${escapeHtml(error.message)}</div>`; return; }
+    campaignsById = Object.fromEntries((data || []).map((c) => [c.id, c]));
+    document.getElementById("campaignsCount").textContent = data?.length || 0;
+    document.getElementById("campaignsPubCount").textContent = (data || []).filter((c) => c.published).length;
+
+    if (!data || data.length === 0) {
+      grid.innerHTML = `<div class="campaigns-empty">No campaigns yet. Click <b>+ New campaign</b> to create your first one.</div>`;
+      return;
+    }
+
+    grid.innerHTML = data.map((c, idx) => {
+      const bg = c.background_color || "#f5dfc8";
+      const tc = c.text_color || "#0d0d0d";
+      const title = c.title || c.description || "Untitled campaign";
+      const subtitle = c.subtitle || c.description || "";
+      const status = c.status || "open";
+      const statusClass = !c.published ? "draft" : status === "live" ? "live" : status === "closed" ? "closed" : status === "alwayson" ? "alwayson" : "draft";
+      const statusLabel = !c.published ? "Draft" : status === "live" ? "Live" : status === "alwayson" ? "Always on" : status === "closed" ? "Closed" : "Draft";
+      const slotBadge = idx < 3 ? `<span class="cl-slot" title="Shown in home page style ${idx + 1}">Home · Slot ${idx + 1}</span>` : "";
+      const date = c.ends_at
+        ? `Ends ${new Date(c.ends_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+        : `Updated ${new Date(c.updated_at || c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+
+      // Thumbnail: image if present, otherwise tinted square with first letter of title
+      const thumbStyle = c.image_url
+        ? `background-image: url('${escapeHtml(c.image_url)}');`
+        : `background-color: ${escapeHtml(bg)}; color: ${escapeHtml(tc)};`;
+      const letter = (title.trim()[0] || "C").toUpperCase();
+      const thumbInner = c.image_url ? "" : `<span class="cl-thumb-letter">${escapeHtml(letter)}</span>`;
+
+      return `
+        <div class="cl-row" data-id="${c.id}">
+          <div class="cl-thumb" style="${thumbStyle}">${thumbInner}</div>
+          <div class="cl-text">
+            <div class="cl-title">${escapeHtml(title)}</div>
+            <div class="cl-sub">${escapeHtml(subtitle || "No subtitle")}</div>
+          </div>
+          ${slotBadge}
+          <span class="cl-status ${statusClass}">${statusLabel}</span>
+          <span class="cl-date">${date}</span>
+          <button class="cl-edit" data-id="${c.id}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></button>
+        </div>
+      `;
+    }).join("");
+
+    grid.querySelectorAll(".cl-row").forEach((row) => row.addEventListener("click", (e) => {
+      if (e.target.closest("button")) return;
+      openCampaignModal(row.getAttribute("data-id"));
+    }));
+    grid.querySelectorAll(".cl-edit").forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openCampaignModal(btn.getAttribute("data-id"));
+    }));
+  }
+
+  const campaignsListView = document.getElementById("campaignsListView");
+  const campaignsEditorView = document.getElementById("campaignsEditorView");
+
+  function openCampaignModal(id) {
+    editingCampaignId = id;
+    const c = id ? (campaignsById[id] || {}) : {};
+    document.getElementById("cmModalTitle").textContent = id ? "Edit campaign" : "Create campaign";
+
+    // Hero block
+    document.getElementById("cmTitle").value = c.title || "";
+    document.getElementById("cmAccent").value = c.accent_word || "";
+    document.getElementById("cmName").value = c.description || "";
+    document.getElementById("cmSubtitle").value = c.subtitle || "";
+    document.getElementById("cmImage").value = c.image_url || "";
+    cmSyncUploadUI();
+    const bg = c.background_color || "#f5dfc8";
+    const tc = c.text_color || "#0d0d0d";
+    document.getElementById("cmBg").value = bg;
+    document.getElementById("cmBgPicker").value = /^#[0-9a-f]{6}$/i.test(bg) ? bg : "#f5dfc8";
+    document.getElementById("cmTextColor").value = tc;
+    document.getElementById("cmTextPicker").value = /^#[0-9a-f]{6}$/i.test(tc) ? tc : "#0d0d0d";
+    document.getElementById("cmCtaLabel").value = c.cta_label || "";
+    document.getElementById("cmCtaAction").value = c.cta_action || "url";
+    document.getElementById("cmCtaUrl").value = c.cta_url || "";
+    document.getElementById("cmHasCountdown").checked = !!c.has_countdown;
+    document.getElementById("cmCountdownTarget").value = c.countdown_target ? new Date(c.countdown_target).toISOString().slice(0, 16) : "";
+
+    // Popup
+    document.getElementById("cmPopupEyebrow").value = c.popup_eyebrow || c.tag || "";
+    document.getElementById("cmPopupTitle").value = c.popup_title || "";
+    document.getElementById("cmPopupBody").value = c.popup_body || c.body || "";
+    document.getElementById("cmPopupImage").value = c.popup_image_url || "";
+    document.getElementById("cmPopupCtaLabel").value = c.popup_cta_label || "";
+    document.getElementById("cmPopupCtaUrl").value = c.popup_cta_url || "";
+
+    // Audience / status
+    document.getElementById("cmStatus").value = c.status || "open";
+    document.getElementById("cmAudience").value = c.audience || "all";
+    document.getElementById("cmEndsAt").value = c.ends_at ? new Date(c.ends_at).toISOString().slice(0, 16) : "";
+    document.getElementById("cmPublished").checked = c.published !== false;
+    const slotVal = c.display_order != null && c.display_order >= 1 && c.display_order <= 3 ? String(c.display_order) : "99";
+    document.getElementById("cmDisplayOrder").value = slotVal;
+    document.getElementById("cmDelete").style.display = id ? "inline-block" : "none";
+
+    const msg = document.getElementById("cmMsg"); msg.textContent = ""; msg.className = "form-msg ce-topbar-msg";
+    cmSyncConditionalFields();
+    // Sync settings drawer fields from hidden form
+    document.getElementById("cmNameDrawer").value = document.getElementById("cmName").value;
+    document.getElementById("cmStatusDrawer").value = document.getElementById("cmStatus").value;
+    document.getElementById("cmAudienceDrawer").value = document.getElementById("cmAudience").value;
+    document.getElementById("cmEndsAtDrawer").value = document.getElementById("cmEndsAt").value;
+    document.getElementById("cmDisplayOrderDrawer").value = document.getElementById("cmDisplayOrder").value;
+    document.getElementById("cmPublishedDrawer").checked = document.getElementById("cmPublished").checked;
+    document.getElementById("cmDeleteDrawer").style.display = id ? "block" : "none";
+    document.getElementById("cmModalTitle").textContent = id ? `Edit · ${c.description || c.title || "campaign"}` : "Create campaign";
+    campaignsListView.style.display = "none";
+    campaignsEditorView.style.display = "block";
+    document.querySelector(".main-scroll")?.scrollTo({ top: 0, behavior: "instant" });
+    // Load simple-editor state
+    SimpleEditor.load(c);
+  }
+
+  function cmSyncConditionalFields() {
+    const ctaSel = document.getElementById("cmCtaAction");
+    if (!ctaSel) return;
+    const action = ctaSel.value;
+    const urlRow = document.querySelector('[data-show-when="url"]');
+    if (urlRow) urlRow.style.display = action === "url" ? "flex" : "none";
+    const cdRow = document.getElementById("cmCountdownTargetRow");
+    if (cdRow) cdRow.style.display = document.getElementById("cmHasCountdown").checked ? "flex" : "none";
+  }
+  document.getElementById("cmCtaAction").addEventListener("change", cmSyncConditionalFields);
+  document.getElementById("cmHasCountdown").addEventListener("change", cmSyncConditionalFields);
+
+  function escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+  function isHex(v) { return /^#[0-9a-f]{3,8}$/i.test(v); }
+  function isLightColor(hex) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex);
+    if (!m) return true;
+    const n = parseInt(m[1], 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return (r * 0.299 + g * 0.587 + b * 0.114) > 160;
+  }
+  // Read template from the editing campaign (or default to custom for new ones)
+  function cmCurrentTemplate() {
+    const c = editingCampaignId ? (campaignsById[editingCampaignId] || {}) : {};
+    return c.template || "custom";
+  }
+
+  function applyAccent(titleStr, accent) {
+    const escaped = escHtml(titleStr);
+    if (!accent) return escaped;
+    const safe = accent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return escaped.replace(new RegExp(`\\b(${safe})\\b`, "i"), "<em>$1</em>");
+  }
+
+  // Compute countdown segments from the target datetime. If no target, use the preview-friendly default 14/10/54.
+  function countdownSegments() {
+    const raw = document.getElementById("cmCountdownTarget").value;
+    if (!raw) return { d: "14", h: "10", m: "54" };
+    const t = new Date(raw).getTime();
+    let diff = Math.max(0, t - Date.now());
+    const d = Math.floor(diff / 86400000); diff -= d * 86400000;
+    const h = Math.floor(diff / 3600000); diff -= h * 3600000;
+    const m = Math.floor(diff / 60000);
+    return { d: String(d), h: String(h), m: String(m) };
+  }
+
+  const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>';
+
+  // Stubbed: form-based previews replaced by canvas editor
+  function cmRenderPreview() {}
+  function cmRenderPopupPreview() {}
+  function _deadCmRenderPreview() {
+    const tpl = cmCurrentTemplate();
+    const title = document.getElementById("cmTitle").value.trim() || "Untitled";
+    const accent = document.getElementById("cmAccent").value.trim();
+    const subtitle = document.getElementById("cmSubtitle").value.trim();
+    const image = document.getElementById("cmImage").value.trim();
+    const bg = document.getElementById("cmBg").value.trim();
+    const tc = document.getElementById("cmTextColor").value.trim();
+    const ctaLabel = document.getElementById("cmCtaLabel").value.trim() || "Learn more";
+    const action = document.getElementById("cmCtaAction").value;
+    const showCountdown = document.getElementById("cmHasCountdown").checked;
+
+    const preview = document.getElementById("cmPreview");
+    // Reset template classes
+    preview.classList.remove("tpl-give-back", "tpl-free-airpods", "tpl-airpods-jump", "tpl-custom", "has-bg-image");
+    preview.style.cssText = "";
+    preview.classList.add(`tpl-${tpl.replace(/_/g, "-")}`);
+
+    const tplLabel = ({
+      give_back: "Give Back Day template",
+      free_airpods: "Free AirPods template",
+      airpods_jump: "AirPods + Jump template",
+      custom: "Custom template",
+    })[tpl] || "Custom template";
+    document.getElementById("cmPreviewTplName").textContent = tplLabel;
+
+    if (tpl === "give_back") {
+      // Use uploaded image if present, otherwise the home page asset
+      const heroImg = image || "give-back-hero.png";
+      preview.style.backgroundImage = `url("${heroImg.replace(/"/g, "%22")}")`;
+      if (isHex(bg)) preview.style.backgroundColor = bg;
+      const cd = countdownSegments();
+      preview.innerHTML = `
+        <div class="gb-inner">
+          <h2 class="gb-headline">${escHtml(title)}</h2>
+          ${subtitle ? `<p class="gb-tag">${escHtml(subtitle)}</p>` : ""}
+          ${showCountdown ? `
+          <div class="gb-countdown">
+            <div class="gb-chip"><div class="gb-chip-num">${cd.d}</div><div class="gb-chip-lbl">Days</div></div>
+            <div class="gb-chip"><div class="gb-chip-num">${cd.h}</div><div class="gb-chip-lbl">Hours</div></div>
+            <div class="gb-chip"><div class="gb-chip-num">${cd.m}</div><div class="gb-chip-lbl">Mins</div></div>
+          </div>` : ""}
+          ${action !== "none" ? `<button class="gb-pill">${escHtml(ctaLabel)} ${ARROW_SVG}</button>` : ""}
+        </div>
+      `;
+      return;
+    }
+
+    if (tpl === "free_airpods" || tpl === "airpods_jump") {
+      const heroImg = image || "airpods-hero.png";
+      preview.style.backgroundImage = `url("${heroImg.replace(/"/g, "%22")}?v=2")`;
+      preview.style.backgroundColor = isHex(bg) ? bg : "white";
+      preview.innerHTML = `
+        <div class="ap-inner">
+          <h1 class="ap-title">${applyAccent(title, accent)}</h1>
+          ${subtitle ? `<p class="ap-sub">${escHtml(subtitle)}</p>` : ""}
+          ${action !== "none" ? `<button class="ap-cta">${escHtml(ctaLabel)} ${ARROW_SVG}</button>` : ""}
+        </div>
+      `;
+      return;
+    }
+
+    // Custom template — generic card preview
+    const hasImg = image && /^https?:\/\//i.test(image);
+    if (hasImg) {
+      preview.style.backgroundImage = `url("${image.replace(/"/g, "%22")}")`;
+      preview.classList.add("has-bg-image");
+      preview.style.color = "white";
+      preview.style.backgroundColor = isHex(bg) ? bg : "";
+    } else {
+      if (isHex(bg)) preview.style.backgroundColor = bg;
+      if (isHex(tc)) preview.style.color = tc;
+    }
+    const ctaOnLight = hasImg ? false : !isLightColor(bg || "#f5dfc8");
+    const cd = countdownSegments();
+    preview.innerHTML = `
+      <div class="custom-inner">
+        <h2 class="custom-title">${applyAccent(title, accent)}</h2>
+        ${subtitle ? `<p class="custom-sub">${escHtml(subtitle)}</p>` : ""}
+        ${showCountdown ? `<div class="custom-countdown"><span>${cd.d}d</span><span>${cd.h}h</span><span>${cd.m}m</span></div>` : ""}
+        ${action !== "none" ? `<button class="custom-cta${ctaOnLight ? " on-light" : ""}">${escHtml(ctaLabel)} ${ARROW_SVG}</button>` : ""}
+      </div>
+    `;
+  }
+
+  function _deadCmRenderPopupPreview() {
+    const tpl = cmCurrentTemplate();
+    const eyebrow = document.getElementById("cmPopupEyebrow").value.trim();
+    const title = document.getElementById("cmPopupTitle").value.trim();
+    const body = document.getElementById("cmPopupBody").value.trim();
+    const ctaLabel = document.getElementById("cmPopupCtaLabel").value.trim();
+    const popupImg = document.getElementById("cmPopupImage").value.trim();
+    const heroImg = document.getElementById("cmImage").value.trim();
+    const wrap = document.getElementById("cmPopupPreviewWrap");
+
+    // If nothing in the popup section, show an empty hint
+    if (!eyebrow && !title && !body && !ctaLabel) {
+      wrap.innerHTML = `<div class="cm-popup-empty">No popup content yet. Fill the <b>Popup</b> section below to preview it.</div>`;
+      return;
+    }
+
+    const tplClass = `tpl-${tpl.replace(/_/g, "-")}`;
+    const cd = countdownSegments();
+
+    if (tpl === "give_back") {
+      const artImg = popupImg || heroImg || "give-back-hero.png";
+      wrap.innerHTML = `
+        <div class="cm-popup ${tplClass}">
+          <div class="cm-popup-body">
+            ${eyebrow ? `<p class="cm-popup-eyebrow">${escHtml(eyebrow)}</p>` : ""}
+            ${title ? `<h3 class="cm-popup-title">${escHtml(title)}</h3>` : ""}
+            ${body ? `<p class="cm-popup-body-text">${escHtml(body)}</p>` : ""}
+            ${ctaLabel ? `<button class="cm-popup-cta">${escHtml(ctaLabel)} ${ARROW_SVG}</button>` : ""}
+          </div>
+          <div class="cm-popup-art" style="background-image: url('${artImg.replace(/'/g, "%27")}');">
+            <div class="cm-popup-art-overlay">
+              <span class="lbl">Pot opens in</span>
+              <div class="mini-countdown">
+                <div class="mc-chip"><div class="mc-num">${cd.d}</div><div class="mc-lbl">Days</div></div>
+                <div class="mc-chip"><div class="mc-num">${cd.h}</div><div class="mc-lbl">Hours</div></div>
+                <div class="mc-chip"><div class="mc-num">${cd.m}</div><div class="mc-lbl">Mins</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Free AirPods / AirPods + Jump: text-only dark card (no art column)
+    wrap.innerHTML = `
+      <div class="cm-popup ${tplClass}">
+        <div class="cm-popup-body">
+          ${eyebrow ? `<p class="cm-popup-eyebrow">${escHtml(eyebrow)}</p>` : ""}
+          ${title ? `<h3 class="cm-popup-title">${escHtml(title)}</h3>` : ""}
+          ${body ? `<p class="cm-popup-body-text">${escHtml(body)}</p>` : ""}
+          ${ctaLabel ? `<button class="cm-popup-cta">${escHtml(ctaLabel)} ${ARROW_SVG}</button>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  // ============ Image upload ============
+  function cmSyncUploadUI() {
+    const url = document.getElementById("cmImage").value.trim();
+    const zone = document.getElementById("cmUploadZone");
+    if (!zone) return; // canvas editor — no upload widget
+    const thumb = document.getElementById("cmUploadThumb");
+    const title = document.getElementById("cmUploadTitle");
+    const sub = document.getElementById("cmUploadSub");
+    const clear = document.getElementById("cmUploadClear");
+    if (url) {
+      zone.classList.add("has-image");
+      thumb.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`;
+      thumb.innerHTML = "";
+      title.textContent = "Hero image uploaded";
+      sub.textContent = "Click to replace or use the X to remove";
+      clear.style.display = "grid";
+    } else {
+      zone.classList.remove("has-image");
+      thumb.style.backgroundImage = "";
+      thumb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+      title.textContent = "Drop an image or click to upload";
+      sub.textContent = "PNG, JPG, or WEBP up to 5MB";
+      clear.style.display = "none";
+    }
+  }
+
+  async function cmUploadFile(file) {
+    if (!file) return;
+    if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
+      alert("Image must be PNG, JPG, or WEBP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be under 5MB.");
+      return;
+    }
+    const title = document.getElementById("cmUploadTitle");
+    const sub = document.getElementById("cmUploadSub");
+    title.textContent = "Uploading…";
+    sub.textContent = file.name;
+
+    const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeName = `hero/${crypto.randomUUID()}.${ext}`;
+    const { error } = await sb.storage.from("campaign-images").upload(safeName, file, {
+      cacheControl: "31536000",
+      contentType: file.type,
+      upsert: false,
+    });
+    if (error) {
+      alert("Upload failed: " + error.message);
+      cmSyncUploadUI();
+      return;
+    }
+    const { data } = sb.storage.from("campaign-images").getPublicUrl(safeName);
+    document.getElementById("cmImage").value = data.publicUrl;
+    cmSyncUploadUI();
+    cmRenderPreview();
+  }
+
+  (function wireUpload() {
+    const zone = document.getElementById("cmUploadZone");
+    const fileInput = document.getElementById("cmImageFile");
+    if (!zone || !fileInput) return; // canvas editor — no upload widget
+    fileInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) cmUploadFile(f);
+      e.target.value = "";
+    });
+    document.getElementById("cmUploadClear").addEventListener("click", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      document.getElementById("cmImage").value = "";
+      cmSyncUploadUI();
+      cmRenderPreview();
+    });
+    ["dragenter", "dragover"].forEach(evt => {
+      zone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.add("dragover"); });
+    });
+    ["dragleave", "drop"].forEach(evt => {
+      zone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove("dragover"); });
+    });
+    zone.addEventListener("drop", (e) => {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) cmUploadFile(f);
+    });
+  })();
+
+  // Wire card preview to all relevant inputs (cmImage is updated by the upload widget which calls cmRenderPreview itself)
+  ["cmTitle", "cmAccent", "cmSubtitle", "cmBg", "cmTextColor", "cmCtaLabel"].forEach(id => {
+    document.getElementById(id).addEventListener("input", cmRenderPreview);
+  });
+  document.getElementById("cmBgPicker").addEventListener("input", cmRenderPreview);
+  document.getElementById("cmTextPicker").addEventListener("input", cmRenderPreview);
+  document.getElementById("cmCtaAction").addEventListener("change", cmRenderPreview);
+  document.getElementById("cmHasCountdown").addEventListener("change", () => { cmRenderPreview(); cmRenderPopupPreview(); });
+  document.getElementById("cmCountdownTarget").addEventListener("input", () => { cmRenderPreview(); cmRenderPopupPreview(); });
+
+  // Wire popup preview to its fields
+  ["cmPopupEyebrow", "cmPopupTitle", "cmPopupBody", "cmPopupImage", "cmPopupCtaLabel"].forEach(id => {
+    document.getElementById(id).addEventListener("input", cmRenderPopupPreview);
+  });
+
+  function closeCampaignModal() {
+    campaignsEditorView.style.display = "none";
+    campaignsListView.style.display = "block";
+    editingCampaignId = null;
+    document.querySelector(".main-scroll")?.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  // Color picker <-> hex text input sync
+  function bindColorSync(textId, pickerId) {
+    const text = document.getElementById(textId);
+    const picker = document.getElementById(pickerId);
+    picker.addEventListener("input", () => { text.value = picker.value; });
+    text.addEventListener("input", () => { if (/^#[0-9a-f]{6}$/i.test(text.value)) picker.value = text.value; });
+  }
+  bindColorSync("cmBg", "cmBgPicker");
+  bindColorSync("cmTextColor", "cmTextPicker");
+
+  document.getElementById("newCampaignBtn").addEventListener("click", () => openCampaignModal(null));
+  document.getElementById("cmCancel").addEventListener("click", closeCampaignModal);
+  document.getElementById("cmCancel2").addEventListener("click", closeCampaignModal);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && campaignsEditorView.style.display === "block") closeCampaignModal(); });
+
+  document.getElementById("cmForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("cmMsg");
+    msg.textContent = "Saving..."; msg.className = "form-msg";
+    const endsAtRaw = document.getElementById("cmEndsAt").value;
+    const countdownRaw = document.getElementById("cmCountdownTarget").value;
+    const payload = {
+      // Hero
+      title: document.getElementById("cmTitle").value.trim(),
+      accent_word: document.getElementById("cmAccent").value.trim() || null,
+      description: document.getElementById("cmName").value.trim() || "",
+      subtitle: document.getElementById("cmSubtitle").value.trim() || null,
+      image_url: document.getElementById("cmImage").value.trim() || null,
+      background_color: document.getElementById("cmBg").value.trim() || "#f5dfc8",
+      text_color: document.getElementById("cmTextColor").value.trim() || "#0d0d0d",
+      cta_label: document.getElementById("cmCtaLabel").value.trim() || null,
+      cta_action: document.getElementById("cmCtaAction").value,
+      cta_url: document.getElementById("cmCtaUrl").value.trim() || null,
+      has_countdown: document.getElementById("cmHasCountdown").checked,
+      countdown_target: countdownRaw ? new Date(countdownRaw).toISOString() : null,
+      // Popup
+      popup_eyebrow: document.getElementById("cmPopupEyebrow").value.trim() || null,
+      popup_title: document.getElementById("cmPopupTitle").value.trim() || null,
+      popup_body: document.getElementById("cmPopupBody").value.trim() || null,
+      popup_image_url: document.getElementById("cmPopupImage").value.trim() || null,
+      popup_cta_label: document.getElementById("cmPopupCtaLabel").value.trim() || null,
+      popup_cta_url: document.getElementById("cmPopupCtaUrl").value.trim() || null,
+      // Audience / status
+      status: document.getElementById("cmStatus").value,
+      audience: document.getElementById("cmAudience").value,
+      ends_at: endsAtRaw ? new Date(endsAtRaw).toISOString() : null,
+      published: document.getElementById("cmPublished").checked,
+      display_order: parseInt(document.getElementById("cmDisplayOrder").value, 10) || 99,
+      updated_at: new Date().toISOString(),
+      // Canvas state (Figma-style editor)
+      ...SimpleEditor.serialize(),
+    };
+    let error;
+    if (editingCampaignId) {
+      ({ error } = await sb.from("campaigns").update(payload).eq("id", editingCampaignId));
+    } else {
+      ({ error } = await sb.from("campaigns").insert(payload));
+    }
+    if (error) { msg.textContent = error.message; msg.className = "ce-topbar-msg err"; return; }
+    msg.textContent = "Saved"; msg.className = "ce-topbar-msg ok";
+    await loadCampaigns();
+    setTimeout(() => { msg.textContent = ""; }, 1800);
+  });
+
+  document.getElementById("cmDelete").addEventListener("click", async () => {
+    if (!editingCampaignId) return;
+    const c = campaignsById[editingCampaignId];
+    if (!confirm(`Permanently delete "${c?.title || "this campaign"}"? This can't be undone.`)) return;
+    const btn = document.getElementById("cmDelete");
+    btn.disabled = true; btn.textContent = "Deleting...";
+    const { error } = await sb.from("campaigns").delete().eq("id", editingCampaignId);
+    if (error) {
+      document.getElementById("cmMsg").textContent = error.message;
+      document.getElementById("cmMsg").className = "form-msg err";
+      btn.disabled = false; btn.textContent = "Delete";
+      return;
+    }
+    closeCampaignModal();
+    await loadCampaigns();
+    btn.disabled = false; btn.textContent = "Delete";
+  });
+
+
+  // ============================== SIMPLE EDITOR ==============================
+  const SimpleEditor = (() => {
+    const $ = (id) => document.getElementById(id);
+    const isHex = (v) => /^#[0-9a-f]{3,8}$/i.test(String(v || "").trim());
+    const isLight = (hex) => {
+      const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ""));
+      if (!m) return true;
+      const n = parseInt(m[1], 16);
+      const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+      return (r * 0.299 + g * 0.587 + b * 0.114) > 160;
+    };
+    function escH(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+    let imageUrl = "";
+    let hidden = { name: false, header: false, subheader: false, button: false };
+    let textAlign = "center"; // "left" | "center" | "right"
+
+    function load(c) {
+      // Pull data; map existing columns to new field names
+      $("seName").value      = c.description || "";
+      $("seHeader").value    = c.title || "";
+      $("seSubheader").value = c.subtitle || "";
+      $("seButtonLabel").value = c.cta_label || "";
+      $("seButtonAction").value = c.cta_action === "open_modal" ? "open_modal" : "url";
+      $("seButtonUrl").value = c.cta_url || "";
+      const btnBg = c.button_bg_color || "#0d0d0d";
+      const btnFg = c.button_text_color || "#ffffff";
+      $("seButtonBg").value = btnBg;
+      $("seButtonBgPicker").value = isHex(btnBg) ? btnBg : "#0d0d0d";
+      $("seButtonTextColor").value = btnFg;
+      $("seButtonTextColorPicker").value = isHex(btnFg) ? btnFg : "#ffffff";
+      imageUrl = c.image_url || "";
+      $("seImageOpacity").value = c.image_opacity ?? 100;
+      $("seImageZoom").value    = c.image_zoom    ?? 100;
+      $("seImageRotate").value  = c.image_rotate  ?? 0;
+      hidden = Object.assign({ name: false, header: false, subheader: false, button: false }, c.hidden_fields || {});
+      ["name","header","subheader","button"].forEach((k) => { $("se" + k[0].toUpperCase() + k.slice(1) + "Hidden").checked = !!hidden[k]; });
+      textAlign = (c.text_align === "left" || c.text_align === "right" || c.text_align === "center") ? c.text_align : "center";
+      document.querySelectorAll("#seAlignGroup .se-seg").forEach((b) => b.classList.toggle("active", b.dataset.align === textAlign));
+      // Sync hidden form fields used by save handler / settings drawer
+      $("cmTitle").value = c.title || "";
+      $("cmAccent").value = c.accent_word || "";
+      $("cmName").value = c.description || "";
+      $("cmSubtitle").value = c.subtitle || "";
+      $("cmImage").value = imageUrl;
+      $("cmCtaLabel").value = c.cta_label || "";
+      $("cmCtaAction").value = c.cta_action || "url";
+      $("cmCtaUrl").value = c.cta_url || "";
+      $("cmBg").value = c.background_color || "";
+      $("cmBgPicker").value = isHex(c.background_color) ? c.background_color : "#f5dfc8";
+      $("cmTextColor").value = c.text_color || "";
+      $("cmTextPicker").value = isHex(c.text_color) ? c.text_color : "#0d0d0d";
+      syncUploadUI();
+      syncSliderLabels();
+      render();
+    }
+
+    function syncSliderLabels() {
+      $("seImageOpacityVal").textContent = $("seImageOpacity").value + "%";
+      $("seImageZoomVal").textContent    = $("seImageZoom").value + "%";
+      $("seImageRotateVal").textContent  = $("seImageRotate").value + "°";
+    }
+
+    function syncUploadUI() {
+      const zone  = $("seImageZone");
+      const thumb = $("seImageThumb");
+      const title = $("seImageTitle");
+      const sub   = $("seImageSub");
+      const clear = $("seImageClear");
+      if (imageUrl) {
+        zone.classList.add("has-image");
+        thumb.style.backgroundImage = `url("${imageUrl.replace(/"/g, '%22')}")`;
+        thumb.innerHTML = "";
+        title.textContent = "Image uploaded";
+        sub.textContent = "Click to replace or use the X to remove";
+        clear.style.display = "grid";
+      } else {
+        zone.classList.remove("has-image");
+        thumb.style.backgroundImage = "";
+        thumb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+        title.textContent = "Drop an image or click to upload";
+        sub.textContent = "PNG, JPG, or WEBP up to 5MB";
+        clear.style.display = "none";
+      }
+    }
+
+    function render() {
+      const name      = hidden.name      ? "" : $("seName").value.trim();
+      const header    = hidden.header    ? "" : $("seHeader").value.trim();
+      const subheader = hidden.subheader ? "" : $("seSubheader").value.trim();
+      const showBtn   = !hidden.button;
+      const btnLabel  = $("seButtonLabel").value.trim() || "Learn more";
+      const btnBg     = $("seButtonBg").value.trim() || "#0d0d0d";
+      const btnFg     = $("seButtonTextColor").value.trim() || "#ffffff";
+      const opacity   = parseFloat($("seImageOpacity").value) / 100;
+      const zoom      = parseFloat($("seImageZoom").value) / 100;
+      const rotate    = parseFloat($("seImageRotate").value);
+
+      // Apply text alignment to both previews
+      const coverInner = document.querySelector(".se-cover-inner");
+      if (coverInner) {
+        coverInner.style.textAlign = textAlign;
+        coverInner.style.alignItems = textAlign === "left" ? "flex-start" : textAlign === "right" ? "flex-end" : "center";
+      }
+      const thumbText = document.querySelector(".se-thumb-text");
+      if (thumbText) thumbText.style.textAlign = textAlign;
+
+      // Cover preview — image as backdrop + text overlay
+      const coverImg = $("seCoverImg");
+      if (imageUrl) {
+        coverImg.style.backgroundImage = `url("${imageUrl.replace(/"/g, '%22')}")`;
+        coverImg.style.opacity = String(opacity);
+        coverImg.style.transform = `scale(${zoom}) rotate(${rotate}deg)`;
+      } else {
+        coverImg.style.backgroundImage = "";
+        coverImg.style.opacity = "0";
+      }
+      // Decide on-light vs on-dark text for cover based on image opacity (with image, default to dark overlay; without, light text on white = bad → use dark text)
+      const onLight = !imageUrl || opacity < 0.4;
+      ["seCoverEyebrow","seCoverTitle","seCoverSub"].forEach((id) => $(id).classList.toggle("on-light", onLight));
+      $("seCoverEyebrow").textContent = name || "Campaign name";
+      $("seCoverEyebrow").style.display = name ? "" : "none";
+      $("seCoverTitle").textContent = header || "Header goes here";
+      $("seCoverTitle").style.display = (header || !hidden.header) ? "" : "none";
+      $("seCoverSub").textContent = subheader;
+      $("seCoverSub").style.display = subheader ? "" : "none";
+      const coverBtn = $("seCoverBtn");
+      coverBtn.style.display = showBtn ? "inline-flex" : "none";
+      coverBtn.style.background = btnBg;
+      coverBtn.style.color = btnFg;
+      $("seCoverBtnLabel").textContent = btnLabel;
+
+      // Thumbnail preview — same shape as earnings card
+      $("seThumbEyebrow").textContent = name || "";
+      $("seThumbEyebrow").style.display = name ? "" : "none";
+      $("seThumbTitle").textContent = header || "Header goes here";
+      $("seThumbTitle").style.display = (header || !hidden.header) ? "" : "none";
+      $("seThumbSub").textContent = subheader;
+      $("seThumbSub").style.display = subheader ? "" : "none";
+      const thumbImg = $("seThumbImg");
+      if (imageUrl) thumbImg.style.backgroundImage = `url("${imageUrl.replace(/"/g, '%22')}")`;
+      else thumbImg.style.backgroundImage = "";
+      const thumbBtn = $("seThumbBtn");
+      thumbBtn.style.display = showBtn ? "inline-flex" : "none";
+      thumbBtn.style.background = btnBg;
+      thumbBtn.style.color = btnFg;
+      $("seThumbBtnLabel").textContent = btnLabel;
+
+      // Visually de-emphasize hidden fields in the form
+      ["name","header","subheader","button"].forEach((k) => {
+        const el = document.querySelector(`.se-field[data-field="${k}"]`);
+        if (el) el.classList.toggle("is-hidden", !!hidden[k]);
+      });
+    }
+
+    function syncHidden(k) {
+      const id = "se" + k[0].toUpperCase() + k.slice(1) + "Hidden";
+      hidden[k] = $(id).checked;
+      render();
+    }
+
+    function bind() {
+      // Text inputs → re-render
+      ["seName","seHeader","seSubheader","seButtonLabel","seButtonBg","seButtonTextColor"].forEach((id) => {
+        $(id).addEventListener("input", render);
+      });
+      // Color pickers ↔ text
+      $("seButtonBgPicker").addEventListener("input", () => { $("seButtonBg").value = $("seButtonBgPicker").value; render(); });
+      $("seButtonBg").addEventListener("input", () => { if (isHex($("seButtonBg").value)) $("seButtonBgPicker").value = $("seButtonBg").value; });
+      $("seButtonTextColorPicker").addEventListener("input", () => { $("seButtonTextColor").value = $("seButtonTextColorPicker").value; render(); });
+      $("seButtonTextColor").addEventListener("input", () => { if (isHex($("seButtonTextColor").value)) $("seButtonTextColorPicker").value = $("seButtonTextColor").value; });
+      // Button action → reveal URL field appropriately
+      $("seButtonAction").addEventListener("change", () => {
+        const isUrl = $("seButtonAction").value === "url";
+        $("seButtonUrl").style.display = isUrl ? "" : "none";
+        $("cmCtaAction").value = $("seButtonAction").value;
+      });
+      $("seButtonUrl").addEventListener("input", () => { $("cmCtaUrl").value = $("seButtonUrl").value; });
+      // Sliders
+      $("seImageOpacity").addEventListener("input", () => { syncSliderLabels(); render(); });
+      $("seImageZoom").addEventListener("input",    () => { syncSliderLabels(); render(); });
+      $("seImageRotate").addEventListener("input",  () => { syncSliderLabels(); render(); });
+      // Hidden checkboxes
+      ["name","header","subheader","button"].forEach((k) => {
+        const id = "se" + k[0].toUpperCase() + k.slice(1) + "Hidden";
+        $(id).addEventListener("change", () => syncHidden(k));
+      });
+      // Text alignment
+      document.querySelectorAll("#seAlignGroup .se-seg").forEach((b) => {
+        b.addEventListener("click", () => {
+          textAlign = b.dataset.align;
+          document.querySelectorAll("#seAlignGroup .se-seg").forEach((x) => x.classList.toggle("active", x === b));
+          render();
+        });
+      });
+      // Image upload (click + drop)
+      const zone = $("seImageZone");
+      const fileInput = $("seImageFile");
+      fileInput.addEventListener("change", async (e) => {
+        const f = e.target.files && e.target.files[0];
+        e.target.value = "";
+        if (f) await uploadImage(f);
+      });
+      $("seImageClear").addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        imageUrl = ""; $("cmImage").value = "";
+        syncUploadUI(); render();
+      });
+      ["dragenter","dragover"].forEach(evt => zone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.add("dragover"); }));
+      ["dragleave","drop"].forEach(evt => zone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove("dragover"); }));
+      zone.addEventListener("drop", async (e) => {
+        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) await uploadImage(f);
+      });
+    }
+
+    async function uploadImage(file) {
+      if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) { alert("Image must be PNG, JPG, or WEBP."); return; }
+      if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB."); return; }
+      $("seImageTitle").textContent = "Uploading…";
+      const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const safeName = `hero/${crypto.randomUUID()}.${ext}`;
+      const { error } = await sb.storage.from("campaign-images").upload(safeName, file, { contentType: file.type, upsert: false, cacheControl: "31536000" });
+      if (error) { alert("Upload failed: " + error.message); syncUploadUI(); return; }
+      const { data } = sb.storage.from("campaign-images").getPublicUrl(safeName);
+      imageUrl = data.publicUrl;
+      $("cmImage").value = imageUrl;
+      syncUploadUI();
+      render();
+    }
+
+    function serialize() {
+      return {
+        // New fields → DB columns
+        image_opacity: parseInt($("seImageOpacity").value, 10),
+        image_zoom:    parseInt($("seImageZoom").value, 10),
+        image_rotate:  parseInt($("seImageRotate").value, 10),
+        button_bg_color:   $("seButtonBg").value.trim() || null,
+        button_text_color: $("seButtonTextColor").value.trim() || null,
+        hidden_fields: { ...hidden },
+        text_align: textAlign,
+        // Mirror text fields back onto the legacy columns the save handler uses
+        title:       $("seHeader").value.trim() || null,
+        subtitle:    $("seSubheader").value.trim() || null,
+        description: $("seName").value.trim() || null,
+        cta_label:   $("seButtonLabel").value.trim() || null,
+        cta_action:  $("seButtonAction").value,
+        cta_url:     $("seButtonUrl").value.trim() || null,
+        image_url:   imageUrl || null,
+      };
+    }
+
+    bind();
+    return { load, render, serialize };
+  })();
+
+  // ============ Settings drawer ============
+  const settingsDrawer = document.getElementById("cmSettingsDrawer");
+  document.getElementById("cmSettingsBtn").addEventListener("click", () => settingsDrawer.classList.add("open"));
+  document.getElementById("cmSettingsClose").addEventListener("click", () => settingsDrawer.classList.remove("open"));
+  settingsDrawer.addEventListener("click", (e) => { if (e.target === settingsDrawer) settingsDrawer.classList.remove("open"); });
+  // Sync drawer fields → hidden form on input so save handler picks them up
+  const drawerSync = (drawerId, formId) => {
+    const drawer = document.getElementById(drawerId);
+    const form = document.getElementById(formId);
+    drawer.addEventListener("input", () => {
+      if (drawer.type === "checkbox") form.checked = drawer.checked;
+      else form.value = drawer.value;
+    });
+  };
+  drawerSync("cmNameDrawer", "cmName");
+  drawerSync("cmStatusDrawer", "cmStatus");
+  drawerSync("cmAudienceDrawer", "cmAudience");
+  drawerSync("cmEndsAtDrawer", "cmEndsAt");
+  drawerSync("cmDisplayOrderDrawer", "cmDisplayOrder");
+  drawerSync("cmPublishedDrawer", "cmPublished");
+  document.getElementById("cmDeleteDrawer").addEventListener("click", () => document.getElementById("cmDelete").click());
+
+  // ============ Save button ============
+  document.getElementById("cmSaveBtn").addEventListener("click", () => {
+    document.getElementById("cmForm").requestSubmit();
+  });
 
   tryResume();
 </script>
