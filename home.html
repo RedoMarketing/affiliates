@@ -244,6 +244,11 @@
   .ho-jump-item .arrow { color: hsl(var(--gray-400)); flex: none; display: grid; place-items: center; }
   .ho-jump-item .arrow svg { width: 14px; height: 14px; }
   .ho-jump-item:hover .arrow { color: hsl(var(--gray-700)); }
+  /* Compact variant — small wrapping pills, no arrow */
+  .ho-jump-grid.compact { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ho-jump-grid.compact .ho-jump-item { flex: 0 0 auto; padding: 7px 14px; border-radius: 999px; }
+  .ho-jump-grid.compact .ho-jump-item .ico, .ho-jump-grid.compact .ho-jump-item .arrow { display: none; }
+  .ho-jump-grid.compact .ho-jump-item .name { flex: 0 0 auto; font-size: 13px; overflow: visible; }
 
   .ho-cards { display: flex; flex-direction: column; gap: 12px; }
   .ho-card { background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; min-height: 300px; }
@@ -379,6 +384,7 @@
 
   /* AirPods wins — simple grid */
   .ap-wins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .ap-wins-section { order: -1; }  /* wins sit above the hero/milestones row */
 
   /* Case studies — vertical cards */
   .ap-cases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -397,6 +403,73 @@
   .ap-win-bottom { margin-top: 10px; }
   .ap-win-val { font: 400 40px/1 var(--serif); letter-spacing: -0.005em; color: hsl(var(--gray-950)); margin: 0; }
   .ap-win-sub { font: 500 13px/1.5 var(--sans); color: hsl(var(--gray-500)); margin: 8px 0 0; }
+
+  /* ===== Roles + wins customization ===== */
+  .rtb-role-wrap { position: relative; display: inline-flex; }
+  .rtb-role-ico { width: 22px; height: 22px; border-radius: 6px; background: hsl(var(--redo-orange)); display: grid; place-items: center; color: white; flex: none; }
+  .rtb-role-ico svg { width: 13px; height: 13px; color: white; }
+  .role-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 256px; background: #161618; border: 1px solid #2a2a2e; border-radius: 12px; padding: 6px; z-index: 1200; box-shadow: 0 18px 44px rgba(0,0,0,0.5); display: none; }
+  .role-menu.open { display: block; }
+  .role-menu-lbl { font: 600 10px var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: #8a8a8e; padding: 8px 10px 6px; }
+  .role-menu-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 10px; border-radius: 8px; background: transparent; border: none; cursor: pointer; text-align: left; color: #fafafa; font: 600 13.5px var(--sans); }
+  .role-menu-item:hover { background: #232327; }
+  .role-menu-ico { width: 28px; height: 28px; border-radius: 8px; background: #232327; display: grid; place-items: center; color: #cfcfd2; flex: none; }
+  .role-menu-ico svg { width: 15px; height: 15px; }
+  .role-menu-item.active .role-menu-ico { background: hsl(var(--redo-orange)); color: white; }
+  .role-menu-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .role-menu-sub { font: 500 11.5px var(--sans); color: #8a8a8e; }
+  .role-menu-check { margin-left: auto; color: hsl(var(--redo-orange)); display: none; }
+  .role-menu-item.active .role-menu-check { display: block; }
+  .role-menu-check svg { width: 16px; height: 16px; }
+
+  .ap-wins-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .ap-wins-head-title { font: 600 15px var(--sans); color: hsl(var(--gray-950)); margin: 0; }
+  .ap-wins-head-sub { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); margin: 2px 0 0; }
+  .ap-wins-customize { display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; border-radius: 999px; background: white; border: 1px solid hsl(var(--border)); color: hsl(var(--gray-800)); font: 600 12.5px var(--sans); cursor: pointer; transition: background .15s ease, border-color .15s ease; white-space: nowrap; }
+  .ap-wins-customize:hover { background: hsl(var(--gray-50)); border-color: hsl(var(--gray-300)); }
+  .ap-wins-customize svg { width: 14px; height: 14px; }
+
+  /* Customize dashboard modal */
+  .cz-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.45); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1100; display: none; align-items: center; justify-content: center; padding: 28px; }
+  .cz-backdrop.open { display: flex; animation: gb-fade-in .18s ease-out; }
+  .cz-modal { background: white; border: 1px solid hsl(var(--border)); border-radius: 16px; width: 100%; max-width: 640px; max-height: 84vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.32); animation: gb-scale-in .22s cubic-bezier(.2,.8,.2,1); }
+  .cz-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 24px 26px 20px;  flex-shrink: 0; }
+  .cz-title { font: 600 17px var(--sans); letter-spacing: -0.01em; color: hsl(var(--gray-950)); margin: 0; }
+  .cz-sub { font: 500 12.5px var(--sans); color: hsl(var(--gray-500)); margin: 3px 0 0; }
+  .cz-head-right { display: flex; align-items: center; gap: 10px; }
+  .cz-count { font: 600 12px var(--sans); color: hsl(var(--gray-600)); background: hsl(var(--gray-100)); border-radius: 999px; padding: 4px 10px; }
+  .cz-close { width: 28px; height: 28px; border-radius: 7px; background: transparent; border: none; color: hsl(var(--gray-400)); display: grid; place-items: center; cursor: pointer; flex: none; transition: background .12s ease, color .12s ease; }
+  .cz-close:hover { background: hsl(var(--gray-100)); color: hsl(var(--gray-950)); }
+  .cz-close svg { width: 16px; height: 16px; }
+  .cz-tabs { display: flex; justify-content: space-between; gap: 16px; margin: 4px 26px 0; padding: 0; border-bottom: 1px solid hsl(var(--gray-200));   flex-shrink: 0; }
+  .cz-tabs::-webkit-scrollbar { display: none; }
+  .cz-tab { display: inline-flex; align-items: center; gap: 7px; background: none; border: none; padding: 4px 2px 13px; font: 500 13px var(--sans); color: hsl(var(--gray-500)); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .12s ease; }
+  .cz-tab:hover { color: hsl(var(--gray-800)); }
+  .cz-tab.active { color: hsl(var(--gray-950)); font-weight: 600; border-bottom-color: hsl(var(--gray-950)); }
+  .cz-tab svg { width: 15px; height: 15px; }
+  .cz-list { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 16px 10px; }
+  .cz-group-name { font: 600 10.5px var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: hsl(var(--gray-400)); padding: 20px 10px 4px; margin: 0; }
+  .cz-row { display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 10px; border: none; background: transparent; border-radius: 9px; cursor: pointer; text-align: left; transition: background .1s ease; }
+  .cz-row:hover { background: hsl(var(--gray-100)); }
+  .cz-row.selected { background: hsl(var(--gray-100)); }
+  .cz-row.disabled { opacity: 0.4; cursor: default; }
+  .cz-row.disabled:hover { background: transparent; }
+  .cz-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid hsl(var(--gray-300)); display: grid; place-items: center; color: white; flex: none; transition: background .1s ease, border-color .1s ease; }
+  .cz-row.selected .cz-check { background: hsl(var(--gray-950)); border-color: hsl(var(--gray-950)); }
+  .cz-check svg { width: 12px; height: 12px; }
+  .cz-row-name { flex: 1; font: 500 13.5px var(--sans); color: hsl(var(--gray-900)); }
+  .cz-row-val { font: 600 13px var(--sans); color: hsl(var(--gray-500)); font-variant-numeric: tabular-nums; }
+  .cz-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 18px 26px 2px;  flex-shrink: 0; }
+  .cz-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px 6px 12px; background: hsl(var(--gray-100)); border-radius: 999px; font: 600 12.5px var(--sans); color: hsl(var(--gray-950)); }
+  .cz-tag-x { display: grid; place-items: center; cursor: pointer; color: hsl(var(--gray-400)); }
+  .cz-tag-x:hover { color: hsl(var(--gray-950)); }
+  .cz-tag-x svg { width: 14px; height: 14px; }
+  .cz-foot { display: flex; align-items: center; justify-content: space-between; padding: 16px 26px; margin-top: 16px; border-top: 1px solid hsl(var(--gray-200));  flex-shrink: 0; }
+  .cz-reset { background: none; border: none; color: hsl(var(--gray-600)); font: 500 13px var(--sans); cursor: pointer; transition: color .12s ease; }
+  .cz-reset:hover { color: hsl(var(--gray-950)); }
+  .cz-save { background: hsl(var(--gray-950)); color: white; border: none; padding: 9px 20px; border-radius: 8px; font: 500 13px var(--sans); cursor: pointer; transition: opacity .15s ease; }
+  .cz-save:hover { opacity: 0.9; }
+  .cz-save:disabled { opacity: 0.35; cursor: default; }
 
   /* ============================== AP-SHARE-INLINE (popup-style content, properly proportioned) ============================== */
   .ap-share-inline { background: #0d0d0d; color: #fafafa; border-radius: 14px; padding: 0; display: grid; grid-template-columns: 1fr 392px; overflow: hidden; border: 1px solid hsl(var(--border)); }
@@ -547,10 +620,14 @@
     <div class="rmain">
 
       <header class="rtb">
-        <button class="rtb-store">
-          <span class="rtb-name">Store Demo 4</span>
-          <i data-lucide="chevron-down"></i>
-        </button>
+        <div class="rtb-role-wrap">
+          <button class="rtb-store" id="roleSwitch" title="View dashboard as a role">
+            <span class="rtb-role-ico"><i data-lucide="crown"></i></span>
+            <span class="rtb-name" id="roleSwitchName">Founder</span>
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <div class="role-menu" id="roleMenu"></div>
+        </div>
         <div class="rtb-search">
           <i data-lucide="search"></i>
           <span class="rtb-search-text">Search</span>
@@ -780,7 +857,7 @@
               </aside>
             </div>
 
-            <section>
+            <section class="ap-wins-section">
               <div class="ap-wins">
                 <div class="ap-win">
                   <span class="ap-win-chip">Revenue retained</span>
@@ -810,6 +887,38 @@
                     <p class="ap-win-sub">100% on time, every time</p>
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section class="ho-section">
+              <p class="ho-section-head">Jump to your Redo products</p>
+              <div class="ho-jump-grid compact">
+                <a class="ho-jump-item" href="#"><span class="name">Returns</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Package Protection+</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Final Sale Returns</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Extended Warranties</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Managed Returns</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">International Returns</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">OMS</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">WMS</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">IMS</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Inserts</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Supplies</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Landed Cost</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Checkout Optimization</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Shopper AI</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">HSA</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Email</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">SMS</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Order Tracking</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Contextual</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Recover</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Reviews</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Order Editing</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">AEO</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Reclaim</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Helpdesk/Support AI</span></a>
+                <a class="ho-jump-item" href="#"><span class="name">Agentic Catalog</span></a>
               </div>
             </section>
 
@@ -989,7 +1098,7 @@
               </aside>
             </div>
 
-            <section>
+            <section class="ap-wins-section">
               <div class="ap-wins">
                 <div class="ap-win">
                   <span class="ap-win-chip">Revenue retained</span>
@@ -1335,6 +1444,29 @@
     </div>
   </div>
 
+  <!-- Customize your dashboard (wins picker) -->
+  <div class="cz-backdrop" id="czModal" role="dialog" aria-modal="true" aria-labelledby="czTitle">
+    <div class="cz-modal">
+      <div class="cz-head">
+        <div>
+          <h2 class="cz-title" id="czTitle">Customize your dashboard</h2>
+          <p class="cz-sub">Pick 4 wins to feature.</p>
+        </div>
+        <div class="cz-head-right">
+          <span class="cz-count" id="czCount">0 / 4</span>
+          <button class="cz-close" id="czClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+      </div>
+      <div class="cz-tabs" id="czCats"></div>
+      <div class="cz-list" id="czList"></div>
+      <div class="cz-tags" id="czTags"></div>
+      <div class="cz-foot">
+        <button class="cz-reset" id="czReset">Reset</button>
+        <button class="cz-save" id="czSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     if (window.lucide) lucide.createIcons();
 
@@ -1607,6 +1739,253 @@
           if (v) headEl.innerHTML = v.headline;
         });
       }
+    })();
+  </script>
+
+  <script>
+    // ============================== ROLES + WINS CUSTOMIZATION ==============================
+    (function rolesAndWins() {
+      const LS_ROLE = "redoRole", LS_WINS = "redoWins";
+
+      const ROLES = [
+        { id: "founder", label: "Founder", icon: "crown", tagline: "Revenue + network status",
+          statusHtml: 'Hit <b>1M labels printed</b> or <b>$1M retained</b> to unlock your next reward.',
+          milestones: [
+            { name: "Redo Founders Dinner", pct: 100, state: "unlocked", meta: "Live on 1+ Redo product" },
+            { name: "Top 100 Merchant Plaque", pct: 64, state: "current", meta: "$500K retained · top 100 rank" },
+            { name: "1M Labels Award Plaque", pct: 24, state: "locked", meta: "1M labels · 100K exchanges" },
+            { name: "$1,000 Delta Card", pct: 8, state: "locked", meta: "$1M retained · 3 yrs on Redo" },
+          ],
+          wins: ["returns_retained", "co_carts", "em_revenue", "rec_reclaimed"] },
+        { id: "marketing", label: "Marketing", icon: "megaphone", tagline: "Email, conversion, reviews",
+          statusHtml: 'Hit <b>$500K email revenue</b> or <b>20K reviews</b> to unlock your next reward.',
+          milestones: [
+            { name: "Redo Swag Box", pct: 100, state: "unlocked", meta: "First campaign shared" },
+            { name: "Free AirPods Pro", pct: 58, state: "current", meta: "$100K email rev · 5K reviews" },
+            { name: "Shopify Editions Ticket", pct: 20, state: "locked", meta: "$500K email rev · 20K reviews" },
+            { name: "Co-marketing Feature", pct: 6, state: "locked", meta: "$1M email rev · case study live" },
+          ],
+          wins: ["em_revenue", "sms_revenue", "rv_collected", "rc_recovered"] },
+        { id: "warehouse", label: "Warehouse", icon: "package", tagline: "Fulfillment + scanning",
+          statusHtml: 'Scan <b>10K labels</b> or hold <b>99% on-time</b> to unlock your next reward.',
+          milestones: [
+            { name: "Redo Ecom Hat", pct: 100, state: "unlocked", meta: "1K labels scanned" },
+            { name: "$20 Chick-fil-A Card · 10K scans", pct: 72, state: "current", meta: "10K scanned · 98% on-time" },
+            { name: "$100 Visa Card · 50K scans", pct: 30, state: "locked", meta: "50K scanned · 99% on-time" },
+            { name: "Team Lunch on Redo", pct: 10, state: "locked", meta: "250K scanned · 99.5% on-time" },
+          ],
+          wins: ["oms_orders", "wms_pickpack", "oms_ontime", "wms_units"] },
+        { id: "support", label: "Support / CX", icon: "headphones", tagline: "Tickets, CSAT, claims",
+          statusHtml: 'Resolve <b>5K tickets</b> or hold <b>95% CSAT</b> to unlock your next reward.',
+          milestones: [
+            { name: "Redo Swag Box", pct: 100, state: "unlocked", meta: "First 100 tickets resolved" },
+            { name: "$50 DoorDash Card", pct: 55, state: "current", meta: "5K tickets · 95% CSAT" },
+            { name: "CX Conference Ticket", pct: 18, state: "locked", meta: "25K tickets · 97% CSAT" },
+            { name: "Quarterly Spot Bonus", pct: 5, state: "locked", meta: "100K tickets · 98% CSAT" },
+          ],
+          wins: ["hd_resolved", "hd_csat", "hd_fr", "rec_disputes"] },
+      ];
+
+      const CLOUDS = [
+        { id: "platform", label: "Overall", icon: "trophy", products: [
+          { id: "orderedit", label: "Order Editing", metrics: [{ id: "oe_edits", label: "Self-serve edits", value: "24K", sub: "This quarter" }, { id: "oe_tickets", label: "Tickets saved", value: "-22%", sub: "Edit-related" }, { id: "oe_upsell", label: "Upsell on edit", value: "$41K", sub: "Add-ons" }, { id: "oe_window", label: "Edit window", value: "60m", sub: "Post-order" }] },
+          { id: "aeo", label: "AEO", metrics: [{ id: "aeo_actions", label: "AEO actions", value: "96K", sub: "Automated" }, { id: "aeo_hours", label: "Agent hours saved", value: "1,240", sub: "This quarter" }, { id: "aeo_auto", label: "Auto-resolve", value: "74%", sub: "Of actions" }, { id: "aeo_error", label: "Error rate", value: "0.3%", sub: "Of actions" }] },
+          { id: "reclaim", label: "Reclaim", metrics: [{ id: "rec_reclaimed", label: "Revenue reclaimed", value: "$128K", sub: "Fraud + abuse" }, { id: "rec_disputes", label: "Disputes won", value: "68%", sub: "Of filed" }, { id: "rec_flags", label: "Flags reviewed", value: "3,900", sub: "This quarter" }, { id: "rec_fp", label: "False positive", value: "1.1%", sub: "Of flags" }] },
+          { id: "helpdesk", label: "Helpdesk / Support AI", metrics: [{ id: "hd_resolved", label: "Tickets resolved", value: "8,420", sub: "This quarter" }, { id: "hd_csat", label: "CSAT", value: "96%", sub: "All channels" }, { id: "hd_fr", label: "First response", value: "1m 12s", sub: "Median" }, { id: "hd_deflect", label: "Deflection", value: "62%", sub: "Self-served" }] },
+          { id: "catalog", label: "Agentic Catalog", metrics: [{ id: "ac_queries", label: "Catalog queries", value: "2.4M", sub: "AI shoppers" }, { id: "ac_conv", label: "AI conversion", value: "4.6%", sub: "From queries" }, { id: "ac_coverage", label: "Coverage", value: "99%", sub: "SKUs indexed" }, { id: "ac_latency", label: "Latency", value: "180ms", sub: "Median" }] },
+        ]},
+        { id: "reverse", label: "Reverse Logistics", icon: "package", products: [
+          { id: "returns", label: "Returns", metrics: [{ id: "returns_total", label: "Total returns", value: "8,210", sub: "Processed this quarter" }, { id: "returns_rate", label: "Return rate", value: "4.2%", sub: "Of orders shipped" }, { id: "returns_retained", label: "Revenue retained", value: "$612K", sub: "Kept via exchanges" }, { id: "returns_exchange", label: "Exchange rate", value: "61%", sub: "Returns into exchanges" }] },
+          { id: "ppplus", label: "Package Protection+", metrics: [{ id: "ppp_revenue", label: "PP+ revenue", value: "$148K", sub: "Protection fees" }, { id: "ppp_attach", label: "Attach rate", value: "38%", sub: "Of orders" }, { id: "ppp_claims", label: "Claims filed", value: "2,140", sub: "This quarter" }, { id: "ppp_reorder", label: "Reorder rate", value: "54%", sub: "Claim to reorder" }] },
+          { id: "finalsale", label: "Final Sale Returns", metrics: [{ id: "fsr_recovered", label: "Recovered", value: "$72K", sub: "Final-sale to credit" }, { id: "fsr_conv", label: "Conversion", value: "12%", sub: "To store credit" }, { id: "fsr_requests", label: "Requests", value: "1,890", sub: "Handled" }, { id: "fsr_redeem", label: "Credit redeemed", value: "68%", sub: "Of issued" }] },
+          { id: "extwarr", label: "Extended Warranties", metrics: [{ id: "ew_revenue", label: "Warranty revenue", value: "$96K", sub: "New margin line" }, { id: "ew_attach", label: "Attach rate", value: "7.2%", sub: "Eligible orders" }, { id: "ew_sold", label: "Plans sold", value: "12,300", sub: "Active" }, { id: "ew_claim", label: "Claim rate", value: "1.8%", sub: "Of plans" }] },
+          { id: "managed", label: "Managed Returns", metrics: [{ id: "mr_labels", label: "Labels handled", value: "34K", sub: "Managed for you" }, { id: "mr_saved", label: "Cost saved", value: "$118K", sub: "Vs in-house" }, { id: "mr_sla", label: "SLA hit", value: "98.4%", sub: "Within window" }, { id: "mr_resolution", label: "Avg resolution", value: "1.9d", sub: "Per return" }] },
+          { id: "intl", label: "International Returns", metrics: [{ id: "ir_returns", label: "Intl returns", value: "4,120", sub: "Processed" }, { id: "ir_duties", label: "Duties recovered", value: "$54K", sub: "Reclaimed" }, { id: "ir_countries", label: "Countries", value: "38", sub: "Supported" }, { id: "ir_transit", label: "Avg transit", value: "6.2d", sub: "Cross-border" }] },
+        ]},
+        { id: "shipping", label: "Shipping", icon: "truck", products: [
+          { id: "oms", label: "OMS", metrics: [{ id: "oms_orders", label: "Orders routed", value: "1.5M", sub: "This quarter" }, { id: "oms_ontime", label: "On-time rate", value: "99.2%", sub: "As promised" }, { id: "oms_cost", label: "Ship cost saved", value: "$210K", sub: "Rate-shopped" }, { id: "oms_split", label: "Split rate", value: "3.1%", sub: "Multi-warehouse" }] },
+          { id: "wms", label: "WMS", metrics: [{ id: "wms_pickpack", label: "Pick-pack time", value: "47s", sub: "Per order" }, { id: "wms_accuracy", label: "Inventory accuracy", value: "99.6%", sub: "Cycle counts" }, { id: "wms_units", label: "Units shipped", value: "2.1M", sub: "This quarter" }, { id: "wms_labor", label: "Labor saved", value: "$88K", sub: "Vs manual" }] },
+          { id: "ims", label: "IMS", metrics: [{ id: "ims_skus", label: "SKUs tracked", value: "42K", sub: "Live" }, { id: "ims_stockouts", label: "Stockouts", value: "-31%", sub: "YoY" }, { id: "ims_sellthrough", label: "Sell-through", value: "74%", sub: "Trailing 90d" }, { id: "ims_carrying", label: "Carrying cost saved", value: "$46K", sub: "This year" }] },
+          { id: "inserts", label: "Inserts", metrics: [{ id: "ins_shipped", label: "Inserts shipped", value: "980K", sub: "This quarter" }, { id: "ins_revenue", label: "Attach revenue", value: "$63K", sub: "Insert-driven" }, { id: "ins_scan", label: "Scan rate", value: "22%", sub: "QR scans" }, { id: "ins_repeat", label: "Repeat lift", value: "+9%", sub: "Vs control" }] },
+          { id: "supplies", label: "Supplies", metrics: [{ id: "sup_saved", label: "Spend saved", value: "$38K", sub: "Bulk pricing" }, { id: "sup_orders", label: "Orders fulfilled", value: "1.2M", sub: "Redo supplies" }, { id: "sup_cadence", label: "Reorder cadence", value: "14d", sub: "Average" }, { id: "sup_onhand", label: "On-hand days", value: "21", sub: "Buffer" }] },
+          { id: "landed", label: "Landed Cost", metrics: [{ id: "lc_calculated", label: "Duties calculated", value: "$1.4M", sub: "At checkout" }, { id: "lc_accuracy", label: "Accuracy", value: "99.1%", sub: "Vs actual" }, { id: "lc_lift", label: "Cart lift", value: "+4%", sub: "Transparent pricing" }, { id: "lc_markets", label: "Markets", value: "52", sub: "Supported" }] },
+        ]},
+        { id: "conversion", label: "Conversion", icon: "trending-up", products: [
+          { id: "checkout", label: "Checkout Optimization", metrics: [{ id: "co_conv", label: "Conversion rate", value: "3.8%", sub: "Site-wide" }, { id: "co_carts", label: "Carts recovered", value: "$214K", sub: "Pre-checkout" }, { id: "co_aov", label: "AOV lift", value: "+6%", sub: "Optimized checkout" }, { id: "co_time", label: "Checkout time", value: "-18%", sub: "Faster" }] },
+          { id: "shopperai", label: "Shopper AI", metrics: [{ id: "sai_sessions", label: "AI sessions", value: "640K", sub: "This quarter" }, { id: "sai_revenue", label: "Assisted revenue", value: "$420K", sub: "AI-influenced" }, { id: "sai_ctr", label: "CTR", value: "11.4%", sub: "On suggestions" }, { id: "sai_atc", label: "Add-to-cart lift", value: "+14%", sub: "Vs control" }] },
+          { id: "hsa", label: "HSA", metrics: [{ id: "hsa_revenue", label: "HSA revenue", value: "$88K", sub: "This quarter" }, { id: "hsa_adopt", label: "Adoption", value: "9%", sub: "Eligible carts" }, { id: "hsa_approval", label: "Approval rate", value: "82%", sub: "Of applications" }, { id: "hsa_aov", label: "AOV lift", value: "+22%", sub: "HSA orders" }] },
+        ]},
+        { id: "marketing", label: "Marketing", icon: "megaphone", products: [
+          { id: "email", label: "Email", metrics: [{ id: "em_revenue", label: "Email revenue", value: "$1.2M", sub: "Attributed" }, { id: "em_open", label: "Open rate", value: "48%", sub: "Average" }, { id: "em_ctr", label: "CTR", value: "6.1%", sub: "Average" }, { id: "em_flows", label: "Flows live", value: "24", sub: "Automated" }] },
+          { id: "sms", label: "SMS", metrics: [{ id: "sms_revenue", label: "SMS revenue", value: "$340K", sub: "Attributed" }, { id: "sms_growth", label: "Subscriber growth", value: "+18%", sub: "QoQ" }, { id: "sms_ctr", label: "CTR", value: "9.2%", sub: "Average" }, { id: "sms_optin", label: "Opt-in rate", value: "14%", sub: "Of checkouts" }] },
+          { id: "ordertracking", label: "Order Tracking", metrics: [{ id: "ot_views", label: "Tracking views", value: "2.1M", sub: "Branded page" }, { id: "ot_wismo", label: "WISMO drop", value: "-38%", sub: "Support tickets" }, { id: "ot_ctr", label: "Upsell CTR", value: "6.1%", sub: "From tracking" }, { id: "ot_revenue", label: "Page revenue", value: "$72K", sub: "Tracking upsells" }] },
+          { id: "contextual", label: "Contextual", metrics: [{ id: "cx_sends", label: "Sends", value: "1.4M", sub: "Contextual" }, { id: "cx_lift", label: "Lift vs batch", value: "+21%", sub: "Revenue per send" }, { id: "cx_revenue", label: "Revenue", value: "$96K", sub: "Attributed" }, { id: "cx_engage", label: "Engagement", value: "12.8%", sub: "Click + reply" }] },
+          { id: "recover", label: "Recover", metrics: [{ id: "rc_recovered", label: "Carts recovered", value: "$186K", sub: "Abandoned" }, { id: "rc_rate", label: "Recovery rate", value: "12.4%", sub: "Of abandons" }, { id: "rc_sends", label: "Sends", value: "820K", sub: "This quarter" }, { id: "rc_reply", label: "Reply rate", value: "4.1%", sub: "Two-way" }] },
+          { id: "reviews", label: "Reviews", metrics: [{ id: "rv_collected", label: "Reviews collected", value: "18,400", sub: "4.8 star avg" }, { id: "rv_request", label: "Request rate", value: "61%", sub: "Post-delivery" }, { id: "rv_lift", label: "Conversion lift", value: "+7%", sub: "PDP with reviews" }, { id: "rv_photo", label: "Photo rate", value: "28%", sub: "With media" }] },
+        ]},
+      ];
+      const WINS = {};
+      CLOUDS.forEach(function (cl) { cl.products.forEach(function (p) { p.metrics.forEach(function (m) {
+        WINS[m.id] = { label: m.label, value: m.value, sub: m.sub, cloud: cl.id, product: p.label };
+      }); }); });
+
+      function lucide() { if (window.lucide) window.lucide.createIcons(); }
+
+      let roleId = localStorage.getItem(LS_ROLE) || "founder";
+      if (!ROLES.find(r => r.id === roleId)) roleId = "founder";
+      function role() { return ROLES.find(r => r.id === roleId); }
+
+      let selected;
+      try { selected = JSON.parse(localStorage.getItem(LS_WINS) || "null"); } catch (e) {}
+      if (!Array.isArray(selected) || !selected.length) selected = role().wins.slice();
+      selected = selected.filter(id => WINS[id]).slice(0, 4);
+      if (!selected.length) selected = role().wins.slice();
+
+      function persist() {
+        localStorage.setItem(LS_ROLE, roleId);
+        localStorage.setItem(LS_WINS, JSON.stringify(selected));
+      }
+
+      // ---------- Role chip + menu ----------
+      const roleBtn = document.getElementById("roleSwitch");
+      const roleName = document.getElementById("roleSwitchName");
+      const roleMenu = document.getElementById("roleMenu");
+
+      function renderRoleChip() {
+        roleName.textContent = role().label;
+        roleBtn.querySelector(".rtb-role-ico").innerHTML = '<i data-lucide="' + role().icon + '"></i>';
+        lucide();
+      }
+      function renderRoleMenu() {
+        roleMenu.innerHTML = '<div class="role-menu-lbl">View dashboard as</div>' + ROLES.map(r => `
+          <button class="role-menu-item ${r.id === roleId ? "active" : ""}" data-role="${r.id}">
+            <span class="role-menu-ico"><i data-lucide="${r.icon}"></i></span>
+            <span class="role-menu-meta"><span>${r.label}</span><span class="role-menu-sub">${r.tagline}</span></span>
+            <span class="role-menu-check"><i data-lucide="check"></i></span>
+          </button>`).join("");
+        lucide();
+        roleMenu.querySelectorAll("[data-role]").forEach(b => b.addEventListener("click", () => {
+          roleId = b.dataset.role;
+          selected = role().wins.slice();   // switching role resets featured wins to that role's defaults
+          persist();
+          roleMenu.classList.remove("open");
+          renderAll();
+        }));
+      }
+      roleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (roleMenu.classList.contains("open")) { roleMenu.classList.remove("open"); return; }
+        renderRoleMenu();
+        roleMenu.classList.add("open");
+      });
+      document.addEventListener("click", (e) => { if (!roleMenu.contains(e.target) && e.target !== roleBtn) roleMenu.classList.remove("open"); });
+
+      // ---------- Milestones (role-specific) ----------
+      function ring(pct) {
+        return '<svg class="ap-tier-ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-track" cx="18" cy="18" r="14"/><circle class="ring-fill" cx="18" cy="18" r="14" pathLength="100" style="stroke-dasharray: ' + pct + ' 100"/></svg>';
+      }
+      function renderMilestones() {
+        const r = role();
+        document.querySelectorAll(".ap-tier").forEach(tier => {
+          const status = tier.querySelector(".ap-tier-status");
+          const rewards = tier.querySelector(".ap-tier-rewards");
+          if (status) status.innerHTML = '<span class="pulse"></span> ' + r.statusHtml;
+          if (rewards) rewards.innerHTML = r.milestones.map(m =>
+            '<div class="ap-tier-reward ' + m.state + '">' + ring(m.pct) + '<p class="ap-tier-name">' + m.name + '</p></div>').join("");
+        });
+      }
+
+      // ---------- Milestones modal ("Earn more. Win more.") ----------
+      function ringTm(pct) {
+        return '<svg class="ap-tm-ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-track" cx="18" cy="18" r="14"/><circle class="ring-fill" cx="18" cy="18" r="14" pathLength="100" style="stroke-dasharray: ' + pct + ' 100"/></svg>';
+      }
+      function renderMilestonesModal() {
+        const r = role();
+        const list = document.querySelector("#apMilestonesModal .ap-tm-list");
+        if (list) list.innerHTML = r.milestones.map(m =>
+          '<div class="ap-tm-row ' + m.state + '">' + ringTm(m.pct) +
+          '<div class="ap-tm-info"><p class="ap-tm-name">' + m.name + '</p><p class="ap-tm-meta">' + (m.meta || "") + '</p></div>' +
+          '<span class="ap-tm-status">' + m.pct + '%</span></div>').join("");
+        const lead = document.querySelector("#apMilestonesModal .gb-modal-lead");
+        if (lead) lead.textContent = "Rewards unlock the more you do on Redo as " + r.label + ". Hit a milestone and the next reward ships straight to your door.";
+        const current = r.milestones.find(m => m.state === "current") || r.milestones[r.milestones.length - 1];
+        const next = document.querySelector("#apMilestonesModal .ap-tm-next");
+        if (next && current) next.textContent = current.name;
+      }
+
+      // ---------- Wins grid + Customize button ----------
+      function renderWins() {
+        document.querySelectorAll(".ap-wins").forEach(grid => {
+          let head = grid.previousElementSibling;
+          if (!head || !head.classList.contains("ap-wins-head")) {
+            head = document.createElement("div");
+            head.className = "ap-wins-head";
+            head.innerHTML = '<p class="ap-wins-head-title">Your wins</p>' +
+              '<button class="ap-wins-customize" data-customize><i data-lucide="sliders-horizontal"></i> Customize</button>';
+            grid.parentNode.insertBefore(head, grid);
+            head.querySelector("[data-customize]").addEventListener("click", openCz);
+          }
+          grid.innerHTML = selected.map(id => {
+            const w = WINS[id]; if (!w) return "";
+            return '<div class="ap-win"><span class="ap-win-chip">' + w.label + '</span><div class="ap-win-bottom"><p class="ap-win-val">' + w.value + '</p><p class="ap-win-sub">' + w.sub + '</p></div></div>';
+          }).join("");
+          lucide();
+        });
+      }
+
+      // ---------- Customize modal ----------
+      const cz = document.getElementById("czModal");
+      let czSel = [], czCloud = "reverse";
+      function openCz() {
+        czSel = selected.slice();
+        czCloud = (czSel[0] && WINS[czSel[0]]) ? WINS[czSel[0]].cloud : "reverse";
+        renderCz();
+        cz.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+      function closeCz() { cz.classList.remove("open"); document.body.style.overflow = ""; }
+      function renderCz() {
+        document.getElementById("czCount").textContent = czSel.length + " / 4";
+        document.getElementById("czCats").innerHTML = CLOUDS.map(c =>
+          '<button class="cz-tab ' + (c.id === czCloud ? "active" : "") + '" data-cat="' + c.id + '"><i data-lucide="' + c.icon + '"></i><span>' + c.label + '</span></button>').join("");
+        const cloud = CLOUDS.find(c => c.id === czCloud) || CLOUDS[0];
+        document.getElementById("czList").innerHTML = cloud.products.map(p =>
+          '<div class="cz-group"><p class="cz-group-name">' + p.label + '</p>' +
+          p.metrics.map(m => {
+            const sel = czSel.includes(m.id), dis = !sel && czSel.length >= 4;
+            return '<button class="cz-row ' + (sel ? "selected" : "") + (dis ? " disabled" : "") + '" data-metric="' + m.id + '">' +
+              '<span class="cz-check">' + (sel ? '<i data-lucide="check"></i>' : '') + '</span>' +
+              '<span class="cz-row-name">' + m.label + '</span>' +
+              '<span class="cz-row-val">' + m.value + '</span></button>';
+          }).join("") + '</div>').join("");
+        const tags = document.getElementById("czTags");
+        tags.style.display = czSel.length ? "flex" : "none";
+        tags.innerHTML = czSel.map(id => '<span class="cz-tag">' + WINS[id].label + '<span class="cz-tag-x" data-rm="' + id + '"><i data-lucide="x"></i></span></span>').join("");
+        document.getElementById("czSave").disabled = czSel.length !== 4;
+        lucide();
+        document.querySelectorAll("#czCats [data-cat]").forEach(b => b.addEventListener("click", () => { czCloud = b.dataset.cat; renderCz(); }));
+        document.querySelectorAll("#czList .cz-row").forEach(b => b.addEventListener("click", () => {
+          const id = b.dataset.metric;
+          if (czSel.includes(id)) czSel = czSel.filter(i => i !== id);
+          else if (czSel.length < 4) czSel.push(id);
+          renderCz();
+        }));
+        document.querySelectorAll("#czTags [data-rm]").forEach(x => x.addEventListener("click", () => { czSel = czSel.filter(i => i !== x.dataset.rm); renderCz(); }));
+      }
+      document.getElementById("czClose").addEventListener("click", closeCz);
+      cz.addEventListener("click", (e) => { if (e.target === cz) closeCz(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && cz.classList.contains("open")) closeCz(); });
+      document.getElementById("czReset").addEventListener("click", () => { czSel = role().wins.slice(); renderCz(); });
+      document.getElementById("czSave").addEventListener("click", () => {
+        if (czSel.length !== 4) return;
+        selected = czSel.slice();
+        persist();
+        closeCz();
+        renderWins();
+      });
+
+      function renderAll() { renderRoleChip(); renderMilestones(); renderMilestonesModal(); renderWins(); }
+      renderAll();
     })();
   </script>
 </body>
